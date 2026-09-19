@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ED Mines OGOM CMLO - Operations Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            font-size: 14px;
+            overflow-x: hidden;
+        }
+
+        .dashboard {
+            max-width: 100vw;
+            padding: 12px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 { font-size: 24px; font-weight: 600; }
+        .header-meta { font-size: 13px; opacity: 0.95; }
+        .refresh-btn, .pdf-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        .refresh-btn:hover, .pdf-btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                font-size: 12px;
+                overflow-x: hidden;
+            }
+
+            .dashboard {
+                padding: 8px;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 10px 12px;
+                gap: 8px;
+            }
+
+            .header h1 {
+                font-size: 16px;
+                margin-bottom: 4px;
+                word-wrap: break-word;
+            }
+
+            .header-meta {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+
+            .header > div:last-child {
+                display: flex;
+                gap: 6px;
+                width: 100%;
+            }
+
+            .refresh-btn, .pdf-btn {
+                flex: 1;
+                padding: 8px 6px;
+                font-size: 11px;
+                text-align: center;
+                white-space: nowrap;
+            }
+
+            /* KPIs in 2 columns on mobile */
+            .kpis {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .kpi {
+                padding: 8px 10px;
+            }
+
+            .kpi-value {
+                font-size: 20px;
+                white-space: nowrap;
+            }
+
+            .kpi-label {
+                font-size: 10px;
+                word-wrap: break-word;
+                line-height: 1.2;
+            }
+
+            .kpi-sub {
+                font-size: 10px;
+            }
+
+            /* Cards stack vertically */
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .card {
+                padding: 10px;
+                overflow-x: hidden;
+            }
+
+            .card-title {
+                font-size: 13px;
+                margin-bottom: 8px;
+                word-wrap: break-word;
+            }
+
+            /* Tables with proper scrolling */
+            table {
+                font-size: 10px;
+                width: 100%;
+                display: table;
+                border-collapse: collapse;
+            }
+
+            .card > table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .card > table thead,
+            .card > table tbody {
+                display: table;
+                width: 100%;
+            }
+
+            th {
+                padding: 6px 4px;
+                font-size: 10px;
+                white-space: nowrap;
+            }
+
+            td {
+                padding: 5px 4px;
+                font-size: 10px;
+            }
+
+            /* Shift sections - cleaner on mobile */
+            .shift-section {
+                margin-bottom: 12px;
+            }
+
+            .mine-header {
+                font-size: 13px;
+                padding: 8px 10px;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .mine-header span {
+                font-size: 12px;
+            }
+
+            /* Shift cards in single column */
+            .shift-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                padding: 8px;
+            }
+
+            .shift-card {
+                padding: 8px;
+                overflow: hidden;
+            }
+
+            .shift-header {
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+
+            .shift-detail {
+                margin: 4px 0;
+            }
+
+            .shift-value {
+                font-size: 16px;
+                word-wrap: break-word;
+            }
+
+            .shift-label {
+                font-size: 9px;
+                word-wrap: break-word;
+            }
+
+            .shift-plant {
+                padding: 6px;
+                margin: 6px 0;
+            }
+
+            .plant-name {
+                font-size: 10px;
+                margin-bottom: 3px;
+            }
+
+            .plant-prod {
+                font-size: 11px;
+                word-wrap: break-word;
+                line-height: 1.3;
+            }
+
+            .shift-issue {
+                font-size: 9px;
+                padding: 4px 6px;
+                margin-top: 6px;
+                word-wrap: break-word;
+                white-space: normal;
+                line-height: 1.3;
+            }
+
+            .downtime {
+                font-size: 8px;
+                padding: 2px 4px;
+                margin-top: 3px;
+                display: inline-block;
+            }
+
+            .status {
+                font-size: 11px;
+                padding: 8px 10px;
+                word-wrap: break-word;
+            }
+
+            /* Issues section */
+            #issues-list > div {
+                margin: 8px 0;
+                padding: 8px;
+            }
+
+            #issues-list div > div {
+                font-size: 11px;
+                word-wrap: break-word;
+                white-space: normal;
+                line-height: 1.4;
+            }
+        }
+
+        /* Extra small screens (< 480px) */
+        @media (max-width: 480px) {
+            .header h1 { font-size: 14px; }
+            .kpi-value { font-size: 18px; }
+            .kpi-label { font-size: 9px; }
+            th, td { padding: 4px 3px; font-size: 9px; }
+            .mine-header { font-size: 12px; padding: 6px 8px; }
+        }
+
+        /* Print/PDF Styles */
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .dashboard { max-width: 100%; padding: 10mm; }
+            .header { background: #667eea !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; page-break-after: avoid; }
+            .refresh-btn, .pdf-btn, #status, #countdown { display: none !important; }
+            .kpis { page-break-after: avoid; page-break-inside: avoid; }
+            .card { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+            .shift-section { page-break-inside: avoid; margin-bottom: 15px; }
+            .mine-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .shift-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            table { font-size: 11px; }
+            th, td { padding: 5px 8px; }
+            .kpi-value { font-size: 28px; }
+            .shift-value { font-size: 16px; }
+            @page { size: A4 landscape; margin: 10mm; }
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .kpi {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .kpi:nth-child(2) { border-left-color: #f5576c; }
+        .kpi:nth-child(3) { border-left-color: #4facfe; }
+        .kpi:nth-child(4) { border-left-color: #43e97b; }
+
+        .kpi-label { font-size: 12px; color: #666; margin-bottom: 6px; text-transform: uppercase; font-weight: 600; }
+        .kpi-value { font-size: 32px; font-weight: 700; color: #333; line-height: 1; }
+        .kpi-sub { font-size: 12px; color: #999; margin-top: 4px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: #555;
+            border-bottom: 1px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover { background: #f8f9fa; }
+        .total-row { background: #e8f4f8 !important; font-weight: 600; }
+
+        .shift-section {
+            margin-bottom: 20px;
+        }
+
+        .mine-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px 6px 0 0;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shift-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 15px;
+            background: white;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .shift-card {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .shift-card.shift-a { border-left-color: #4facfe; }
+        .shift-card.shift-b { border-left-color: #43e97b; }
+        .shift-card.shift-c { border-left-color: #f5576c; }
+
+        .shift-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #dee;
+        }
+
+        .shift-detail {
+            margin: 6px 0;
+        }
+
+        .shift-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .shift-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 2px;
+        }
+
+        .shift-plant {
+            background: white;
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border-left: 2px solid #667eea;
+        }
+
+        .plant-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .plant-prod {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .shift-issue {
+            background: #fff3e0;
+            padding: 6px 8px;
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #e65100;
+            line-height: 1.3;
+        }
+
+        .downtime {
+            display: inline-block;
+            background: #ffebee;
+            color: #c62828;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .status {
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .status.loading { background: #e3f2fd; color: #1565c0; }
+        .status.error { background: #ffebee; color: #c62828; }
+        .status.success { background: #e8f5e9; color: #2e7d32; }
+        .status-hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div>
+                <h1>DAILY MINING OPERATIONS DASHBOARD - ED (MINES)</h1>
+                <div class="header-meta">
+                    <span id="prod-date" style="margin-right:12px;">Production Date: --</span> |
+                    <span id="report-date" style="margin-left:12px;margin-right:12px;">Report Generated: --</span> |
+                    Last Refresh: <span id="lastRefresh">--</span> |
+                    Next: <span id="countdown" style="font-weight:600;">60s</span>
+                </div>
+            </div>
+            <div>
+                <button class="refresh-btn" onclick="loadAllData()">🔄 Refresh</button>
+                <button class="pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
+            </div>
+        </div>
+
+        <div id="status" class="status loading">Loading data from all mines...</div>
+
+        <div id="content" style="display:none;">
+            <div class="kpis">
+                <div class="kpi">
+                    <div class="kpi-label">Total Production</div>
+                    <div class="kpi-value" id="kpi-prod">-</div>
+                    <div class="kpi-sub">MT</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">COD Plan Achievement</div>
+                    <div class="kpi-value" id="kpi-ach">-</div>
+                    <div class="kpi-sub" id="kpi-ach-sub">%</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">Lump %</div>
+                    <div class="kpi-value" id="kpi-lump">-</div>
+                    <div class="kpi-sub">Quality</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">Rakes Dispatched</div>
+                    <div class="kpi-value" id="kpi-rakes">-</div>
+                    <div class="kpi-sub">Total</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">PRODUCTION PERFORMANCE</div>
+                <table>
+                    <thead><tr><th>Mine/Area</th><th>Type</th><th>Total (MT)</th><th>Lump (MT)</th><th>Fines (MT)</th><th>ROM (MT)</th><th>Slime (MT)</th><th>OB (MT)</th><th>Lump %</th><th>Daily Plan (MT)</th><th>Achievement %</th></tr></thead>
+                    <tbody id="prod-table"></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-title">DISPATCH PERFORMANCE</div>
+                <table>
+                    <thead><tr><th>Location</th><th>Rakes Dispatched</th><th>Daily COD</th><th>Achievement</th><th>Rake Details</th><th>Remarks</th></tr></thead>
+                    <tbody id="dispatch-table"></tbody>
+                </table>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">TODAY'S LOADING FORECAST</div>
+                    <table>
+                        <thead><tr><th>Location</th><th>Planned Rakes</th><th>Rake Details</th><th>Remarks</th></tr></thead>
+                        <tbody id="forecast-table"></tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚠️ MAJOR ISSUES TODAY (FROM ALL MINES)</div>
+                    <table>
+                        <thead><tr><th style="width:15%;">Mine</th><th>Key Issues</th></tr></thead>
+                        <tbody id="issues-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚙️ SHIFT-WISE OPERATIONS - ALL MINES</div>
+                <div id="all-shifts"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1Ggjr0VeEEzBIJphWyyCYRQS5noukQz_ydI4Kauom7n4';
+        let dashboardData = {};
+
+        function parseCSV(csvText) {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const nextChar = csvText[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        // Escaped quote (two quotes in a row = one quote)
+                        currentCell += '"';
+                        i++; // Skip next quote
+                    } else {
+                        // Toggle quote state
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    // End of cell
+                    currentRow.push(currentCell.trim());
+                    currentCell = '';
+                } else if (char === '\n' && !inQuotes) {
+                    // End of row
+                    currentRow.push(currentCell.trim());
+                    if (currentRow.some(cell => cell !== '')) {
+                        rows.push(currentRow);
+                    }
+                    currentRow = [];
+                    currentCell = '';
+                } else if (char === '\r') {
+                    // Skip carriage return
+                    continue;
+                } else {
+                    // Regular character
+                    currentCell += char;
+                }
+            }
+
+            // Push last row if exists
+            if (currentCell || currentRow.length > 0) {
+                currentRow.push(currentCell.trim());
+                if (currentRow.some(cell => cell !== '')) {
+                    rows.push(currentRow);
+                }
+            }
+
+            console.log('CSV parsed:', rows.length, 'rows');
+            return rows;
+        }
+
+        function cleanNum(str) {
+            if (!str || str === '') return 0;
+            return parseFloat(String(str).replace(/,/g, '')) || 0;
+        }
+
+        async function fetchSheet(sheetName) {
+            const timestamp = new Date().getTime();
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&t=${timestamp}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Failed to fetch ${sheetName}`);
+            return parseCSV(await response.text());
+        }
+
+        async function loadAllData() {
+            const statusEl = document.getElementById('status');
+            try {
+                statusEl.className = 'status loading';
+                statusEl.textContent = '🔄 Fetching data from Google Sheets...';
+                statusEl.style.display = 'block';
+
+                const [edData, bolaniData, barsuaData, taldihData, kaltaData] = await Promise.all([
+                    fetchSheet('ED Dashboard'),
+                    fetchSheet('Bolani Input'),
+                    fetchSheet('Barsua Input'),
+                    fetchSheet('Taldih Input'),
+                    fetchSheet('Kalta Input')
+                ]);
+
+                dashboardData = {
+                    ed: edData,
+                    bolani: bolaniData,
+                    barsua: barsuaData,
+                    taldih: taldihData,
+                    kalta: kaltaData
+                };
+
+                renderAll();
+
+                document.getElementById('lastRefresh').textContent = new Date().toLocaleTimeString();
+                statusEl.className = 'status success';
+                statusEl.textContent = '✅ All data loaded successfully!';
+                document.getElementById('content').style.display = 'block';
+                setTimeout(() => { statusEl.classList.add('status-hidden'); }, 3000);
+
+                if (typeof startCountdown === 'function') startCountdown();
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusEl.className = 'status error';
+                statusEl.textContent = `❌ Error: ${error.message}. Make sure Google Sheet is shared as "Anyone with link can view"`;
+            }
+        }
+
+        function renderAll() {
+            const ed = dashboardData.ed;
+
+            const kpis = extractKPIs(ed);
+            document.getElementById('kpi-prod').textContent = kpis.totalProduction.toLocaleString();
+            document.getElementById('kpi-ach').textContent = kpis.planAchievement.toFixed(1) + '%';
+            document.getElementById('kpi-ach-sub').textContent = `of ${kpis.dailyCODPlan.toLocaleString()} MT`;
+            document.getElementById('kpi-lump').textContent = kpis.lumpPercentage.toFixed(1) + '%';
+            document.getElementById('kpi-rakes').textContent = kpis.rakesDispatched;
+
+            // Display dates with visual feedback
+            const prodDateEl = document.getElementById('prod-date');
+            const reportDateEl = document.getElementById('report-date');
+
+            if (kpis.productionDate) {
+                prodDateEl.textContent = `Production Date: ${kpis.productionDate}`;
+                prodDateEl.style.color = 'white';
+            } else {
+                prodDateEl.textContent = 'Production Date: ⚠️ NOT FOUND';
+                prodDateEl.style.color = 'yellow';
+                console.error('❌ Production Date not extracted! Check logs above.');
+            }
+
+            if (kpis.reportingDate) {
+                reportDateEl.textContent = `Report Generated: ${kpis.reportingDate}`;
+                reportDateEl.style.color = 'white';
+            } else {
+                reportDateEl.textContent = 'Report Generated: ⚠️ NOT FOUND';
+                reportDateEl.style.color = 'yellow';
+                console.error('❌ Report Generated date not extracted! Check logs above.');
+            }
+
+            const production = extractProduction(ed);
+            let html = '';
+            production.forEach(p => {
+                const rowClass = p.isTotal ? ' class="total-row"' : '';
+                html += `<tr${rowClass}>
+                    <td><strong>${p.mine}</strong></td>
+                    <td>${p.type}</td>
+                    <td>${p.total > 0 ? p.total.toLocaleString() : ''}</td>
+                    <td>${p.lump > 0 ? p.lump.toLocaleString() : ''}</td>
+                    <td>${p.fines > 0 ? p.fines.toLocaleString() : ''}</td>
+                    <td>${p.rom > 0 ? p.rom.toLocaleString() : ''}</td>
+                    <td>${p.slime > 0 ? p.slime.toLocaleString() : ''}</td>
+                    <td>${p.ob > 0 ? p.ob.toLocaleString() : ''}</td>
+                    <td>${p.lumpPercent > 0 ? p.lumpPercent.toFixed(2) : ''}</td>
+                    <td>${p.plan > 0 ? p.plan.toLocaleString() : ''}</td>
+                    <td>${p.achievement > 0 ? p.achievement.toFixed(2) : ''}</td>
+                </tr>`;
+            });
+            document.getElementById('prod-table').innerHTML = html;
+
+            const dispatch = extractDispatch(ed);
+            html = '';
+            let missingRakeDetails = 0;
+
+            dispatch.forEach(d => {
+                const isTotalRow = d.location === 'TOTAL';
+                const rowClass = isTotalRow ? ' class="total-row"' : '';
+                const rakeDetailsDisplay = d.rakeDetails || '<span style="color:orange;">⚠️ NO DATA</span>';
+                if (!d.rakeDetails && !isTotalRow) missingRakeDetails++;
+
+                html += `<tr${rowClass}>
+                    <td><strong>${d.location}</strong></td>
+                    <td>${d.rakes > 0 ? d.rakes : ''}</td>
+                    <td>${d.dailyCOD > 0 ? d.dailyCOD.toFixed(2) : ''}</td>
+                    <td>${d.achievement > 0 ? d.achievement.toFixed(2) : ''}</td>
+                    <td style="font-size:10px;line-height:1.3;max-width:300px;white-space:normal;">${rakeDetailsDisplay}</td>
+                    <td style="font-size:10px;line-height:1.3;max-width:200px;white-space:normal;">${d.remarks || ''}</td>
+                </tr>`;
+            });
+
+            if (missingRakeDetails > 0) {
+                console.error(`❌ ${missingRakeDetails} dispatch rows missing Rake Details! Check extraction logic.`);
+            }
+
+            document.getElementById('dispatch-table').innerHTML = html;
+
+            const forecast = extractLoadingForecast(ed);
+            html = '';
+            let missingForecastDetails = 0;
+
+            forecast.forEach(f => {
+                const isTotalRow = f.location === 'TOTAL';
+                const rowClass = isTotalRow ? ' class="total-row"' : '';
+                const rakeDetailsDisplay = f.rakeDetails || '<span style="color:orange;">⚠️ NO DATA</span>';
+                if (!f.rakeDetails && !isTotalRow) missingForecastDetails++;
+
+                html += `<tr${rowClass}>
+                    <td><strong>${f.location}</strong></td>
+                    <td>${f.plannedRakes > 0 ? f.plannedRakes : ''}</td>
+                    <td style="font-size:10px;line-height:1.3;max-width:300px;white-space:normal;">${rakeDetailsDisplay}</td>
+                    <td style="font-size:10px;line-height:1.3;max-width:200px;white-space:normal;">${f.remarks || ''}</td>
+                </tr>`;
+            });
+
+            if (missingForecastDetails > 0) {
+                console.error(`❌ ${missingForecastDetails} forecast rows missing Rake Details! Check extraction logic.`);
+            }
+
+            document.getElementById('forecast-table').innerHTML = html;
+
+            const issues = extractIssues(ed);
+            html = '';
+            issues.forEach(issue => {
+                html += `<tr>
+                    <td><strong>${issue.mine}</strong></td>
+                    <td style="font-size:11px;line-height:1.4;">${issue.issue}</td>
+                </tr>`;
+            });
+            document.getElementById('issues-table').innerHTML = html;
+
+            renderAllShifts();
+        }
+
+        function renderAllShifts() {
+            const container = document.getElementById('all-shifts');
+            let html = '';
+
+            const mines = [
+                { name: 'Bolani', data: dashboardData.bolani, color: '#4facfe' },
+                { name: 'Barsua', data: dashboardData.barsua, color: '#43e97b' },
+                { name: 'Taldih', data: dashboardData.taldih, color: '#f5576c' },
+                { name: 'Kalta', data: dashboardData.kalta, color: '#faa356' }
+            ];
+
+            mines.forEach(mine => {
+                const shifts = extractDetailedShiftData(mine.data);
+
+                html += `<div class="shift-section">
+                    <div class="mine-header" style="background: linear-gradient(135deg, ${mine.color} 0%, ${mine.color}dd 100%);">
+                        <span>${mine.name} Mine</span>
+                        <span style="font-size:14px;opacity:0.9;">Total: ${shifts.total.toLocaleString()} MT</span>
+                    </div>
+                    <div class="shift-grid">`;
+
+                ['A', 'B', 'C'].forEach(shiftName => {
+                    const shift = shifts.shifts.find(s => s.shift === shiftName);
+                    if (shift) {
+                        html += `<div class="shift-card shift-${shiftName.toLowerCase()}">
+                            <div class="shift-header">Shift ${shiftName}</div>
+                            <div class="shift-detail">
+                                <div class="shift-label">Total Production</div>
+                                <div class="shift-value">${shift.total.toLocaleString()} MT</div>
+                            </div>`;
+
+                        shift.plants.forEach(plant => {
+                            html += `<div class="shift-plant">
+                                <div class="plant-name">${plant.plant}</div>
+                                <div class="plant-prod">
+                                    Trips: ${plant.trips} | Production: ${plant.production.toLocaleString()} MT<br>
+                                    Lump: ${plant.lump.toLocaleString()} MT | Fines: ${plant.fines.toLocaleString()} MT
+                                </div>`;
+
+                            if (plant.issue) {
+                                html += `<div class="shift-issue">${plant.issue}</div>`;
+                                if (plant.downtime > 0) {
+                                    html += `<div class="downtime">⏱ ${plant.downtime} min downtime</div>`;
+                                }
+                            }
+
+                            html += `</div>`;
+                        });
+
+                        html += `</div>`;
+                    } else {
+                        html += `<div class="shift-card shift-${shiftName.toLowerCase()}">
+                            <div class="shift-header">Shift ${shiftName}</div>
+                            <div style="color:#999;font-size:12px;padding:10px;text-align:center;">No data</div>
+                        </div>`;
+                    }
+                });
+
+                html += `</div></div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function extractDetailedShiftData(data) {
+            const shifts = [];
+            let total = 0;
+            let inShiftSection = false;
+
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').trim();
+
+                if (col0.includes('SHIFT-WISE')) {
+                    inShiftSection = true;
+                    continue;
+                }
+
+                if (inShiftSection && col0.includes('MAJOR ISSUES')) break;
+
+                if (inShiftSection && ['A', 'B', 'C'].includes(col0)) {
+                    const shiftName = col0;
+                    const plant = (row[1] || '').trim();
+                    const trips = cleanNum(row[2]);
+                    const production = cleanNum(row[3]);
+                    const lump = cleanNum(row[4]);
+                    const fines = cleanNum(row[5]);
+                    const issue = (row[6] || '').trim();
+                    const downtime = cleanNum(row[7]);
+
+                    total += production;
+
+                    let existingShift = shifts.find(s => s.shift === shiftName);
+                    if (!existingShift) {
+                        existingShift = { shift: shiftName, total: 0, plants: [] };
+                        shifts.push(existingShift);
+                    }
+
+                    existingShift.total += production;
+                    if (plant) {
+                        existingShift.plants.push({ plant, trips, production, lump, fines, issue, downtime });
+                    }
+                }
+            }
+
+            return { shifts, total };
+        }
+
+        function extractProduction(data) {
+            const production = [];
+            let inProductionSection = false;
+
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').toString().trim();
+                const col1 = (row[1] || '').toString().trim();
+
+                // Start capturing at PRODUCTION PERFORMANCE
+                if (col0.includes('PRODUCTION PERFORMANCE')) {
+                    inProductionSection = true;
+                    continue;
+                }
+
+                // Stop at DISPATCH PERFORMANCE
+                if (inProductionSection && col0.includes('DISPATCH PERFORMANCE')) {
+                    break;
+                }
+
+                // Capture all production rows
+                if (inProductionSection && col0 && col1 && col1 !== 'Type') {
+                    // Check if it's a valid production row
+                    if (col0.match(/Bolani|Barsua|Taldih|Kalta|ODISHA/i) && col1) {
+                        const isTotal = col1.includes('TOTAL');
+                        production.push({
+                            mine: col0,
+                            type: col1,
+                            total: cleanNum(row[2]),
+                            lump: cleanNum(row[3]),
+                            fines: cleanNum(row[4]),
+                            rom: cleanNum(row[5]),
+                            slime: cleanNum(row[6]),
+                            ob: cleanNum(row[7]),
+                            lumpPercent: cleanNum(row[8]),
+                            plan: cleanNum(row[9]),
+                            achievement: cleanNum(row[10]),
+                            isTotal: isTotal
+                        });
+                    }
+                }
+            }
+            return production;
+        }
+
+        function extractBolaniBreakdown(data) {
+            const bolaniAreas = [];
+            let inProductionSection = false;
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').trim();
+                const col1 = (row[1] || '').trim();
+                if (col0.includes('PRODUCTION PERFORMANCE')) { inProductionSection = true; continue; }
+                if (inProductionSection && col0.includes('DISPATCH PERFORMANCE')) break;
+                if (inProductionSection && col0.includes('Bolani') && col1 && col1 !== 'Type' && col1.length < 100) {
+                    bolaniAreas.push({
+                        area: col1, total: cleanNum(row[2]),
+                        lump: cleanNum(row[3]), fines: cleanNum(row[4])
+                    });
+                }
+            }
+            return bolaniAreas;
+        }
+
+        function extractDispatch(data) {
+            const dispatch = [];
+            let headerRow = null;
+            let rakeDetailsCol = 4;
+            let remarksCol = 5;
+            let startRow = -1;
+            let endRow = -1;
+
+            console.log('=== EXTRACTING DISPATCH PERFORMANCE ===');
+            console.log('Searching through', data.length, 'rows');
+
+            // STEP 1: Find section boundaries with flexible detection
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                if (!row) continue;
+                const rowText = row.join('|').toUpperCase();
+                const col0 = (row[0] || '').toString().toUpperCase();
+
+                // Start: Look for DISPATCH
+                if (startRow === -1 && (rowText.includes('DISPATCH') || col0.includes('DISPATCH'))) {
+                    startRow = i;
+                    console.log(`✅ DISPATCH section START at row ${i}: "${row[0]}"`);
+                }
+
+                // End: After finding start, look for next section
+                if (startRow > -1 && i > startRow + 1) {
+                    if (rowText.includes('MAJOR ISSUES') || rowText.includes('LOADING FORECAST') || rowText.includes("TODAY'S LOADING")) {
+                        endRow = i;
+                        console.log(`✅ DISPATCH section END at row ${i}: "${row[0]}"`);
+                        break;
+                    }
+                }
+            }
+
+            if (startRow === -1) {
+                console.error('❌ DISPATCH section START not found! Searched all', data.length, 'rows');
+                // Log first 20 rows to help debug
+                for (let i = 0; i < Math.min(20, data.length); i++) {
+                    console.log(`Row ${i}: [0]="${data[i][0] || ''}" [1]="${data[i][1] || ''}"`);
+                }
+                return dispatch;
+            }
+
+            console.log(`🔒 DISPATCH range: rows ${startRow} to ${endRow > -1 ? endRow - 1 : data.length - 1}`);
+
+            // STEP 2: Find header row
+            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
+                const row = data[i];
+                if (!row) continue;
+                const col0 = (row[0] || '').toString().trim().toLowerCase();
+
+                if (col0.includes('location') || col0 === 'location') {
+                    headerRow = row;
+                    console.log(`✓ DISPATCH header found at row ${i}`);
+                    console.log('Header columns:', row.slice(0, 6));
+
+                    // Find Rake Details and Remarks columns
+                    for (let j = 0; j < row.length; j++) {
+                        const header = (row[j] || '').toString().toLowerCase();
+                        if (header.includes('rake') && header.includes('detail')) {
+                            rakeDetailsCol = j;
+                            console.log(`✓ DISPATCH RakeDetails column: ${j}`);
+                        }
+                        if (header.includes('remark')) {
+                            remarksCol = j;
+                            console.log(`✓ DISPATCH Remarks column: ${j}`);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (!headerRow) {
+                console.error('❌ DISPATCH header (Location) not found in range!');
+                return dispatch;
+            }
+
+            // STEP 3: Extract data rows
+            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
+                const row = data[i];
+                if (!row) continue;
+                const col0 = (row[0] || '').toString().trim();
+
+                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    const location = col0;
+                    const rakes = cleanNum(row[1]);
+                    const dailyCOD = cleanNum(row[2]);
+                    const achievement = cleanNum(row[3]);
+
+                    console.log(`\n📊 DISPATCH "${location}" at row ${i}`);
+
+                    // Extract from detected columns
+                    let rakeDetails = (row[rakeDetailsCol] || '').toString().trim();
+                    let remarks = (row[remarksCol] || '').toString().trim();
+
+                    console.log(`  RakeDetails[${rakeDetailsCol}]: ${rakeDetails ? rakeDetails.substring(0, 40) + '...' : 'EMPTY'}`);
+                    console.log(`  Remarks[${remarksCol}]: ${remarks ? remarks.substring(0, 40) + '...' : 'EMPTY'}`);
+
+                    // Fallback
+                    if (!rakeDetails) {
+                        for (let j = 4; j < row.length; j++) {
+                            const cell = (row[j] || '').toString().trim();
+                            if (cell && cell.length > 10) {
+                                rakeDetails = cell;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!remarks) {
+                        for (let j = 5; j < row.length; j++) {
+                            const cell = (row[j] || '').toString().trim();
+                            if (cell && cell.length > 5 && cell !== rakeDetails) {
+                                remarks = cell;
+                                break;
+                            }
+                        }
+                    }
+
+                    dispatch.push({
+                        location,
+                        rakes,
+                        dailyCOD,
+                        achievement,
+                        rakeDetails: rakeDetails || '',
+                        remarks: remarks || ''
+                    });
+                }
+            }
+
+            console.log(`✅ DISPATCH extracted ${dispatch.length} rows`);
+            return dispatch;
+        }
+
+        function extractIssues(data) {
+            const issues = [];
+            let inSection = false;
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                if (row[0] && row[0].includes('MAJOR ISSUES')) { inSection = true; continue; }
+                if (inSection && row[0] && row[0].includes('LOADING FORECAST')) break;
+                if (inSection && row[0] && row[1] && row[0] !== 'Mine') {
+                    if (row[0].match(/Bolani|Barsua|Taldih|Kalta/i)) {
+                        issues.push({ mine: row[0], issue: row[1] });
+                    }
+                }
+            }
+            return issues;
+        }
+
+        function extractLoadingForecast(data) {
+            const forecast = [];
+            let headerRow = null;
+            let rakeDetailsCol = 2;
+            let remarksCol = 3;
+            let startRow = -1;
+            let endRow = -1;
+
+            console.log('=== EXTRACTING LOADING FORECAST ===');
+            console.log('Searching through', data.length, 'rows');
+
+            // STEP 1: Find section boundaries with flexible detection
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                if (!row) continue;
+                const rowText = row.join('|').toUpperCase();
+                const col0 = (row[0] || '').toString().toUpperCase();
+
+                // Start: Look for LOADING FORECAST or TODAY'S LOADING
+                if (startRow === -1 && (rowText.includes('LOADING FORECAST') || (rowText.includes('TODAY') && rowText.includes('LOADING')) || col0.includes('LOADING FORECAST'))) {
+                    startRow = i;
+                    console.log(`✅ FORECAST section START at row ${i}: "${row[0]}"`);
+                }
+
+                // End: After finding start, look for SHIFT section
+                if (startRow > -1 && i > startRow + 1) {
+                    if (rowText.includes('SHIFT-WISE') || rowText.includes('SHIFT WISE') || rowText.includes('SHIFTWISE') || col0.includes('SHIFT')) {
+                        endRow = i;
+                        console.log(`✅ FORECAST section END at row ${i}: "${row[0]}"`);
+                        break;
+                    }
+                }
+            }
+
+            if (startRow === -1) {
+                console.error('❌ FORECAST section START not found!');
+                return forecast;
+            }
+
+            console.log(`🔒 FORECAST range: rows ${startRow} to ${endRow > -1 ? endRow - 1 : data.length - 1}`);
+
+            // STEP 2: Find header row
+            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
+                const row = data[i];
+                if (!row) continue;
+                const col0 = (row[0] || '').toString().trim().toLowerCase();
+
+                if (col0.includes('location') || col0 === 'location') {
+                    headerRow = row;
+                    console.log(`✓ FORECAST header found at row ${i}`);
+                    console.log('Header columns:', row.slice(0, 4));
+
+                    // Find Rake Details and Remarks columns
+                    for (let j = 0; j < row.length; j++) {
+                        const header = (row[j] || '').toString().toLowerCase();
+                        if (header.includes('rake') && header.includes('detail')) {
+                            rakeDetailsCol = j;
+                            console.log(`✓ FORECAST RakeDetails column: ${j}`);
+                        }
+                        if (header.includes('remark')) {
+                            remarksCol = j;
+                            console.log(`✓ FORECAST Remarks column: ${j}`);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (!headerRow) {
+                console.error('❌ FORECAST header (Location) not found in range!');
+                return forecast;
+            }
+
+            // STEP 3: Extract data rows
+            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
+                const row = data[i];
+                if (!row) continue;
+                const col0 = (row[0] || '').toString().trim();
+
+                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    const location = col0;
+                    const plannedRakes = cleanNum(row[1]);
+
+                    console.log(`\n📋 FORECAST "${location}" at row ${i}`);
+
+                    // Extract from detected columns
+                    let rakeDetails = (row[rakeDetailsCol] || '').toString().trim();
+                    let remarks = (row[remarksCol] || '').toString().trim();
+
+                    console.log(`  RakeDetails[${rakeDetailsCol}]: ${rakeDetails ? rakeDetails.substring(0, 40) + '...' : 'EMPTY'}`);
+                    console.log(`  Remarks[${remarksCol}]: ${remarks ? remarks.substring(0, 40) + '...' : 'EMPTY'}`);
+
+                    // Fallback
+                    if (!rakeDetails) {
+                        for (let j = 2; j < row.length; j++) {
+                            const cell = (row[j] || '').toString().trim();
+                            if (cell && cell.length > 10) {
+                                rakeDetails = cell;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!remarks) {
+                        for (let j = 3; j < row.length; j++) {
+                            const cell = (row[j] || '').toString().trim();
+                            if (cell && cell.length > 5 && cell !== rakeDetails) {
+                                remarks = cell;
+                                break;
+                            }
+                        }
+                    }
+
+                    forecast.push({
+                        location,
+                        plannedRakes,
+                        rakeDetails,
+                        remarks
+                    });
+                }
+            }
+
+            console.log(`✅ FORECAST extracted ${forecast.length} rows`);
+            if (forecast.length === 0) {
+                console.error('❌ NO FORECAST DATA EXTRACTED!');
+            }
+            return forecast;
+        }
+
+        function extractKPIs(data) {
+            let totalProduction = 0, lumpPercentage = 0, rakesDispatched = 0, dailyCODPlan = 0;
+            let productionDate = '', reportingDate = '';
+
+            console.log('=== EXTRACTING DATES AND KPIS ===');
+
+            // Extract dates - ULTRA FLEXIBLE
+            console.log('🔍 Searching for dates in first 40 rows...');
+
+            for (let i = 0; i < Math.min(40, data.length); i++) {
+                const row = data[i];
+                if (!row) continue;
+
+                // Build full row text for easier searching
+                const rowText = row.join(' ').toLowerCase();
+
+                // Check every cell
+                for (let j = 0; j < row.length; j++) {
+                    const cell = (row[j] || '').toString().trim();
+                    const cellLower = cell.toLowerCase();
+
+                    // Date pattern
+                    const datePattern = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}(\s+\d{1,2}:\d{2}(:\d{2})?)?)/;
+                    const match = cell.match(datePattern);
+
+                    if (match) {
+                        const dateValue = match[1];
+
+                        // Production Date - in same cell
+                        if (!productionDate && cellLower.includes('production') && cellLower.includes('date')) {
+                            productionDate = dateValue.split(' ')[0];
+                            console.log(`✅ PRODUCTION DATE: "${productionDate}" at [${i},${j}]`);
+                        }
+
+                        // Report Generated - in same cell
+                        if (!reportingDate && cellLower.includes('report') && cellLower.includes('generat')) {
+                            reportingDate = dateValue;
+                            console.log(`✅ REPORT GENERATED (same cell): "${reportingDate}" at [${i},${j}]`);
+                        }
+
+                        // Check if this row has the label and date is in another cell
+                        if (!productionDate && rowText.includes('production') && rowText.includes('date') && !cellLower.includes('report')) {
+                            productionDate = dateValue.split(' ')[0];
+                            console.log(`✅ PRODUCTION DATE (same row): "${productionDate}" at [${i},${j}]`);
+                        }
+
+                        if (!reportingDate && rowText.includes('report') && rowText.includes('generat')) {
+                            reportingDate = dateValue;
+                            console.log(`✅ REPORT GENERATED (same row): "${reportingDate}" at [${i},${j}]`);
+                        }
+
+                        // Check previous cell for label
+                        if (j > 0) {
+                            const prevCell = (row[j - 1] || '').toString().toLowerCase();
+
+                            if (!productionDate && prevCell.includes('production') && prevCell.includes('date')) {
+                                productionDate = dateValue.split(' ')[0];
+                                console.log(`✅ PRODUCTION DATE (prev cell): "${productionDate}" at [${i},${j}]`);
+                            }
+
+                            if (!reportingDate && prevCell.includes('report') && prevCell.includes('generat')) {
+                                reportingDate = dateValue;
+                                console.log(`✅ REPORT GENERATED (prev cell): "${reportingDate}" at [${i},${j}]`);
+                            }
+                        }
+
+                        // Check 2 cells back
+                        if (j > 1) {
+                            const prev2Cell = (row[j - 2] || '').toString().toLowerCase();
+
+                            if (!reportingDate && prev2Cell.includes('report') && prev2Cell.includes('generat')) {
+                                reportingDate = dateValue;
+                                console.log(`✅ REPORT GENERATED (2 cells back): "${reportingDate}" at [${i},${j}]`);
+                            }
+                        }
+                    }
+
+                    if (productionDate && reportingDate) break;
+                }
+
+                if (productionDate && reportingDate) {
+                    console.log('✅ Both dates found!');
+                    break;
+                }
+
+                const col0 = (row[0] || '').toString().trim();
+                const col1 = (row[1] || '').toString().trim();
+                const col2 = (row[2] || '').toString().trim();
+                const col3 = (row[3] || '').toString().trim();
+
+                // Extract KPI values - look for large number in first column
+                if (cleanNum(col0) > 10000 && totalProduction === 0) {
+                    totalProduction = cleanNum(col0);
+                    dailyCODPlan = cleanNum(col1);
+                    lumpPercentage = cleanNum(col2);
+                    rakesDispatched = cleanNum(col3);
+                    console.log('Found KPIs:', {totalProduction, dailyCODPlan, lumpPercentage, rakesDispatched});
+                }
+            }
+
+            let planAchievement = 0;
+            if (dailyCODPlan > 0 && totalProduction > 0) {
+                planAchievement = (totalProduction / dailyCODPlan) * 100;
+            }
+
+            // Final check
+            if (!productionDate) {
+                console.error('❌ Production Date NOT FOUND in first 30 rows!');
+            }
+            if (!reportingDate) {
+                console.error('❌ Report Generated Date NOT FOUND in first 30 rows!');
+            }
+
+            console.log('✅ Final dates:', {productionDate, reportingDate});
+            return { totalProduction, planAchievement, lumpPercentage, rakesDispatched, dailyCODPlan, productionDate, reportingDate };
+        }
+
+        let secondsUntilRefresh = 60;
+        let refreshInterval;
+
+        function startCountdown() {
+            secondsUntilRefresh = 60;
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => {
+                secondsUntilRefresh--;
+                document.getElementById('countdown').textContent = secondsUntilRefresh + 's';
+                if (secondsUntilRefresh <= 0) loadAllData();
+            }, 1000);
+        }
+
+        function downloadPDF() {
+            // Update header for PDF with timestamp
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+            // Store original title
+            const originalTitle = document.title;
+
+            // Set document title for PDF filename
+            document.title = `ED_Mines_Dashboard_${dateStr.replace(/ /g, '_')}_${timeStr.replace(/:/g, '-')}`;
+
+            // Trigger print dialog (user can save as PDF)
+            window.print();
+
+            // Restore original title
+            setTimeout(() => { document.title = originalTitle; }, 500);
+        }
+
+        loadAllData();
+    </script>
+</body>
+</html>
