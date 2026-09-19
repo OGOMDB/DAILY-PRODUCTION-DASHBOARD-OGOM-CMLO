@@ -4,56 +4,212 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ED (MINES) Dashboard - OGOM CMLO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink: #1B1E24;
+            --steel: #333B48;
+            --steel-mid: #5B6472;
+            --steel-line: #D7DBE1;
+            --rust: #B4552E;
+            --rust-dark: #8F4324;
+            --amber: #B9862B;
+            --mist: #EDEEF0;
+            --paper: #FFFFFF;
+            --success: #3F7A52;
+            --alert: #A63B31;
+            --alert-bg: #FBECEA;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
 
-        .dashboard { max-width: 1600px; margin: 0 auto; }
+        body {
+            font-family: 'IBM Plex Sans', Arial, sans-serif;
+            background: var(--mist);
+            color: var(--ink);
+            padding: 24px;
+            font-variant-numeric: tabular-nums;
+        }
 
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; border-radius: 12px 12px 0 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-        .header-meta { font-size: 14px; opacity: 0.95; }
-        .header button { margin-left: 10px; }
+        .dashboard { max-width: 1500px; margin: 0 auto; }
 
-        .refresh-btn, .pdf-btn { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; }
-        .refresh-btn:hover, .pdf-btn:hover { background: white; color: #667eea; }
+        /* ---- Header ---- */
+        .header {
+            background: var(--ink);
+            color: #F3F1EC;
+            border-top: 4px solid var(--rust);
+            padding: 22px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header h1 {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 24px;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+        .header .org-line {
+            font-size: 13px;
+            color: #B7BDC8;
+            margin-bottom: 14px;
+        }
+        .header-meta {
+            font-size: 13px;
+            color: #C9CDD4;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 18px;
+        }
+        .header-meta span { white-space: nowrap; }
+        .header-meta strong { color: #F3F1EC; font-weight: 600; }
 
-        .status { padding: 12px 20px; margin: 20px 0; border-radius: 8px; font-size: 14px; font-weight: 500; text-align: center; }
-        .status.loading { background: #e3f2fd; color: #1565c0; }
-        .status.error { background: #ffebee; color: #c62828; }
-        .status.success { background: #e8f5e9; color: #2e7d32; }
+        .header-actions { display: flex; gap: 10px; }
+        .btn {
+            background: transparent;
+            color: #F3F1EC;
+            border: 1px solid #565F6E;
+            padding: 9px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .btn:hover { border-color: var(--rust); background: rgba(180,85,46,0.15); }
+        .btn:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+
+        /* ---- Status ---- */
+        .status {
+            padding: 10px 28px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .status.loading { background: #E4EEF7; color: #1D5A8C; }
+        .status.error { background: var(--alert-bg); color: var(--alert); }
+        .status.success { background: #E7F1E9; color: var(--success); }
         .status-hidden { display: none; }
 
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
-        .kpi-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .kpi-label { font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .kpi-value { font-size: 36px; font-weight: 700; color: #333; line-height: 1.2; }
-        .kpi-sub { font-size: 13px; color: #888; margin-top: 6px; }
+        /* ---- KPI strip ---- */
+        .kpi-strip {
+            background: var(--paper);
+            border: 1px solid var(--steel-line);
+            border-top: none;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .kpi-cell {
+            padding: 20px 24px;
+            border-left: 1px solid var(--steel-line);
+        }
+        .kpi-cell:first-child { border-left: none; }
+        .kpi-label {
+            font-size: 12.5px;
+            color: var(--steel-mid);
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .kpi-value {
+            font-family: 'Oswald', sans-serif;
+            font-size: 34px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+        .kpi-value .unit { font-size: 17px; font-weight: 500; color: var(--steel-mid); margin-left: 3px; }
+        .kpi-sub { font-size: 12.5px; color: var(--steel-mid); margin-top: 5px; }
 
-        .card { background: white; padding: 25px; margin: 20px 0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .card-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 3px solid #667eea; }
+        /* ---- Cards ---- */
+        .card {
+            background: var(--paper);
+            border: 1px solid var(--steel-line);
+            margin-top: 18px;
+        }
+        .card-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            color: var(--ink);
+            padding: 14px 20px;
+            border-bottom: 2px solid var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title.alert-title { border-bottom-color: var(--alert); color: var(--alert-title, var(--ink)); }
+        .card-title .flag { color: var(--alert); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-        thead tr { background: #f5f7fa; }
-        th { padding: 14px 12px; text-align: left; font-size: 13px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #dee2e6; }
-        td { padding: 12px; font-size: 15px; color: #333; border-bottom: 1px solid #e9ecef; }
-        tr:hover { background: #f8f9fa; }
-        .total-row { background: #e8f5e9 !important; font-weight: 700; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 560px; }
+        thead tr { background: var(--mist); }
+        th {
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--steel-mid);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 1px solid var(--steel-line);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 16px;
+            font-size: 14px;
+            color: var(--ink);
+            border-bottom: 1px solid var(--steel-line);
+            vertical-align: top;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #FAFAF9; }
+        .total-row { background: #F4F1EC !important; font-weight: 600; }
+        .total-row:hover { background: #F4F1EC !important; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; margin: 20px 0; }
+        /* Mine group accent bars in Production Performance */
+        td.mine-cell { border-left: 3px solid transparent; }
+        tr[data-mine="Bolani"] td.mine-cell { border-left-color: var(--rust); }
+        tr[data-mine="Barsua"] td.mine-cell { border-left-color: var(--amber); }
+        tr[data-mine="Taldih"] td.mine-cell { border-left-color: var(--steel-mid); }
+        tr[data-mine="Kalta"] td.mine-cell { border-left-color: var(--success); }
+        tr[data-mine="ODISHA GROUP"] td.mine-cell { border-left-color: var(--ink); }
+
+        .detail-cell { font-size: 12.5px; line-height: 1.5; color: var(--steel); }
+        .remark-cell { font-size: 12.5px; line-height: 1.5; color: var(--alert); }
+
+        .split-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 18px;
+            margin-top: 18px;
+        }
+        .split-grid .card { margin-top: 0; }
 
         @media print {
             body { background: white; padding: 0; }
-            .refresh-btn, .pdf-btn { display: none; }
-            .card { box-shadow: none; page-break-inside: avoid; }
+            .header-actions { display: none; }
+            .card { box-shadow: none; page-break-inside: avoid; border: 1px solid #ccc; }
         }
 
-        @media (max-width: 768px) {
-            .header h1 { font-size: 20px; }
-            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-            .grid { grid-template-columns: 1fr; }
-            table { font-size: 12px; }
-            th, td { padding: 8px 6px; }
+        @media (max-width: 900px) {
+            .split-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 0; }
+            .header { padding: 18px 16px; }
+            .header h1 { font-size: 19px; }
+            .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+            .kpi-cell:nth-child(2n) { border-left: none; }
+            .kpi-cell:nth-child(-n+2) { border-bottom: 1px solid var(--steel-line); }
+            .kpi-value { font-size: 26px; }
         }
     </style>
 </head>
@@ -61,73 +217,82 @@
     <div class="dashboard">
         <div class="header">
             <div>
-                <h1>DAILY MINING OPERATIONS DASHBOARD - ED (MINES)</h1>
+                <h1>Daily Mining Operations Dashboard</h1>
+                <div class="org-line">ED (Mines) &middot; Odisha Group of Mines, CMLO</div>
                 <div class="header-meta">
-                    <span id="prod-date">Production Date: --</span> |
-                    <span id="report-date">Report Generated: --</span> |
-                    Last Refresh: <span id="lastRefresh">--</span> |
-                    Next: <span id="countdown">60s</span>
+                    <span id="prod-date"><strong>Production Date:</strong> --</span>
+                    <span id="report-date"><strong>Report Generated:</strong> --</span>
+                    <span><strong>Last Refresh:</strong> <span id="lastRefresh">--</span></span>
+                    <span><strong>Next:</strong> <span id="countdown">60s</span></span>
                 </div>
             </div>
-            <div>
-                <button class="refresh-btn" onclick="loadAllData()">🔄 Refresh</button>
-                <button class="pdf-btn" onclick="window.print()">📄 Download PDF</button>
+            <div class="header-actions">
+                <button class="btn" onclick="loadAllData()" aria-label="Refresh data">Refresh</button>
+                <button class="btn" onclick="window.print()" aria-label="Download as PDF">Download PDF</button>
             </div>
         </div>
 
         <div id="status" class="status status-hidden"></div>
 
-        <div class="kpi-grid">
-            <div class="kpi-card">
+        <div class="kpi-strip">
+            <div class="kpi-cell">
                 <div class="kpi-label">Total Production</div>
-                <div class="kpi-value"><span id="kpi-prod">0</span> MT</div>
+                <div class="kpi-value"><span id="kpi-prod">0</span><span class="unit">MT</span></div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-cell">
                 <div class="kpi-label">COD Plan Achievement</div>
-                <div class="kpi-value"><span id="kpi-ach">0</span>%</div>
+                <div class="kpi-value"><span id="kpi-ach">0</span><span class="unit">%</span></div>
                 <div class="kpi-sub" id="kpi-ach-sub">of 0 MT</div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-cell">
                 <div class="kpi-label">Lump %</div>
-                <div class="kpi-value"><span id="kpi-lump">0</span>%</div>
+                <div class="kpi-value"><span id="kpi-lump">0</span><span class="unit">%</span></div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-cell">
                 <div class="kpi-label">Rakes Dispatched</div>
                 <div class="kpi-value"><span id="kpi-rakes">0</span></div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-title">PRODUCTION PERFORMANCE</div>
+            <div class="card-title">Production Performance</div>
+            <div class="table-wrap">
             <table>
                 <thead><tr><th>Mine/Area</th><th>Type</th><th>Total (MT)</th><th>Lump (MT)</th><th>Fines (MT)</th><th>ROM (MT)</th><th>Slime (MT)</th><th>OB (MT)</th><th>Lump %</th><th>Daily Plan (MT)</th><th>Achievement %</th></tr></thead>
                 <tbody id="prod-table"></tbody>
             </table>
+            </div>
         </div>
 
         <div class="card">
-            <div class="card-title">DISPATCH PERFORMANCE</div>
+            <div class="card-title">Dispatch Performance</div>
+            <div class="table-wrap">
             <table>
                 <thead><tr><th>Location</th><th>Rakes Dispatched</th><th>Daily COD</th><th>Achievement</th><th>Rake Details</th><th>Remarks</th></tr></thead>
                 <tbody id="dispatch-table"></tbody>
             </table>
+            </div>
         </div>
 
-        <div class="grid">
+        <div class="split-grid">
             <div class="card">
-                <div class="card-title">TODAY'S LOADING FORECAST</div>
+                <div class="card-title">Today's Loading Forecast</div>
+                <div class="table-wrap">
                 <table>
                     <thead><tr><th>Location</th><th>Planned Rakes</th><th>Rake Details</th><th>Remarks</th></tr></thead>
                     <tbody id="forecast-table"></tbody>
                 </table>
+                </div>
             </div>
 
             <div class="card">
-                <div class="card-title">⚠️ MAJOR ISSUES TODAY</div>
+                <div class="card-title alert-title"><span class="flag">&#9888;</span> Major Issues Today</div>
+                <div class="table-wrap">
                 <table>
                     <thead><tr><th>Mine</th><th>Key Issues</th></tr></thead>
                     <tbody id="issues-table"></tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -271,8 +436,8 @@
             }
 
             // Update UI
-            document.getElementById('prod-date').textContent = `Production Date: ${productionDate || 'NOT FOUND'}`;
-            document.getElementById('report-date').textContent = `Report Generated: ${reportingDate || 'NOT FOUND'}`;
+            document.getElementById('prod-date').innerHTML = `<strong>Production Date:</strong> ${productionDate || 'NOT FOUND'}`;
+            document.getElementById('report-date').innerHTML = `<strong>Report Generated:</strong> ${reportingDate || 'NOT FOUND'}`;
 
             const planAchievement = dailyCODPlan > 0 ? (totalProduction / dailyCODPlan) * 100 : 0;
 
@@ -296,7 +461,7 @@
                     break;
                 }
 
-                if (inSection && col0 && col0.match(/Bolani|Barsua|Taldih|Kalta|OGISHA GROUP/i)) {
+                if (inSection && col0 && col0.match(/Bolani|Barsua|Taldih|Kalta|ODISHA GROUP/i)) {
                     const type = (row[1] || '').toString().trim();
                     const total = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
                     const lump = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
@@ -320,7 +485,7 @@
                         lumpPercent,
                         plan,
                         achievement,
-                        isTotal: col0.toUpperCase().includes('TOTAL') || col0.toUpperCase().includes('GROUP')
+                        isTotal: col0.toUpperCase().includes('TOTAL') || col0.toUpperCase().includes('GROUP') || type.toUpperCase().includes('TOTAL')
                     });
                 }
             }
@@ -481,8 +646,8 @@
         function renderProduction(production) {
             let html = '';
             production.forEach(p => {
-                html += `<tr${p.isTotal ? ' class="total-row"' : ''}>
-                    <td><strong>${p.mine}</strong></td>
+                html += `<tr${p.isTotal ? ' class="total-row"' : ''} data-mine="${p.mine}">
+                    <td class="mine-cell"><strong>${p.mine}</strong></td>
                     <td>${p.type}</td>
                     <td>${p.total > 0 ? p.total.toLocaleString() : ''}</td>
                     <td>${p.lump > 0 ? p.lump.toLocaleString() : ''}</td>
@@ -506,8 +671,8 @@
                     <td>${d.rakes > 0 ? d.rakes : ''}</td>
                     <td>${d.dailyCOD > 0 ? d.dailyCOD.toFixed(2) : ''}</td>
                     <td>${d.achievement > 0 ? d.achievement.toFixed(2) : ''}</td>
-                    <td style="font-size:11px;line-height:1.4;">${d.rakeDetails || ''}</td>
-                    <td style="font-size:11px;line-height:1.4;">${d.remarks || ''}</td>
+                    <td class="detail-cell">${d.rakeDetails || ''}</td>
+                    <td class="remark-cell">${d.remarks || ''}</td>
                 </tr>`;
             });
             document.getElementById('dispatch-table').innerHTML = html;
@@ -519,8 +684,8 @@
                 html += `<tr${f.location === 'TOTAL' ? ' class="total-row"' : ''}>
                     <td><strong>${f.location}</strong></td>
                     <td>${f.plannedRakes > 0 ? f.plannedRakes : ''}</td>
-                    <td style="font-size:11px;line-height:1.4;">${f.rakeDetails || ''}</td>
-                    <td style="font-size:11px;line-height:1.4;">${f.remarks || ''}</td>
+                    <td class="detail-cell">${f.rakeDetails || ''}</td>
+                    <td class="remark-cell">${f.remarks || ''}</td>
                 </tr>`;
             });
             document.getElementById('forecast-table').innerHTML = html;
@@ -531,7 +696,7 @@
             issues.forEach(issue => {
                 html += `<tr>
                     <td><strong>${issue.mine}</strong></td>
-                    <td style="font-size:12px;line-height:1.4;">${issue.issue}</td>
+                    <td class="detail-cell">${issue.issue}</td>
                 </tr>`;
             });
             document.getElementById('issues-table').innerHTML = html;
