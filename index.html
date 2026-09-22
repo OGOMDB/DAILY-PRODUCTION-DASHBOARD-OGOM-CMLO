@@ -592,21 +592,33 @@
 
         function extractDispatchFromInput(data) {
             const dispatch = [];
+            let inDispatchSection = false;
+            let startRow = -1;
 
-            // Find "YESTERDAY'S DISPATCH" section (starts at row 2)
-            // Data rows are 4-12
-            for (let i = 4; i <= 12 && i < data.length; i++) {
+            // Find the start of DISPATCH section
+            for (let i = 0; i < data.length; i++) {
+                const rowText = (data[i][0] || '').toString().toUpperCase();
+                if (rowText.includes('YESTERDAY') && rowText.includes('DISPATCH')) {
+                    inDispatchSection = true;
+                    startRow = i;
+                    break;
+                }
+            }
+
+            if (startRow === -1) return dispatch;
+
+            // Extract data starting from 2 rows after section title
+            for (let i = startRow + 2; i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
-                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    // Col 0 = Location
-                    // Col 1 = Rakes Dispatched
-                    // Col 2 = Daily COD Plan
-                    // Col 3 = Achievement%
-                    // Col 4 = Rake Details
-                    // Col 5 = Remarks
+                // Stop if we hit the LOADING FORECAST section
+                const rowText = (row[0] || '').toString().toUpperCase();
+                if (rowText.includes('LOADING FORECAST') || rowText.includes("TODAY'S")) {
+                    break;
+                }
 
+                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
                     let rakeDetails = (row[4] || '').toString().trim();
                     let remarks = (row[5] || '').toString().trim();
 
@@ -614,8 +626,13 @@
                     if (i + 1 < data.length) {
                         const nextRow = data[i + 1];
                         const nextCol0 = (nextRow[0] || '').toString().trim();
-                        // If next row doesn't start with location code, it's continuation
-                        if (!['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(nextCol0) && nextCol0.length > 0) {
+                        const nextRowText = nextCol0.toUpperCase();
+
+                        // Stop if next row is a section header
+                        if (nextRowText.includes('LOADING FORECAST') || nextRowText.includes("TODAY'S")) {
+                            // Don't add anything
+                        } else if (!['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(nextCol0) && nextCol0.length > 0) {
+                            // It's continuation text
                             rakeDetails += ' ' + nextCol0;
                         }
                     }
