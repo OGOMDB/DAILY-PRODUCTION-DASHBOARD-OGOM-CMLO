@@ -79,6 +79,73 @@
             box-shadow: 0 0 10px #4CAF50;
         }
 
+        .progress-bar.paused {
+            background: #FF9800;
+            box-shadow: 0 0 10px #FF9800;
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: rgba(102, 126, 234, 0.5);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .pause-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 152, 0, 0.9);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 32px;
+            font-weight: 700;
+            z-index: 10000;
+            box-shadow: 0 10px 40px rgba(255, 152, 0, 0.5);
+            animation: pulse 1.5s ease-in-out infinite;
+            display: none;
+        }
+
+        .pause-indicator.visible {
+            display: block;
+        }
+
         .section {
             position: absolute;
             top: 100px;
@@ -89,6 +156,10 @@
             opacity: 0;
             transform: translateX(100%);
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #section-1 {
+            padding: 25px 50px;
         }
 
         .section.active {
@@ -102,28 +173,34 @@
         }
 
         .section-title {
-            font-size: 42px;
+            font-size: 36px;
             font-weight: 700;
-            margin-bottom: 30px;
-            padding: 20px 30px;
+            margin-bottom: 20px;
+            padding: 15px 25px;
             background: linear-gradient(90deg, rgba(102, 126, 234, 0.3) 0%, transparent 100%);
             border-left: 6px solid #667eea;
             border-radius: 8px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
+        #section-1 .section-title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            padding: 12px 20px;
+        }
+
         /* KPI Cards */
         .kpi-grid-tv {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-            margin-bottom: 40px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .kpi-card-tv {
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-            padding: 35px 30px;
-            border-radius: 20px;
+            padding: 20px 18px;
+            border-radius: 16px;
             border: 2px solid rgba(255,255,255,0.1);
             position: relative;
             overflow: hidden;
@@ -148,15 +225,15 @@
         }
 
         .kpi-label-tv {
-            font-size: 18px;
+            font-size: 14px;
             opacity: 0.8;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
         }
 
         .kpi-value-tv {
-            font-size: 56px;
+            font-size: 42px;
             font-weight: 700;
             line-height: 1;
             background: linear-gradient(135deg, #ffffff 0%, #a8b8ff 100%);
@@ -166,9 +243,9 @@
         }
 
         .kpi-sub-tv {
-            font-size: 16px;
+            font-size: 13px;
             opacity: 0.7;
-            margin-top: 10px;
+            margin-top: 6px;
         }
 
         /* Tables */
@@ -190,19 +267,30 @@
         }
 
         table.tv-table th {
-            padding: 20px 18px;
+            padding: 12px 10px;
             text-align: left;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             border-bottom: 2px solid rgba(255,255,255,0.2);
         }
 
         table.tv-table td {
-            padding: 18px;
-            font-size: 20px;
+            padding: 10px;
+            font-size: 16px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Compact production table specifically */
+        #section-1 table.tv-table th {
+            padding: 10px 8px;
+            font-size: 13px;
+        }
+
+        #section-1 table.tv-table td {
+            padding: 8px;
+            font-size: 15px;
         }
 
         table.tv-table tbody tr {
@@ -522,6 +610,16 @@
             <div class="indicator-dot" data-section="3"></div>
             <div class="indicator-dot" data-section="4"></div>
         </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button class="control-btn" id="prev-btn" onclick="previousSection()">◀ Previous</button>
+            <button class="control-btn active" id="pause-btn" onclick="togglePause()">⏸️ Pause</button>
+            <button class="control-btn" id="next-btn" onclick="nextSection()">Next ▶</button>
+        </div>
+
+        <!-- Pause Indicator -->
+        <div class="pause-indicator" id="pause-indicator">⏸️ PAUSED</div>
     </div>
 
     <script>
@@ -533,6 +631,7 @@
         let sectionTimer;
         let refreshTimer;
         let progressInterval;
+        let isPaused = false;
 
         function parseCSV(text) {
             const rows = [];
@@ -1119,6 +1218,81 @@
             if (refreshTimer) clearInterval(refreshTimer);
             refreshTimer = setInterval(loadAllData, REFRESH_INTERVAL);
         }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const pauseBtn = document.getElementById('pause-btn');
+            const pauseIndicator = document.getElementById('pause-indicator');
+            const progressBar = document.getElementById('progress-bar');
+
+            if (isPaused) {
+                // Pause
+                if (sectionTimer) clearInterval(sectionTimer);
+                if (progressInterval) clearInterval(progressInterval);
+                pauseBtn.innerHTML = '▶️ Resume';
+                pauseBtn.classList.remove('active');
+                pauseIndicator.classList.add('visible');
+                progressBar.classList.add('paused');
+            } else {
+                // Resume
+                startAutoRotation();
+                pauseBtn.innerHTML = '⏸️ Pause';
+                pauseBtn.classList.add('active');
+                pauseIndicator.classList.remove('visible');
+                progressBar.classList.remove('paused');
+            }
+        }
+
+        function previousSection() {
+            let prevSection = currentSection - 1;
+            if (prevSection < 1) prevSection = 4;
+            showSection(prevSection);
+
+            // Reset rotation timer if not paused
+            if (!isPaused) {
+                startAutoRotation();
+            }
+        }
+
+        function nextSection() {
+            let nextSection = currentSection + 1;
+            if (nextSection > 4) nextSection = 1;
+            showSection(nextSection);
+
+            // Reset rotation timer if not paused
+            if (!isPaused) {
+                startAutoRotation();
+            }
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePause();
+            } else if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                previousSection();
+            } else if (e.code === 'ArrowRight') {
+                e.preventDefault();
+                nextSection();
+            } else if (e.code >= 'Digit1' && e.code <= 'Digit4') {
+                e.preventDefault();
+                const section = parseInt(e.code.replace('Digit', ''));
+                showSection(section);
+                if (!isPaused) {
+                    startAutoRotation();
+                }
+            }
+        });
+
+        // Click anywhere to pause/resume
+        document.addEventListener('click', (e) => {
+            // Don't toggle if clicking on control buttons
+            if (!e.target.closest('.control-btn')) {
+                togglePause();
+            }
+        });
 
         // Initialize
         window.addEventListener('load', () => {
