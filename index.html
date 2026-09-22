@@ -1421,8 +1421,19 @@
         // Helper function to get mine-specific styling
         function getMineStyle(mineName) {
             const name = mineName.toLowerCase().trim();
+            console.log(`🎨 Checking style for mine: "${mineName}" → "${name}"`);
 
             if (name.includes('bolani') && name.includes('contractual') && !name.includes('dept')) {
+                console.log('  ✅ Matched: Bolani Contractual (Tomato Red)');
+                return {
+                    cardClass: 'bolani-contractual-card',
+                    headerClass: 'bolani-contractual-header',
+                    valueClass: 'bolani-contractual-value',
+                    rowClass: 'bolani-contractual-row'
+                };
+            }
+            if (name.includes('bolani') && name.includes('departmental')) {
+                console.log('  ✅ Matched: Bolani Departmental (Steel Blue)');
                 return {
                     cardClass: 'bolani-contractual-card',
                     headerClass: 'bolani-contractual-header',
@@ -1439,6 +1450,7 @@
                 };
             }
             if (name.includes('bolani') && (name.includes('dept') || name.includes('department')) && name.includes('contractual')) {
+                console.log('  ✅ Matched: Bolani Dept+Contractual (Aquamarine)');
                 return {
                     cardClass: 'bolani-dept-contractual-card',
                     headerClass: 'bolani-dept-contractual-header',
@@ -1447,6 +1459,7 @@
                 };
             }
             if (name.includes('barsua')) {
+                console.log('  ✅ Matched: Barsua (Dark Orange)');
                 return {
                     cardClass: 'barsua-card',
                     headerClass: 'barsua-header',
@@ -1455,6 +1468,7 @@
                 };
             }
             if (name.includes('taldih')) {
+                console.log('  ✅ Matched: Taldih (Deep Pink)');
                 return {
                     cardClass: 'taldih-card',
                     headerClass: 'taldih-header',
@@ -1463,6 +1477,7 @@
                 };
             }
             if (name.includes('kalta')) {
+                console.log('  ✅ Matched: Kalta (Lime Green)');
                 return {
                     cardClass: 'kalta-card',
                     headerClass: 'kalta-header',
@@ -1471,6 +1486,7 @@
                 };
             }
 
+            console.log('  ❌ No match - using default styling');
             return null; // No special styling
         }
 
