@@ -474,8 +474,7 @@
                 statusEl.textContent = '⏳ Loading data from Google Sheets...';
 
                 const edData = await fetchSheet('ED Dashboard');
-                const dispatchData = await fetchSheet(null, 'A22:F28'); // Fetch Dispatch with columns E & F
-                const forecastData = await fetchSheet(null, 'A30:D35'); // Fetch Forecast with columns C & D
+                const dispatchInputData = await fetchSheet('Dispatch Input'); // Fetch from Dispatch Input sheet
 
                 const bolaniData = await fetchSheet('Bolani Input');
                 const barsuaData = await fetchSheet('Barsua Input');
@@ -484,8 +483,8 @@
 
                 const kpis = extractKPIs(edData);
                 const production = extractProduction(edData);
-                const dispatch = extractDispatchFromRange(dispatchData);
-                const forecast = extractForecastFromRange(forecastData);
+                const dispatch = extractDispatchFromInput(dispatchInputData);
+                const forecast = extractForecastFromInput(dispatchInputData);
                 const issues = extractIssues(edData);
 
                 const shifts = {
@@ -591,26 +590,43 @@
             return production;
         }
 
-        function extractDispatchFromRange(data) {
+        function extractDispatchFromInput(data) {
             const dispatch = [];
 
-            // Skip header row (row 0), start from row 1
-            for (let i = 1; i < data.length; i++) {
+            // Find "YESTERDAY'S DISPATCH" section (starts at row 2)
+            // Data rows are 4-12
+            for (let i = 4; i <= 12 && i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
                 if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    // Range A22:F28 gives us:
-                    // Col 0 = Location, Col 1 = Rakes, Col 2 = Daily COD, Col 3 = Achievement%
-                    // Col 4 = Rake Details (Column E), Col 5 = Remarks (Column F)
+                    // Col 0 = Location
+                    // Col 1 = Rakes Dispatched
+                    // Col 2 = Daily COD Plan
+                    // Col 3 = Achievement%
+                    // Col 4 = Rake Details
+                    // Col 5 = Remarks
+
+                    let rakeDetails = (row[4] || '').toString().trim();
+                    let remarks = (row[5] || '').toString().trim();
+
+                    // Handle multi-line data in next rows
+                    if (i + 1 < data.length) {
+                        const nextRow = data[i + 1];
+                        const nextCol0 = (nextRow[0] || '').toString().trim();
+                        // If next row doesn't start with location code, it's continuation
+                        if (!['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(nextCol0) && nextCol0.length > 0) {
+                            rakeDetails += ' ' + nextCol0;
+                        }
+                    }
 
                     dispatch.push({
                         location: col0,
                         rakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
                         dailyCOD: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
                         achievement: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
-                        rakeDetails: (row[4] || '').toString().trim(),
-                        remarks: (row[5] || '').toString().trim()
+                        rakeDetails: rakeDetails,
+                        remarks: remarks
                     });
                 }
             }
@@ -618,39 +634,46 @@
             return dispatch;
         }
 
-        function extractDispatch(data) {
-            // Legacy function - kept for compatibility
-            return [];
-        }
-
-        function extractForecastFromRange(data) {
+        function extractForecastFromInput(data) {
             const forecast = [];
 
-            // Skip header row (row 0), start from row 1
-            for (let i = 1; i < data.length; i++) {
+            // Find "TODAY'S LOADING FORECAST" section (starts at row 13)
+            // Data rows are 15-21
+            for (let i = 15; i <= 21 && i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
                 if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    // Range A30:D35 gives us:
-                    // Col 0 = Location, Col 1 = Planned Rakes
-                    // Col 2 = Rake Details (Column C), Col 3 = Remarks (Column D)
+                    // Col 0 = Location
+                    // Col 1 = Planned Rakes
+                    // Col 2 = Rake Details
+                    // Col 3 = empty
+                    // Col 4 = Remarks
+                    // Col 5 = empty
+
+                    let rakeDetails = (row[2] || '').toString().trim();
+                    let remarks = (row[4] || '').toString().trim();
+
+                    // Handle multi-line data in next rows
+                    if (i + 1 < data.length) {
+                        const nextRow = data[i + 1];
+                        const nextCol0 = (nextRow[0] || '').toString().trim();
+                        // If next row doesn't start with location code, it's continuation
+                        if (!['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(nextCol0) && nextCol0.length > 0) {
+                            rakeDetails += ' ' + nextCol0;
+                        }
+                    }
 
                     forecast.push({
                         location: col0,
                         plannedRakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
-                        rakeDetails: (row[2] || '').toString().trim(),
-                        remarks: (row[3] || '').toString().trim()
+                        rakeDetails: rakeDetails,
+                        remarks: remarks
                     });
                 }
             }
 
             return forecast;
-        }
-
-        function extractForecast(data) {
-            // Legacy function - kept for compatibility
-            return [];
         }
 
         function extractIssues(data) {
