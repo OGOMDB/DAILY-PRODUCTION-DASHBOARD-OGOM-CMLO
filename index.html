@@ -1012,7 +1012,7 @@
                     const isMineRow = col0.match(/^(Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA)/i);
 
                     if (isMineRow) {
-                        production.push({
+                        const mineData = {
                             mine: col0,
                             type: (row[1] || '').toString().trim(),
                             total: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
@@ -1023,7 +1023,9 @@
                             plan: parseFloat((row[9] || '').toString().replace(/,/g, '')) || 0,
                             achievement: parseFloat((row[10] || '').toString().replace(/,/g, '')) || 0,
                             isTotal: col0.toUpperCase().includes('TOTAL') || col0.toUpperCase().includes('GROUP')
-                        });
+                        };
+                        console.log(`Production: ${mineData.mine} - Total: ${mineData.total}, Lump%: ${mineData.lumpPercent}, Plan: ${mineData.plan}, Achievement: ${mineData.achievement}%`);
+                        production.push(mineData);
                     }
                 }
             }
@@ -1263,13 +1265,15 @@
         }
 
         function renderMobileProduction(production) {
+            console.log('📱 Mobile Production Rendering:', production);
             if (!production || production.length === 0) {
                 document.getElementById('mobile-production').innerHTML = '<div style="padding:20px; text-align:center; opacity:0.7;">No production data available</div>';
                 return;
             }
 
-            const html = production.map(mine => `
-                <div class="mobile-mine-card">
+            const html = production.map((mine, idx) => {
+                console.log(`  Mine ${idx}: ${mine.mine} - Achievement: ${mine.achievement}`);
+                return `<div class="mobile-mine-card">
                     <div class="mobile-mine-header">
                         <div class="mobile-mine-name">${mine.mine}</div>
                         <div class="mobile-mine-type">${mine.type}</div>
@@ -1300,12 +1304,12 @@
                             <div class="mobile-data-value">${mine.plan > 0 ? mine.plan.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
-                            <div class="mobile-data-label">Achievement</div>
-                            <div class="mobile-data-value">${mine.achievement > 0 ? mine.achievement.toFixed(2) : '0.00'}%</div>
+                            <div class="mobile-data-label">Achievement %</div>
+                            <div class="mobile-data-value">${mine.achievement ? mine.achievement.toFixed(2) + '%' : '-'}</div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
             document.getElementById('mobile-production').innerHTML = html;
         }
 
@@ -1328,7 +1332,7 @@
                     </div>
                     <div class="mobile-dispatch-detail-row">
                         <span>Achievement:</span>
-                        <strong>${item.achievement || '0'}%</strong>
+                        <strong>${item.achievement ? item.achievement.toFixed(2) + '%' : '-'}</strong>
                     </div>
                     ${item.rakeDetails && item.rakeDetails.trim() ? `<div class="mobile-dispatch-details"><strong>Rake Details:</strong><br>${item.rakeDetails}</div>` : ''}
                     ${item.remarks && item.remarks.trim() ? `<div class="mobile-dispatch-details"><strong>Remarks:</strong><br>${item.remarks}</div>` : ''}
