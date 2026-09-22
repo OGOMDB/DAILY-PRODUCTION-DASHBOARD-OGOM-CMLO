@@ -19,7 +19,6 @@
             margin: 0 auto;
         }
 
-        /* Header Section */
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
@@ -93,7 +92,6 @@
             font-size: 15px;
         }
 
-        /* Status Messages */
         .status {
             padding: 15px 25px;
             margin: 20px 0;
@@ -129,7 +127,6 @@
 
         .status-hidden { display: none; }
 
-        /* KPI Cards */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -185,7 +182,6 @@
             font-weight: 500;
         }
 
-        /* Card Sections */
         .card {
             background: white;
             padding: 30px;
@@ -214,7 +210,6 @@
             border-radius: 50%;
         }
 
-        /* Tables */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -261,7 +256,6 @@
             font-weight: 700;
         }
 
-        /* Grid Layout */
         .grid-2 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
@@ -269,7 +263,6 @@
             margin-bottom: 25px;
         }
 
-        /* Responsive Design */
         @media (max-width: 1200px) {
             .grid-2 {
                 grid-template-columns: 1fr;
@@ -285,27 +278,15 @@
             th, td { padding: 10px 8px; }
         }
 
-        /* Print Styles */
         @media print {
             body { background: white; padding: 0; }
             .header-actions { display: none; }
             .card { box-shadow: none; page-break-inside: avoid; }
         }
-
-        /* Loading Animation */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .loading-pulse {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <!-- Header -->
         <div class="header">
             <div class="header-top">
                 <div>
@@ -337,10 +318,8 @@
             </div>
         </div>
 
-        <!-- Status Message -->
         <div id="status" class="status status-hidden"></div>
 
-        <!-- KPI Cards -->
         <div class="kpi-grid">
             <div class="kpi-card">
                 <div class="kpi-label">⛏️ Total Production</div>
@@ -361,7 +340,6 @@
             </div>
         </div>
 
-        <!-- Production Performance -->
         <div class="card">
             <div class="card-title">📊 PRODUCTION PERFORMANCE</div>
             <div style="overflow-x: auto;">
@@ -386,7 +364,6 @@
             </div>
         </div>
 
-        <!-- Dispatch Performance -->
         <div class="card">
             <div class="card-title">🚛 DISPATCH PERFORMANCE</div>
             <div style="overflow-x: auto;">
@@ -406,7 +383,6 @@
             </div>
         </div>
 
-        <!-- Grid for Forecast and Issues -->
         <div class="grid-2">
             <div class="card">
                 <div class="card-title">📋 TODAY'S LOADING FORECAST</div>
@@ -498,6 +474,21 @@
             return parseCSV(await response.text());
         }
 
+        // SMART COLUMN FINDER - Finds text columns automatically
+        function findTextColumns(row, startCol = 0) {
+            const textColumns = [];
+
+            for (let i = startCol; i < row.length; i++) {
+                const cell = (row[i] || '').toString().trim();
+                // Text data is usually longer than 20 characters and contains letters
+                if (cell.length > 20 && cell.match(/[a-zA-Z]/)) {
+                    textColumns.push(i);
+                }
+            }
+
+            return textColumns;
+        }
+
         async function loadAllData() {
             const statusEl = document.getElementById('status');
             try {
@@ -545,7 +536,6 @@
 
                 const rowText = row.join(' ').toLowerCase();
 
-                // Find dates
                 for (let j = 0; j < row.length; j++) {
                     const cell = (row[j] || '').toString();
                     const dateMatch = cell.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}(\s+\d{1,2}:\d{2}(:\d{2})?)?)/);
@@ -562,7 +552,6 @@
                     }
                 }
 
-                // Find KPI row
                 const col0 = parseFloat((row[0] || '').toString().replace(/,/g, ''));
                 const col1 = parseFloat((row[1] || '').toString().replace(/,/g, ''));
                 const col2 = parseFloat((row[2] || '').toString().replace(/,/g, ''));
@@ -628,7 +617,6 @@
             const dispatch = [];
             let startRow = -1, endRow = -1;
 
-            // Find DISPATCH section boundaries
             for (let i = 0; i < data.length; i++) {
                 const rowText = data[i].join('|').toUpperCase();
                 if (rowText.includes('DISPATCH PERFORMANCE') && startRow === -1) {
@@ -647,16 +635,41 @@
                 return dispatch;
             }
 
-            // Extract ONLY from DISPATCH section
+            // Find the header row to detect column positions
+            let headerRow = null;
+            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
+                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
+                if (col0.includes('location')) {
+                    headerRow = data[i];
+                    console.log('📊 DISPATCH header:', headerRow);
+                    break;
+                }
+            }
+
+            // Extract data rows
             for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
                 if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    const rakeDetails = (row[4] || '').toString().trim();
-                    const remarks = (row[5] || '').toString().trim();
+                    console.log(`\n📊 DISPATCH Row ${i} [${col0}]:`);
 
-                    console.log(`  ${col0}: RakeDetails="${rakeDetails.substring(0, 30)}..." Remarks="${remarks.substring(0, 30)}..."`);
+                    // Smart detection: Find text columns (length > 20 chars with letters)
+                    const textCols = findTextColumns(row, 4); // Start searching from column 4
+                    console.log(`  Text columns found at: [${textCols.join(', ')}]`);
+
+                    let rakeDetails = '';
+                    let remarks = '';
+
+                    // Extract text from found columns
+                    if (textCols.length >= 1) {
+                        rakeDetails = (row[textCols[0]] || '').toString().trim();
+                        console.log(`  RakeDetails[${textCols[0]}]: "${rakeDetails.substring(0, 50)}..."`);
+                    }
+                    if (textCols.length >= 2) {
+                        remarks = (row[textCols[1]] || '').toString().trim();
+                        console.log(`  Remarks[${textCols[1]}]: "${remarks.substring(0, 50)}..."`);
+                    }
 
                     dispatch.push({
                         location: col0,
@@ -677,7 +690,6 @@
             const forecast = [];
             let startRow = -1, endRow = -1;
 
-            // Find FORECAST section boundaries
             for (let i = 0; i < data.length; i++) {
                 const rowText = data[i].join('|').toUpperCase();
                 if ((rowText.includes('LOADING FORECAST') || (rowText.includes('TODAY') && rowText.includes('LOADING'))) && startRow === -1) {
@@ -696,16 +708,40 @@
                 return forecast;
             }
 
-            // Extract ONLY from FORECAST section
+            // Find header
+            let headerRow = null;
+            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
+                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
+                if (col0.includes('location')) {
+                    headerRow = data[i];
+                    console.log('📋 FORECAST header:', headerRow);
+                    break;
+                }
+            }
+
+            // Extract data rows
             for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
                 if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    const rakeDetails = (row[2] || '').toString().trim();
-                    const remarks = (row[3] || '').toString().trim();
+                    console.log(`\n📋 FORECAST Row ${i} [${col0}]:`);
 
-                    console.log(`  ${col0}: RakeDetails="${rakeDetails.substring(0, 30)}..." Remarks="${remarks.substring(0, 30)}..."`);
+                    // Smart detection: Find text columns starting from column 2
+                    const textCols = findTextColumns(row, 2);
+                    console.log(`  Text columns found at: [${textCols.join(', ')}]`);
+
+                    let rakeDetails = '';
+                    let remarks = '';
+
+                    if (textCols.length >= 1) {
+                        rakeDetails = (row[textCols[0]] || '').toString().trim();
+                        console.log(`  RakeDetails[${textCols[0]}]: "${rakeDetails.substring(0, 50)}..."`);
+                    }
+                    if (textCols.length >= 2) {
+                        remarks = (row[textCols[1]] || '').toString().trim();
+                        console.log(`  Remarks[${textCols[1]}]: "${remarks.substring(0, 50)}..."`);
+                    }
 
                     forecast.push({
                         location: col0,
