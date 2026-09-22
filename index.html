@@ -925,43 +925,47 @@
             return rows;
         }
 
-        // Data Extraction Functions
+        // Data Extraction Functions (FROM WORKING FILE)
         function extractKPIs(data) {
-            const kpis = {
-                totalProduction: '0',
-                dailyCODPlan: '0',
-                lumpPercent: '0',
-                rakesDispatched: '0'
-            };
+            let totalProduction = 0, lumpPercentage = 0, rakesDispatched = 0, dailyCODPlan = 0;
+            let productionDate = '', reportingDate = '';
 
-            for (let i = 0; i < Math.min(50, data.length); i++) {
+            for (let i = 0; i < Math.min(10, data.length); i++) {
                 const row = data[i];
-                const col0 = (row[0] || '').toString().trim().toLowerCase();
-                const col1 = (row[1] || '').toString().trim();
+                if (!row) continue;
 
-                // Skip if col1 is a header or empty
-                if (!col1 || col1.toLowerCase().includes('value') || col1.toLowerCase().includes('plan') || col1.toLowerCase().includes('production')) {
-                    continue;
+                const col0 = (row[0] || '').toString().trim();
+                if (col0 === ' Production Date:' || col0 === 'Production Date:') {
+                    productionDate = (row[1] || '').toString().trim();
+                }
+                if (col0 === 'Report Generated:') {
+                    reportingDate = (row[1] || '').toString().trim();
                 }
 
-                // Check if it's a data row (col1 should be a number or numeric string)
-                const isNumeric = /^[\d,\.]+$/.test(col1);
+                const val0 = parseFloat((row[0] || '').toString().replace(/,/g, ''));
+                const val1 = parseFloat((row[1] || '').toString().replace(/,/g, ''));
+                const val2 = parseFloat((row[2] || '').toString().replace(/,/g, ''));
+                const val3 = parseFloat((row[3] || '').toString().replace(/,/g, ''));
 
-                if (col0.includes('total production') && isNumeric) {
-                    kpis.totalProduction = col1;
-                }
-                if ((col0.includes('daily cod') || col0.includes('cod plan')) && isNumeric) {
-                    kpis.dailyCODPlan = col1;
-                }
-                if (col0.includes('lump %') && isNumeric) {
-                    kpis.lumpPercent = col1;
-                }
-                if (col0.includes('rakes dispatched') && isNumeric) {
-                    kpis.rakesDispatched = col1;
+                if (val0 > 5000 && val1 > 0 && val2 > 0 && val3 > 0) {
+                    totalProduction = val0;
+                    dailyCODPlan = val1;
+                    lumpPercentage = val2;
+                    rakesDispatched = val3;
                 }
             }
 
-            return kpis;
+            const planAchievement = dailyCODPlan > 0 ? (totalProduction / dailyCODPlan) * 100 : 0;
+
+            return {
+                totalProduction,
+                planAchievement,
+                lumpPercentage,
+                rakesDispatched,
+                dailyCODPlan,
+                productionDate,
+                reportingDate
+            };
         }
 
         function extractDates(data) {
@@ -990,39 +994,37 @@
             for (let i = 0; i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
-                const rowText = row.join('|').toUpperCase();
 
-                if (rowText.includes('PRODUCTION PERFORMANCE') || rowText.includes('PRODUCTION BY MINE')) {
+                // Start section
+                if (col0.toLowerCase().includes('production performance') || col0.toLowerCase().includes('mine/area')) {
                     inSection = true;
                     continue;
                 }
 
-                if (inSection && (rowText.includes('DISPATCH') || rowText.includes('LOADING FORECAST') || i > 100)) {
+                // End section
+                if (inSection && (col0.toLowerCase().includes('dispatch') || i > 30)) {
                     break;
                 }
 
-                if (inSection && /^(Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA)/i.test(col0)) {
-                    const total = parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0;
-                    const lump = parseFloat((row[3] || '0').toString().replace(/,/g, '')) || 0;
+                // Extract mine data - check for any row with mine names
+                if (inSection && col0.length > 0) {
+                    // Check if this row contains mine data
+                    const isMineRow = col0.match(/^(Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA)/i);
 
-                    // Calculate Lump % = (Lump / Total) * 100
-                    let lumpPercent = '0';
-                    if (total > 0 && lump > 0) {
-                        lumpPercent = ((lump / total) * 100).toFixed(2);
+                    if (isMineRow) {
+                        production.push({
+                            mine: col0,
+                            type: (row[1] || '').toString().trim(),
+                            total: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
+                            lump: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
+                            fines: parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0,
+                            rom: parseFloat((row[5] || '').toString().replace(/,/g, '')) || 0,
+                            lumpPercent: parseFloat((row[8] || '').toString().replace(/,/g, '')) || 0,
+                            plan: parseFloat((row[9] || '').toString().replace(/,/g, '')) || 0,
+                            achievement: parseFloat((row[10] || '').toString().replace(/,/g, '')) || 0,
+                            isTotal: col0.toUpperCase().includes('TOTAL') || col0.toUpperCase().includes('GROUP')
+                        });
                     }
-
-                    const mine = {
-                        name: col0,
-                        type: (row[1] || '').toString().trim(),
-                        total: (row[2] || '0').toString().trim(),
-                        lump: (row[3] || '0').toString().trim(),
-                        fines: (row[4] || '0').toString().trim(),
-                        rom: (row[5] || '0').toString().trim(),
-                        lumpPercent: lumpPercent,
-                        dailyPlan: (row[7] || '0').toString().trim(),
-                        achievement: (row[8] || '0').toString().trim()
-                    };
-                    production.push(mine);
                 }
             }
 
@@ -1143,76 +1145,97 @@
         }
 
         function extractShiftData(data, mineName) {
-            const shifts = {
-                total: 0,
-                A: { production: 0 },
-                B: { production: 0 },
-                C: { production: 0 },
-                CP: null,
-                LWP: null
-            };
-            let inSection = false;
-            let hasCPData = false;
-
-            console.log(`⚙️ Extracting shift data for ${mineName}...`);
-
-            for (let i = 0; i < data.length; i++) {
-                const row = data[i];
-                const col0 = (row[0] || '').toString().trim().toUpperCase();
-                const col1 = (row[1] || '').toString().trim().toUpperCase();
-
-                if (col0.includes('SHIFT') && col0.includes('WISE')) {
-                    inSection = true;
-                    if (row.join('|').toUpperCase().includes('CP')) hasCPData = true;
-                    console.log(`  Found shift section at row ${i}, hasCPData: ${hasCPData}`);
-                    continue;
+            const result = {
+                mineName: mineName,
+                totalProduction: 0,
+                hasCPData: false,
+                hasShiftBreakdown: false,
+                totalLossTime: 0,
+                shifts: {
+                    A: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
+                    B: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
+                    C: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 }
                 }
+            };
 
-                if (inSection && (col0.includes('REMARK') || i > data.length - 5)) {
-                    console.log(`  End of shift section at row ${i}`);
+            let hasLWP = false, hasCP = false, hasShiftABC = false, hasShiftAll = false;
+
+            for (let i = 0; i < Math.min(50, data.length); i++) {
+                const col0 = (data[i][0] || '').toString().trim().toUpperCase();
+                const col1 = (data[i][1] || '').toString().trim().toUpperCase();
+                if (col1 === 'LWP') hasLWP = true;
+                if (col1 === 'CP') hasCP = true;
+                if (col0 === 'A' || col0 === 'B' || col0 === 'C') hasShiftABC = true;
+                if (col0 === 'ALL') hasShiftAll = true;
+            }
+
+            result.hasCPData = hasCP && hasLWP;
+            result.hasShiftBreakdown = hasShiftABC;
+
+            for (let i = 0; i < Math.min(10, data.length); i++) {
+                const col0 = (data[i][0] || '').toString().trim();
+                if (col0 === 'Production') {
+                    result.totalProduction = parseFloat((data[i][1] || '').toString().replace(/,/g, '')) || 0;
                     break;
                 }
+            }
 
-                if (inSection) {
-                    if (col0 === 'TOTAL' && col1 === '') {
-                        shifts.total = parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0;
-                        console.log(`  Total: ${shifts.total}`);
-                    }
+            if (result.hasCPData) {
+                for (let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    const col0 = (row[0] || '').toString().trim().toUpperCase();
+                    const col1 = (row[1] || '').toString().trim().toUpperCase();
 
-                    if (['A', 'B', 'C'].includes(col0)) {
-                        if (hasCPData) {
-                            if (col1 === 'CP') {
-                                shifts.CP = shifts.CP || {};
-                                shifts.CP[col0] = {
-                                    trips: parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0,
-                                    operatingHours: parseFloat((row[3] || '0').toString().replace(/,/g, '')) || 0,
-                                    lossTime: parseFloat((row[4] || '0').toString().replace(/,/g, '')) || 0
-                                };
-                                console.log(`  CP ${col0}: ${JSON.stringify(shifts.CP[col0])}`);
-                            } else if (col1 === 'LWP') {
-                                shifts.LWP = shifts.LWP || {};
-                                shifts.LWP[col0] = {
-                                    production: parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0,
-                                    lossTime: parseFloat((row[5] || '0').toString().replace(/,/g, '')) || 0
-                                };
-                                shifts[col0] = { production: shifts.LWP[col0].production };
-                                console.log(`  LWP ${col0}: ${JSON.stringify(shifts.LWP[col0])}`);
-                            }
-                        } else {
-                            shifts[col0] = {
-                                production: parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0,
-                                trips: parseFloat((row[3] || '0').toString().replace(/,/g, '')) || 0,
-                                operatingHours: parseFloat((row[4] || '0').toString().replace(/,/g, '')) || 0,
-                                lossTime: parseFloat((row[5] || '0').toString().replace(/,/g, '')) || 0
-                            };
-                            console.log(`  Shift ${col0}: ${JSON.stringify(shifts[col0])}`);
+                    let shift = null;
+                    if (col0 === 'A') shift = 'A';
+                    else if (col0 === 'B') shift = 'B';
+                    else if (col0 === 'C') shift = 'C';
+
+                    if (shift) {
+                        if (col1 === 'CP') {
+                            result.shifts[shift].cpTrips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                            result.shifts[shift].cpOperatingHrs = parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0;
+                            result.shifts[shift].cpLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
+                        } else if (col1 === 'LWP') {
+                            result.shifts[shift].lwpProduction = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
+                            result.shifts[shift].lwpLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
                         }
+                    }
+                }
+                result.totalProduction = result.shifts.A.lwpProduction + result.shifts.B.lwpProduction + result.shifts.C.lwpProduction;
+
+            } else if (result.hasShiftBreakdown) {
+                for (let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    const col0 = (row[0] || '').toString().trim().toUpperCase();
+                    const col1 = (row[1] || '').toString().trim().toUpperCase();
+
+                    let shift = null;
+                    if (col0 === 'A') shift = 'A';
+                    else if (col0 === 'B') shift = 'B';
+                    else if (col0 === 'C') shift = 'C';
+
+                    if (shift && col1 === 'ROM') {
+                        result.shifts[shift].trips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                        result.shifts[shift].production = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
+                        result.shifts[shift].operatingHrs = parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0;
+                        result.shifts[shift].lossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
+                    }
+                }
+
+            } else if (hasShiftAll) {
+                for (let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    const col0 = (row[0] || '').toString().trim().toUpperCase();
+
+                    if (col0 === 'ALL') {
+                        result.totalLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
+                        break;
                     }
                 }
             }
 
-            console.log(`  ✅ ${mineName} final shift data:`, shifts);
-            return shifts;
+            return result;
         }
 
         // Render Functions - MOBILE
@@ -1220,65 +1243,70 @@
             document.getElementById('mobile-kpis').innerHTML = `
                 <div class="mobile-kpi-card">
                     <div class="mobile-kpi-label">Total Production</div>
-                    <div class="mobile-kpi-value">${kpis.totalProduction || '0'}</div>
+                    <div class="mobile-kpi-value">${kpis.totalProduction.toLocaleString()}</div>
                     <div class="mobile-kpi-sub">MT</div>
                 </div>
                 <div class="mobile-kpi-card">
                     <div class="mobile-kpi-label">Daily COD Plan Achievement</div>
-                    <div class="mobile-kpi-value">${kpis.dailyCODPlan || '0'}</div>
-                    <div class="mobile-kpi-sub">of 50,500 MT</div>
+                    <div class="mobile-kpi-value">${kpis.planAchievement.toFixed(1)}%</div>
+                    <div class="mobile-kpi-sub">of ${kpis.dailyCODPlan.toLocaleString()} MT</div>
                 </div>
                 <div class="mobile-kpi-card">
                     <div class="mobile-kpi-label">Lump %</div>
-                    <div class="mobile-kpi-value">${kpis.lumpPercent || '0'}</div>
+                    <div class="mobile-kpi-value">${kpis.lumpPercentage.toFixed(1)}%</div>
                 </div>
                 <div class="mobile-kpi-card">
                     <div class="mobile-kpi-label">Rakes Dispatched</div>
-                    <div class="mobile-kpi-value">${kpis.rakesDispatched || '0'}</div>
+                    <div class="mobile-kpi-value">${kpis.rakesDispatched}</div>
                 </div>
             `;
         }
 
         function renderMobileProduction(production) {
+            if (!production || production.length === 0) {
+                document.getElementById('mobile-production').innerHTML = '<div style="padding:20px; text-align:center; opacity:0.7;">No production data available</div>';
+                return;
+            }
+
             const html = production.map(mine => `
                 <div class="mobile-mine-card">
                     <div class="mobile-mine-header">
-                        <div class="mobile-mine-name">${mine.name || 'Unknown'}</div>
-                        <div class="mobile-mine-type">${mine.type || 'N/A'}</div>
+                        <div class="mobile-mine-name">${mine.mine}</div>
+                        <div class="mobile-mine-type">${mine.type}</div>
                     </div>
                     <div class="mobile-data-grid">
                         <div class="mobile-data-item">
                             <div class="mobile-data-label">Total Production</div>
-                            <div class="mobile-data-value">${mine.total || '0'} MT</div>
+                            <div class="mobile-data-value">${mine.total > 0 ? mine.total.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
                             <div class="mobile-data-label">Lump</div>
-                            <div class="mobile-data-value">${mine.lump || '0'} MT</div>
+                            <div class="mobile-data-value">${mine.lump > 0 ? mine.lump.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
                             <div class="mobile-data-label">Fines</div>
-                            <div class="mobile-data-value">${mine.fines || '0'} MT</div>
+                            <div class="mobile-data-value">${mine.fines > 0 ? mine.fines.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
                             <div class="mobile-data-label">ROM</div>
-                            <div class="mobile-data-value">${mine.rom || '0'} MT</div>
+                            <div class="mobile-data-value">${mine.rom > 0 ? mine.rom.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item" style="background: rgba(76,175,80,0.2); padding: 8px; border-radius: 6px;">
                             <div class="mobile-data-label" style="color: #4CAF50; font-weight: 600;">Lump %</div>
-                            <div class="mobile-data-value" style="color: #4CAF50; font-size: 18px;">${mine.lumpPercent || '0'}%</div>
+                            <div class="mobile-data-value" style="color: #4CAF50; font-size: 18px;">${mine.lumpPercent > 0 ? mine.lumpPercent.toFixed(2) : '0.00'}%</div>
                         </div>
                         <div class="mobile-data-item">
                             <div class="mobile-data-label">Daily Plan</div>
-                            <div class="mobile-data-value">${mine.dailyPlan || '0'} MT</div>
+                            <div class="mobile-data-value">${mine.plan > 0 ? mine.plan.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
                             <div class="mobile-data-label">Achievement</div>
-                            <div class="mobile-data-value">${mine.achievement || '0'}%</div>
+                            <div class="mobile-data-value">${mine.achievement > 0 ? mine.achievement.toFixed(2) : '0.00'}%</div>
                         </div>
                     </div>
                 </div>
             `).join('');
-            document.getElementById('mobile-production').innerHTML = html || '<div style="padding:20px; text-align:center; opacity:0.7;">Loading production data...</div>';
+            document.getElementById('mobile-production').innerHTML = html;
         }
 
         function renderMobileDispatch(dispatch) {
@@ -1330,86 +1358,76 @@
         }
 
         function renderMobileShifts(allShifts) {
-            console.log('📱 Rendering mobile shifts:', allShifts);
-            const mines = ['Bolani', 'Barsua', 'Taldih', 'Kalta'];
-            const html = mines.map(mine => {
-                const shifts = allShifts[mine];
-                if (!shifts) {
-                    console.log(`  ❌ No shift data for ${mine}`);
-                    return '';
-                }
-                console.log(`  ✅ Rendering ${mine}:`, shifts);
+            const html = Object.keys(allShifts).map(mineName => {
+                const mineData = allShifts[mineName];
+                if (!mineData) return '';
 
                 let shiftHTML = '';
-                if (shifts.CP && shifts.LWP) {
+                if (mineData.hasCPData) {
                     // Bolani with CP/LWP
                     shiftHTML = `
                         <div style="margin-bottom:12px;">
-                            <div style="font-size:12px; font-weight:700; color:#4CAF50; margin-bottom:8px;">Production (LWP - MT)</div>
+                            <div style="font-size:12px; font-weight:700; color:#4CAF50; margin-bottom:8px;">LWP Production</div>
                             <div class="mobile-shift-grid">
                                 ${['A', 'B', 'C'].map(s => `
                                     <div class="mobile-shift-item">
                                         <div class="mobile-shift-name">Shift ${s}</div>
-                                        <div class="mobile-shift-value">${shifts.LWP?.[s]?.production || 0}</div>
+                                        <div class="mobile-shift-value">${mineData.shifts[s].lwpProduction.toLocaleString()}</div>
                                         <div class="mobile-shift-label">MT</div>
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
                         <div style="margin-bottom:12px;">
-                            <div style="font-size:12px; font-weight:700; color:#2196F3; margin-bottom:8px;">CP - Trips / Op.Hrs / Loss</div>
+                            <div style="font-size:12px; font-weight:700; color:#2196F3; margin-bottom:8px;">CP Metrics</div>
                             <div class="mobile-shift-grid">
                                 ${['A', 'B', 'C'].map(s => `
                                     <div class="mobile-shift-item">
                                         <div class="mobile-shift-name">Shift ${s}</div>
                                         <div class="mobile-shift-value" style="font-size:11px;">
-                                            ${shifts.CP?.[s]?.trips || 0}T / ${shifts.CP?.[s]?.operatingHours || 0}H / ${shifts.CP?.[s]?.lossTime || 0}L
+                                            ${mineData.shifts[s].cpTrips}T / ${mineData.shifts[s].cpOperatingHrs.toFixed(1)}H / ${mineData.shifts[s].cpLossTime}L
                                         </div>
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
                     `;
-                } else {
-                    // Other mines - show all available data
+                } else if (mineData.hasShiftBreakdown) {
+                    // Other mines with shift breakdown
                     shiftHTML = `
                         <div class="mobile-shift-grid">
-                            ${['A', 'B', 'C'].map(s => {
-                                const shiftData = shifts[s];
-                                if (!shiftData) return `
-                                    <div class="mobile-shift-item">
-                                        <div class="mobile-shift-name">Shift ${s}</div>
-                                        <div class="mobile-shift-value">0</div>
-                                        <div class="mobile-shift-label">MT</div>
-                                    </div>
-                                `;
-
-                                return `
-                                    <div class="mobile-shift-item">
-                                        <div class="mobile-shift-name">Shift ${s}</div>
-                                        <div class="mobile-shift-value">${shiftData.production || 0}</div>
-                                        <div class="mobile-shift-label">MT</div>
-                                        ${shiftData.trips ? `<div class="mobile-shift-label">Trips: ${shiftData.trips}</div>` : ''}
-                                        ${shiftData.lossTime ? `<div class="mobile-shift-label">Loss: ${shiftData.lossTime}</div>` : ''}
-                                    </div>
-                                `;
-                            }).join('')}
+                            ${['A', 'B', 'C'].map(s => `
+                                <div class="mobile-shift-item">
+                                    <div class="mobile-shift-name">Shift ${s}</div>
+                                    <div class="mobile-shift-value">${mineData.shifts[s].production.toLocaleString()}</div>
+                                    <div class="mobile-shift-label">MT</div>
+                                    ${mineData.shifts[s].trips ? `<div class="mobile-shift-label">Trips: ${mineData.shifts[s].trips}</div>` : ''}
+                                    ${mineData.shifts[s].lossTime ? `<div class="mobile-shift-label">Loss: ${mineData.shifts[s].lossTime}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else if (mineData.totalLossTime > 0) {
+                    shiftHTML = `
+                        <div style="padding:10px; background: rgba(255,152,0,0.2); border-radius:8px; text-align:center;">
+                            <div style="font-size:11px; opacity:0.8;">Total Loss Time</div>
+                            <div style="font-size:18px; font-weight:700; color:#FF9800;">${mineData.totalLossTime} min</div>
                         </div>
                     `;
                 }
 
                 return `
                     <div class="mobile-shift-card">
-                        <div class="mobile-shift-header">${mine}</div>
+                        <div class="mobile-shift-header">${mineData.mineName}</div>
                         <div class="mobile-shift-total">
-                            <div class="mobile-shift-total-label">Total Production</div>
-                            <div class="mobile-shift-total-value">${shifts.total || 0} MT</div>
+                            <div class="mobile-shift-total-label">Total Production ${mineData.hasCPData ? '(LWP Only)' : ''}</div>
+                            <div class="mobile-shift-total-value">${mineData.totalProduction.toLocaleString()} MT</div>
                         </div>
                         ${shiftHTML}
                     </div>
                 `;
             }).join('');
-            document.getElementById('mobile-shifts').innerHTML = html || '<div style="padding:20px; text-align:center; opacity:0.7;">Loading shift data...</div>';
+            document.getElementById('mobile-shifts').innerHTML = html || '<div style="padding:20px; text-align:center; opacity:0.7;">No shift data available</div>';
         }
 
         function renderMobileIssues(issues) {
@@ -1426,21 +1444,21 @@
             document.getElementById('tv-kpis').innerHTML = `
                 <div class="kpi-card-tv">
                     <div class="kpi-label-tv">Total Production</div>
-                    <div class="kpi-value-tv">${kpis.totalProduction || '0'}</div>
+                    <div class="kpi-value-tv">${kpis.totalProduction.toLocaleString()}</div>
                     <div class="kpi-sub-tv">MT</div>
                 </div>
                 <div class="kpi-card-tv">
                     <div class="kpi-label-tv">Daily COD Plan Achievement</div>
-                    <div class="kpi-value-tv">${kpis.dailyCODPlan || '0'}</div>
-                    <div class="kpi-sub-tv">of 50,500 MT</div>
+                    <div class="kpi-value-tv">${kpis.planAchievement.toFixed(1)}</div>
+                    <div class="kpi-sub-tv">% of ${kpis.dailyCODPlan.toLocaleString()} MT</div>
                 </div>
                 <div class="kpi-card-tv">
                     <div class="kpi-label-tv">Lump %</div>
-                    <div class="kpi-value-tv">${kpis.lumpPercent || '0'}</div>
+                    <div class="kpi-value-tv">${kpis.lumpPercentage.toFixed(1)}</div>
                 </div>
                 <div class="kpi-card-tv">
                     <div class="kpi-label-tv">Rakes Dispatched</div>
-                    <div class="kpi-value-tv">${kpis.rakesDispatched || '0'}</div>
+                    <div class="kpi-value-tv">${kpis.rakesDispatched}</div>
                 </div>
             `;
         }
@@ -1451,19 +1469,20 @@
                 return;
             }
 
-            const html = production.map(mine => `
-                <tr>
-                    <td><strong>${mine.name || 'Unknown'}</strong></td>
-                    <td>${mine.type || 'N/A'}</td>
-                    <td>${mine.total || '0'}</td>
-                    <td>${mine.lump || '0'}</td>
-                    <td>${mine.fines || '0'}</td>
-                    <td>${mine.rom || '0'}</td>
-                    <td><strong style="color:#4CAF50;">${mine.lumpPercent || '0'}</strong></td>
-                    <td>${mine.dailyPlan || '0'}</td>
-                    <td>${mine.achievement || '0'}</td>
-                </tr>
-            `).join('');
+            let html = '';
+            production.forEach(p => {
+                html += `<tr${p.isTotal ? ' class="total-row-tv"' : ''}>
+                    <td><strong>${p.mine}</strong></td>
+                    <td>${p.type}</td>
+                    <td>${p.total > 0 ? p.total.toLocaleString() : ''}</td>
+                    <td>${p.lump > 0 ? p.lump.toLocaleString() : ''}</td>
+                    <td>${p.fines > 0 ? p.fines.toLocaleString() : ''}</td>
+                    <td>${p.rom > 0 ? p.rom.toLocaleString() : ''}</td>
+                    <td><strong style="color:#4CAF50;">${p.lumpPercent > 0 ? p.lumpPercent.toFixed(2) : ''}</strong></td>
+                    <td>${p.plan > 0 ? p.plan.toLocaleString() : ''}</td>
+                    <td>${p.achievement > 0 ? p.achievement.toFixed(2) : ''}</td>
+                </tr>`;
+            });
             document.getElementById('tv-production-body').innerHTML = html;
         }
 
@@ -1513,89 +1532,83 @@
         }
 
         function renderTVShifts(allShifts) {
-            console.log('📺 Rendering TV shifts:', allShifts);
-            const mines = ['Bolani', 'Barsua', 'Taldih', 'Kalta'];
-            const html = mines.map(mine => {
-                const shifts = allShifts[mine];
-                if (!shifts) {
-                    console.log(`  ❌ No shift data for ${mine}`);
-                    return '';
-                }
-                console.log(`  ✅ Rendering ${mine}:`, shifts);
+            let html = '';
 
-                let shiftHTML = '';
-                if (shifts.CP && shifts.LWP) {
-                    // Bolani with CP/LWP structure
-                    shiftHTML = `
-                        <div class="shift-detail-header-tv">LWP - Production & Loss Time</div>
-                        <div class="shift-metrics-tv">
-                            ${['A', 'B', 'C'].map(s => `
+            Object.keys(allShifts).forEach(mineName => {
+                const mineData = allShifts[mineName];
+
+                html += `<div class="shift-mine-tv">
+                    <div class="shift-mine-title-tv">🏭 ${mineData.mineName}</div>
+
+                    <div class="shift-total-tv">
+                        <div class="shift-total-label-tv">Total Production ${mineData.hasCPData ? '(LWP Only)' : ''}</div>
+                        <div class="shift-total-value-tv">${mineData.totalProduction.toLocaleString()} MT</div>
+                    </div>`;
+
+                if (mineData.hasShiftBreakdown || mineData.hasCPData) {
+                    ['A', 'B', 'C'].forEach(shiftName => {
+                        const shift = mineData.shifts[shiftName];
+
+                        if (!mineData.hasCPData && shift.production === 0 && shift.trips === 0) {
+                            return;
+                        }
+
+                        html += `<div class="shift-detail-tv shift-${shiftName.toLowerCase()}">
+                            <div class="shift-detail-header-tv">⚙️ SHIFT ${shiftName}</div>
+                            <div class="shift-metrics-tv">`;
+
+                        if (mineData.hasCPData) {
+                            html += `
                                 <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">Shift ${s}</div>
-                                    <div class="shift-metric-value-tv">
-                                        ${shifts.LWP?.[s]?.production || 0} MT
-                                    </div>
-                                    <div class="shift-metric-label-tv" style="margin-top:5px; opacity:0.8;">
-                                        Loss: ${shifts.LWP?.[s]?.lossTime || 0}
-                                    </div>
+                                    <div class="shift-metric-label-tv">LWP Production</div>
+                                    <div class="shift-metric-value-tv">${shift.lwpProduction.toLocaleString()} MT</div>
                                 </div>
-                            `).join('')}
-                        </div>
-                        <div class="shift-detail-header-tv" style="margin-top:15px;">CP - Trips / Operating Hours / Loss Time</div>
-                        <div class="shift-metrics-tv">
-                            ${['A', 'B', 'C'].map(s => `
                                 <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">Shift ${s}</div>
-                                    <div class="shift-metric-value-tv" style="font-size:14px;">
-                                        ${shifts.CP?.[s]?.trips || 0}T / ${shifts.CP?.[s]?.operatingHours || 0}H / ${shifts.CP?.[s]?.lossTime || 0}L
-                                    </div>
+                                    <div class="shift-metric-label-tv">CP Trips</div>
+                                    <div class="shift-metric-value-tv">${shift.cpTrips}</div>
                                 </div>
-                            `).join('')}
-                        </div>
-                    `;
-                } else {
-                    // Other mines - show production, trips, and loss time if available
-                    shiftHTML = `
-                        <div class="shift-detail-header-tv">Shift Data</div>
-                        <div class="shift-metrics-tv">
-                            ${['A', 'B', 'C'].map(s => {
-                                const shiftData = shifts[s];
-                                if (!shiftData) return `
-                                    <div class="shift-metric-tv">
-                                        <div class="shift-metric-label-tv">Shift ${s}</div>
-                                        <div class="shift-metric-value-tv">0 MT</div>
-                                    </div>
-                                `;
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">CP Hrs</div>
+                                    <div class="shift-metric-value-tv">${shift.cpOperatingHrs.toFixed(1)}</div>
+                                </div>
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">CP Loss</div>
+                                    <div class="shift-metric-value-tv">${shift.cpLossTime} min</div>
+                                </div>
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">LWP Loss</div>
+                                    <div class="shift-metric-value-tv">${shift.lwpLossTime} min</div>
+                                </div>`;
+                        } else {
+                            html += `
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">ROM Production</div>
+                                    <div class="shift-metric-value-tv">${shift.production.toLocaleString()} MT</div>
+                                </div>
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">Trips</div>
+                                    <div class="shift-metric-value-tv">${shift.trips}</div>
+                                </div>
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">Loss Time</div>
+                                    <div class="shift-metric-value-tv">${shift.lossTime} min</div>
+                                </div>`;
+                        }
 
-                                let details = `${shiftData.production || 0} MT`;
-                                if (shiftData.trips) details += `<br>Trips: ${shiftData.trips}`;
-                                if (shiftData.operatingHours) details += `<br>Hours: ${shiftData.operatingHours}`;
-                                if (shiftData.lossTime) details += `<br>Loss: ${shiftData.lossTime}`;
-
-                                return `
-                                    <div class="shift-metric-tv">
-                                        <div class="shift-metric-label-tv">Shift ${s}</div>
-                                        <div class="shift-metric-value-tv" style="font-size:13px; line-height:1.5;">
-                                            ${details}
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                        html += `</div></div>`;
+                    });
+                } else if (mineData.totalLossTime > 0) {
+                    html += `<div class="shift-detail-tv">
+                        <div class="shift-metric-tv">
+                            <div class="shift-metric-label-tv">Total Loss Time</div>
+                            <div class="shift-metric-value-tv">${mineData.totalLossTime} min</div>
                         </div>
-                    `;
+                    </div>`;
                 }
 
-                return `
-                    <div class="shift-mine-tv">
-                        <div class="shift-mine-title-tv">${mine}</div>
-                        <div class="shift-total-tv">
-                            <div class="shift-total-label-tv">Total Production</div>
-                            <div class="shift-total-value-tv">${shifts.total || 0} MT</div>
-                        </div>
-                        ${shiftHTML}
-                    </div>
-                `;
-            }).join('');
+                html += `</div>`;
+            });
+
             document.getElementById('tv-shifts-grid').innerHTML = html || '<div style="padding:40px; text-align:center; opacity:0.7;">No shift data available</div>';
         }
 
@@ -1634,18 +1647,22 @@
                 const forecast = extractForecastFromInput(dispatchData);
                 const issues = extractMajorIssues(edData);
 
+                // Update dates
+                if (isMobile || isTablet) {
+                    document.getElementById('mobile-prod-date').textContent = kpis.productionDate || 'N/A';
+                    document.getElementById('mobile-report-date').textContent = kpis.reportingDate || 'N/A';
+                } else {
+                    document.getElementById('tv-prod-date').textContent = kpis.productionDate || 'N/A';
+                    document.getElementById('tv-report-date').textContent = kpis.reportingDate || 'N/A';
+                }
+
                 // Debug logging
                 console.log('====== DATA EXTRACTION COMPLETE ======');
                 console.log('📊 KPIs:', kpis);
-                console.log('📅 Dates:', dates);
                 console.log('🏭 Production:', production.length, 'mines');
-                production.forEach(m => console.log(`  ${m.name}: Total=${m.total}, Lump=${m.lump}, Lump%=${m.lumpPercent}`));
                 console.log('🚂 Dispatch:', dispatch.length, 'items');
                 console.log('📋 Forecast:', forecast.length, 'items');
                 console.log('⚙️ Shifts:', Object.keys(mineData));
-                Object.keys(mineData).forEach(mine => {
-                    console.log(`  ${mine}: Total=${mineData[mine].total}, Shifts A/B/C:`, mineData[mine].A, mineData[mine].B, mineData[mine].C);
-                });
                 console.log('⚠️ Issues:', issues.length, 'items');
                 console.log('=====================================');
 
