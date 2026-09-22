@@ -156,19 +156,25 @@
             transform: translate(-50%, -50%);
             background: rgba(255, 152, 0, 0.95);
             color: white;
-            padding: 15px 35px;
-            border-radius: 40px;
-            font-size: 28px;
+            padding: 12px 28px;
+            border-radius: 35px;
+            font-size: 22px;
             font-weight: 700;
             z-index: 10000;
             box-shadow: 0 8px 30px rgba(255, 152, 0, 0.6);
-            animation: pulse 1.5s ease-in-out infinite;
+            animation: fadeOut 2s ease-in-out forwards;
             display: none;
             pointer-events: none;
         }
 
         .pause-indicator.visible {
             display: block;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
 
         .drag-hint {
@@ -192,6 +198,23 @@
             10% { opacity: 1; transform: translateY(0); }
             90% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* Scroll indicator for tables on mobile */
+        .scroll-hint {
+            position: relative;
+        }
+
+        .scroll-hint::after {
+            content: '← Swipe to see more →';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            pointer-events: none;
         }
 
         /* ============================================ */
@@ -230,15 +253,16 @@
             }
 
             .section {
-                padding: 15px 10px;
+                padding: 12px 8px;
+                overflow-y: auto;
             }
 
             #section-1 {
-                padding: 15px 10px;
+                padding: 10px 5px;
             }
 
             #section-4 {
-                padding: 15px 10px;
+                padding: 12px 8px;
             }
 
             .section-title {
@@ -282,26 +306,99 @@
             .table-container-tv {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                max-width: 100%;
+                border-radius: 8px;
+                position: relative;
+                margin-bottom: 25px;
+            }
+
+            .table-container-tv.scroll-hint::after {
+                content: '← Swipe table to see more →';
+                position: absolute;
+                bottom: -20px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 9px;
+                color: rgba(255,255,255,0.4);
+                white-space: nowrap;
+                pointer-events: none;
+                animation: blink 2s ease-in-out infinite;
+            }
+
+            @keyframes blink {
+                0%, 50%, 100% { opacity: 0.4; }
+                25%, 75% { opacity: 0.8; }
+            }
+
+            table.tv-table {
+                min-width: 100%;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            table.tv-table thead,
+            table.tv-table tbody {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
             }
 
             table.tv-table th {
-                padding: 8px 6px;
-                font-size: 10px;
+                padding: 6px 4px;
+                font-size: 9px;
+                white-space: normal;
+                word-wrap: break-word;
             }
 
             table.tv-table td {
-                padding: 6px;
-                font-size: 11px;
+                padding: 5px 3px;
+                font-size: 10px;
+                white-space: normal;
+                word-wrap: break-word;
+                line-height: 1.3;
             }
 
             #section-1 table.tv-table th {
-                padding: 6px 4px;
-                font-size: 9px;
+                padding: 5px 3px;
+                font-size: 8px;
             }
 
             #section-1 table.tv-table td {
-                padding: 5px;
-                font-size: 10px;
+                padding: 4px 2px;
+                font-size: 9px;
+            }
+
+            /* Make specific columns narrower on mobile */
+            #section-1 table.tv-table th:nth-child(1),
+            #section-1 table.tv-table td:nth-child(1) {
+                min-width: 60px;
+                max-width: 80px;
+            }
+
+            #section-1 table.tv-table th:nth-child(2),
+            #section-1 table.tv-table td:nth-child(2) {
+                min-width: 40px;
+                max-width: 60px;
+            }
+
+            /* Compact view for dispatch and forecast tables */
+            #section-2 table.tv-table,
+            #section-3 table.tv-table {
+                font-size: 9px;
+            }
+
+            #section-2 table.tv-table th,
+            #section-3 table.tv-table th {
+                padding: 5px 3px;
+                font-size: 8px;
+            }
+
+            #section-2 table.tv-table td,
+            #section-3 table.tv-table td {
+                padding: 4px 3px;
+                font-size: 9px;
+                line-height: 1.2;
             }
 
             /* Shift Grid - Mobile */
@@ -380,8 +477,9 @@
             }
 
             .pause-indicator {
-                font-size: 20px;
-                padding: 12px 25px;
+                font-size: 16px;
+                padding: 8px 20px;
+                border-radius: 25px;
             }
 
             .drag-hint {
@@ -1593,6 +1691,11 @@
                 pauseBtn.classList.remove('active');
                 pauseIndicator.classList.add('visible');
                 progressBar.classList.add('paused');
+
+                // Hide pause indicator after 2 seconds so ED can see data clearly
+                setTimeout(() => {
+                    pauseIndicator.classList.remove('visible');
+                }, 2000);
             } else {
                 // Resume
                 startAutoRotation();
@@ -1878,6 +1981,19 @@
             const fullscreenBtn = document.getElementById('fullscreen-btn');
             if (isMobile || isTablet) {
                 fullscreenBtn.style.display = 'flex';
+
+                // Add scroll hints to tables on mobile
+                const tableContainers = document.querySelectorAll('.table-container-tv');
+                tableContainers.forEach(container => {
+                    container.classList.add('scroll-hint');
+                });
+
+                // Remove scroll hints after 10 seconds
+                setTimeout(() => {
+                    tableContainers.forEach(container => {
+                        container.classList.remove('scroll-hint');
+                    });
+                }, 10000);
             }
 
             // Show mobile-specific tips
@@ -1885,6 +2001,7 @@
                 console.log('📱 Mobile Mode Active:');
                 console.log('- Swipe LEFT/RIGHT to navigate sections');
                 console.log('- Tap anywhere to pause/resume');
+                console.log('- Swipe tables horizontally to see all data');
                 console.log('- Longer auto-rotation (15s per section)');
                 console.log('- Touch-optimized controls');
                 console.log('- Fullscreen button available');
