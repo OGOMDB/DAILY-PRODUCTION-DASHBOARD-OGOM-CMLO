@@ -740,6 +740,8 @@
                 mineName: mineName,
                 totalProduction: 0,
                 hasCPData: false,
+                hasShiftBreakdown: false,
+                totalLossTime: 0,
                 shifts: {
                     A: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
                     B: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
@@ -747,31 +749,43 @@
                 }
             };
 
-            // Check if this mine has CP/LWP structure (like Bolani)
-            let hasLWP = false;
-            let hasCP = false;
+            // Check structure type
+            let hasLWP = false, hasCP = false, hasShiftABC = false, hasShiftAll = false;
 
             for (let i = 0; i < Math.min(50, data.length); i++) {
+                const col0 = (data[i][0] || '').toString().trim().toUpperCase();
                 const col1 = (data[i][1] || '').toString().trim().toUpperCase();
                 if (col1 === 'LWP') hasLWP = true;
                 if (col1 === 'CP') hasCP = true;
+                if (col0 === 'A' || col0 === 'B' || col0 === 'C') hasShiftABC = true;
+                if (col0 === 'ALL') hasShiftAll = true;
             }
 
             result.hasCPData = hasCP && hasLWP;
+            result.hasShiftBreakdown = hasShiftABC;
 
-            for (let i = 0; i < data.length; i++) {
-                const row = data[i];
-                const col0 = (row[0] || '').toString().trim().toUpperCase();
-                const col1 = (row[1] || '').toString().trim().toUpperCase();
+            // Extract total production from production data section
+            for (let i = 0; i < Math.min(10, data.length); i++) {
+                const col0 = (data[i][0] || '').toString().trim();
+                if (col0 === 'Production') {
+                    result.totalProduction = parseFloat((data[i][1] || '').toString().replace(/,/g, '')) || 0;
+                    break;
+                }
+            }
 
-                let shift = null;
-                if (col0 === 'A' || (col0.includes('SHIFT') && col0.includes('A'))) shift = 'A';
-                else if (col0 === 'B' || (col0.includes('SHIFT') && col0.includes('B'))) shift = 'B';
-                else if (col0 === 'C' || (col0.includes('SHIFT') && col0.includes('C'))) shift = 'C';
+            if (result.hasCPData) {
+                // BOLANI: CP + LWP structure
+                for (let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    const col0 = (row[0] || '').toString().trim().toUpperCase();
+                    const col1 = (row[1] || '').toString().trim().toUpperCase();
 
-                if (shift) {
-                    if (result.hasCPData) {
-                        // Bolani-style: CP + LWP
+                    let shift = null;
+                    if (col0 === 'A') shift = 'A';
+                    else if (col0 === 'B') shift = 'B';
+                    else if (col0 === 'C') shift = 'C';
+
+                    if (shift) {
                         if (col1 === 'CP') {
                             result.shifts[shift].cpTrips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
                             result.shifts[shift].cpOperatingHrs = parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0;
@@ -780,23 +794,42 @@
                             result.shifts[shift].lwpProduction = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
                             result.shifts[shift].lwpLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
                         }
-                    } else {
-                        // Other mines: simple structure
-                        result.shifts[shift].production = parseFloat((row[2] || row[3] || '').toString().replace(/,/g, '')) || 0;
-                        result.shifts[shift].trips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
-                        result.shifts[shift].operatingHrs = parseFloat((row[4] || row[5] || '').toString().replace(/,/g, '')) || 0;
-                        result.shifts[shift].lossTime = parseFloat((row[6] || row[7] || '').toString().replace(/,/g, '')) || 0;
                     }
                 }
-            }
-
-            // Calculate total production
-            if (result.hasCPData) {
-                // Bolani: LWP production only
+                // Recalculate total from LWP only
                 result.totalProduction = result.shifts.A.lwpProduction + result.shifts.B.lwpProduction + result.shifts.C.lwpProduction;
-            } else {
-                // Other mines: regular production
-                result.totalProduction = result.shifts.A.production + result.shifts.B.production + result.shifts.C.production;
+
+            } else if (result.hasShiftBreakdown) {
+                // BARSUA: Shift A/B/C with ROM
+                for (let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    const col0 = (row[0] || '').toString().trim().toUpperCase();
+                    const col1 = (row[1] || '').toString().trim().toUpperCase();
+
+                    let shift = null;
+                    if (col0 === 'A') shift = 'A';
+                    else if (col0 === 'B') shift = 'B';
+                    else if (col0 === 'C') shift = 'C';
+
+                    if (shift && col1 === 'ROM') {
+                        result.shifts[shift].trips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                        result.shifts[shift].production = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
+                        result.shifts[shift].operatingHrs = parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0;
+                        result.shifts[shift].lossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
+                    }
+                }
+
+            } else if (hasShiftAll) {
+                // TALDIH/KALTA: Only "All" shift summary
+                for (let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    const col0 = (row[0] || '').toString().trim().toUpperCase();
+
+                    if (col0 === 'ALL') {
+                        result.totalLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
+                        break;
+                    }
+                }
             }
 
             return result;
@@ -881,66 +914,95 @@
                         <div class="shift-data" style="grid-column: span 2; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                             <div class="shift-label" style="color: rgba(255,255,255,0.9);">Total Production ${mineData.hasCPData ? '(LWP Only)' : ''}</div>
                             <div class="shift-value" style="font-size: 22px; color: white;">${mineData.totalProduction.toLocaleString()} MT</div>
-                        </div>
+                        </div>`;
+
+                if (mineData.totalLossTime > 0 && !mineData.hasShiftBreakdown) {
+                    // For Taldih/Kalta - show total loss time
+                    html += `
+                        <div class="shift-data" style="background: #ffebee; border-left: 3px solid #f44336;">
+                            <div class="shift-label">Total Loss Time</div>
+                            <div class="shift-value">${mineData.totalLossTime} min</div>
+                        </div>`;
+                }
+
+                html += `</div>`;
+
+                if (mineData.hasShiftBreakdown || mineData.hasCPData) {
+                    // Render shift breakdown for Bolani and Barsua
+                    ['A', 'B', 'C'].forEach((shiftName, idx) => {
+                        const shift = mineData.shifts[shiftName];
+                        const bgColors = ['#e8f5e9', '#fff3e0', '#e1f5fe'];
+                        const borderColors = ['#4caf50', '#ff9800', '#03a9f4'];
+                        const textColors = ['#2e7d32', '#e65100', '#01579b'];
+
+                        // Skip if no data for this shift
+                        if (!mineData.hasCPData && shift.production === 0 && shift.trips === 0) {
+                            return;
+                        }
+
+                        html += `<div style="margin-top: 15px; padding: 10px; background: ${bgColors[idx]}; border-radius: 8px; border-left: 3px solid ${borderColors[idx]};">
+                            <div style="font-weight: 700; color: ${textColors[idx]}; margin-bottom: 10px; font-size: 15px;">⚙️ SHIFT ${shiftName}</div>
+                            <div class="shift-row">`;
+
+                        if (mineData.hasCPData) {
+                            // BOLANI: CP + LWP structure
+                            html += `
+                                <div class="shift-data" style="background: #fff3e0; border-left: 3px solid #ff9800;">
+                                    <div class="shift-label">LWP Production</div>
+                                    <div class="shift-value">${shift.lwpProduction.toLocaleString()} MT</div>
+                                </div>
+                                <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
+                                    <div class="shift-label">CP Trips</div>
+                                    <div class="shift-value">${shift.cpTrips}</div>
+                                </div>
+                                <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
+                                    <div class="shift-label">CP Operating Hrs</div>
+                                    <div class="shift-value">${shift.cpOperatingHrs.toFixed(1)} hrs</div>
+                                </div>
+                                <div class="shift-data" style="background: #ffebee; border-left: 3px solid #f44336;">
+                                    <div class="shift-label">CP Loss Time</div>
+                                    <div class="shift-value">${shift.cpLossTime} min</div>
+                                </div>
+                                <div class="shift-data" style="background: #ffebee; border-left: 3px solid #f44336;">
+                                    <div class="shift-label">LWP Loss Time</div>
+                                    <div class="shift-value">${shift.lwpLossTime} min</div>
+                                </div>`;
+                        } else {
+                            // BARSUA: Simple shift structure
+                            html += `
+                                <div class="shift-data" style="background: #fff3e0; border-left: 3px solid #ff9800;">
+                                    <div class="shift-label">ROM Production</div>
+                                    <div class="shift-value">${shift.production.toLocaleString()} MT</div>
+                                </div>
+                                <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
+                                    <div class="shift-label">Trips</div>
+                                    <div class="shift-value">${shift.trips}</div>
+                                </div>`;
+
+                            // Only show Operating Hours if data exists
+                            if (shift.operatingHrs > 0) {
+                                html += `
+                                <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
+                                    <div class="shift-label">Operating Hrs</div>
+                                    <div class="shift-value">${shift.operatingHrs.toFixed(1)} hrs</div>
+                                </div>`;
+                            }
+
+                            html += `
+                                <div class="shift-data" style="background: #ffebee; border-left: 3px solid #f44336;">
+                                    <div class="shift-label">Loss Time</div>
+                                    <div class="shift-value">${shift.lossTime} min</div>
+                                </div>`;
+                        }
+
+                        html += `</div></div>`;
+                    });
+                } else {
+                    // TALDIH/KALTA: No shift breakdown, show note
+                    html += `<div style="margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px; text-align: center; color: #666; font-style: italic;">
+                        No shift-wise breakdown available. Total production shown above.
                     </div>`;
-
-                // Render each shift
-                ['A', 'B', 'C'].forEach((shiftName, idx) => {
-                    const shift = mineData.shifts[shiftName];
-                    const bgColors = ['#e8f5e9', '#fff3e0', '#e1f5fe'];
-                    const borderColors = ['#4caf50', '#ff9800', '#03a9f4'];
-                    const textColors = ['#2e7d32', '#e65100', '#01579b'];
-
-                    html += `<div style="margin-top: 15px; padding: 10px; background: ${bgColors[idx]}; border-radius: 8px; border-left: 3px solid ${borderColors[idx]};">
-                        <div style="font-weight: 700; color: ${textColors[idx]}; margin-bottom: 10px; font-size: 15px;">⚙️ SHIFT ${shiftName}</div>
-                        <div class="shift-row">`;
-
-                    if (mineData.hasCPData) {
-                        // Bolani-style with CP and LWP
-                        html += `
-                            <div class="shift-data" style="background: #fff3e0; border-left: 3px solid #ff9800;">
-                                <div class="shift-label">LWP Production</div>
-                                <div class="shift-value">${shift.lwpProduction.toLocaleString()} MT</div>
-                            </div>
-                            <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
-                                <div class="shift-label">CP Trips</div>
-                                <div class="shift-value">${shift.cpTrips}</div>
-                            </div>
-                            <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
-                                <div class="shift-label">CP Operating Hrs</div>
-                                <div class="shift-value">${shift.cpOperatingHrs.toFixed(1)} hrs</div>
-                            </div>
-                            <div class="shift-data" style="background: #ffebee; border-left: 3px solid #f44336;">
-                                <div class="shift-label">CP Loss Time</div>
-                                <div class="shift-value">${shift.cpLossTime} min</div>
-                            </div>
-                            <div class="shift-data" style="background: #ffebee; border-left: 3px solid #f44336;">
-                                <div class="shift-label">LWP Loss Time</div>
-                                <div class="shift-value">${shift.lwpLossTime} min</div>
-                            </div>`;
-                    } else {
-                        // Simple structure for other mines
-                        html += `
-                            <div class="shift-data" style="background: #fff3e0; border-left: 3px solid #ff9800;">
-                                <div class="shift-label">Production</div>
-                                <div class="shift-value">${shift.production.toLocaleString()} MT</div>
-                            </div>
-                            <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
-                                <div class="shift-label">Trips</div>
-                                <div class="shift-value">${shift.trips}</div>
-                            </div>
-                            <div class="shift-data" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
-                                <div class="shift-label">Operating Hrs</div>
-                                <div class="shift-value">${shift.operatingHrs.toFixed(1)} hrs</div>
-                            </div>
-                            <div class="shift-data" style="background: #ffebee; border-left: 3px solid #f44336;">
-                                <div class="shift-label">Loss Time</div>
-                                <div class="shift-value">${shift.lossTime} min</div>
-                            </div>`;
-                    }
-
-                    html += `</div></div>`;
-                });
+                }
 
                 html += `</div>`;
             });
