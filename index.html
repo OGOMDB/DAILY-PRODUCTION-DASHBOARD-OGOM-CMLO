@@ -97,6 +97,26 @@
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255,255,255,0.2);
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            cursor: move;
+            user-select: none;
+            transition: box-shadow 0.3s;
+        }
+
+        .control-panel.dragging {
+            box-shadow: 0 8px 40px rgba(102, 126, 234, 0.8);
+            opacity: 0.9;
+            cursor: grabbing;
+        }
+
+        .control-panel::before {
+            content: '⋮⋮';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.4);
+            font-size: 16px;
+            letter-spacing: -2px;
         }
 
         .control-btn {
@@ -145,6 +165,29 @@
 
         .pause-indicator.visible {
             display: block;
+        }
+
+        .drag-hint {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10001;
+            animation: fadeInOut 4s ease-in-out forwards;
+            pointer-events: none;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-10px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
         }
 
         .section {
@@ -636,6 +679,9 @@
 
         <!-- Pause Indicator -->
         <div class="pause-indicator" id="pause-indicator">⏸️ PAUSED</div>
+
+        <!-- Drag Hint -->
+        <div class="drag-hint" id="drag-hint">💡 Drag controls to move</div>
     </div>
 
     <script>
@@ -1304,16 +1350,102 @@
 
         // Click anywhere to pause/resume
         document.addEventListener('click', (e) => {
-            // Don't toggle if clicking on control buttons
-            if (!e.target.closest('.control-btn')) {
+            // Don't toggle if clicking on control buttons or dragging controls
+            if (!e.target.closest('.control-btn') && !e.target.closest('.control-panel')) {
                 togglePause();
             }
         });
+
+        // Make control panel draggable
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        const controlPanel = document.querySelector('.control-panel');
+
+        controlPanel.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        // Touch events for mobile/touch screens
+        controlPanel.addEventListener('touchstart', dragStart);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('touchend', dragEnd);
+
+        function dragStart(e) {
+            // Only drag if clicking on the panel background, not the buttons
+            if (e.target.closest('.control-btn')) {
+                return;
+            }
+
+            if (e.type === 'touchstart') {
+                initialX = e.touches[0].clientX - xOffset;
+                initialY = e.touches[0].clientY - yOffset;
+            } else {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+            }
+
+            isDragging = true;
+            controlPanel.classList.add('dragging');
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                // Keep panel within viewport bounds
+                const rect = controlPanel.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+
+                if (xOffset < -rect.left) xOffset = -rect.left;
+                if (xOffset > maxX - rect.left) xOffset = maxX - rect.left;
+                if (yOffset < -rect.top) yOffset = -rect.top;
+                if (yOffset > maxY - rect.top) yOffset = maxY - rect.top;
+
+                setTranslate(xOffset, yOffset, controlPanel);
+            }
+        }
+
+        function dragEnd(e) {
+            if (isDragging) {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+                controlPanel.classList.remove('dragging');
+            }
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+        }
 
         // Initialize
         window.addEventListener('load', () => {
             startDataRefresh();
             startAutoRotation();
+
+            // Remove drag hint after animation
+            const dragHint = document.getElementById('drag-hint');
+            setTimeout(() => {
+                if (dragHint) dragHint.remove();
+            }, 4500);
         });
     </script>
 </body>
