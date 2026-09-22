@@ -263,6 +263,48 @@
             margin-bottom: 25px;
         }
 
+        /* Shift-wise section */
+        .shift-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .shift-mine {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .shift-mine-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .shift-data {
+            margin: 10px 0;
+        }
+
+        .shift-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .shift-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 4px;
+        }
+
         @media (max-width: 1200px) {
             .grid-2 {
                 grid-template-columns: 1fr;
@@ -276,6 +318,7 @@
             .card { padding: 20px; }
             table { font-size: 12px; }
             th, td { padding: 10px 8px; }
+            .shift-grid { grid-template-columns: 1fr; }
         }
 
         @media print {
@@ -416,6 +459,11 @@
                 </div>
             </div>
         </div>
+
+        <div class="card">
+            <div class="card-title">⚙️ SHIFT-WISE OPERATIONS - ALL MINES</div>
+            <div class="shift-grid" id="shift-operations"></div>
+        </div>
     </div>
 
     <script>
@@ -474,13 +522,11 @@
             return parseCSV(await response.text());
         }
 
-        // SMART COLUMN FINDER - Finds text columns automatically
         function findTextColumns(row, startCol = 0) {
             const textColumns = [];
 
             for (let i = startCol; i < row.length; i++) {
                 const cell = (row[i] || '').toString().trim();
-                // Text data is usually longer than 20 characters and contains letters
                 if (cell.length > 20 && cell.match(/[a-zA-Z]/)) {
                     textColumns.push(i);
                 }
@@ -496,7 +542,14 @@
                 statusEl.textContent = '⏳ Loading data from Google Sheets...';
 
                 const edData = await fetchSheet('ED Dashboard');
-                console.log(`✅ Loaded ${edData.length} rows`);
+                console.log(`✅ Loaded ${edData.length} rows from ED Dashboard`);
+
+                // Fetch mine sheets for shift data
+                const bolaniData = await fetchSheet('Bolani Input');
+                const barsuaData = await fetchSheet('Barsua Input');
+                const taldihData = await fetchSheet('Taldih Input');
+                const kaltaData = await fetchSheet('Kalta Input');
+                console.log('✅ Loaded all mine sheets');
 
                 const kpis = extractKPIs(edData);
                 const production = extractProduction(edData);
@@ -504,11 +557,19 @@
                 const forecast = extractForecast(edData);
                 const issues = extractIssues(edData);
 
+                const shifts = {
+                    Bolani: extractShiftData(bolaniData, 'Bolani'),
+                    Barsua: extractShiftData(barsuaData, 'Barsua'),
+                    Taldih: extractShiftData(taldihData, 'Taldih'),
+                    Kalta: extractShiftData(kaltaData, 'Kalta')
+                };
+
                 renderKPIs(kpis);
                 renderProduction(production);
                 renderDispatch(dispatch);
                 renderForecast(forecast);
                 renderIssues(issues);
+                renderShiftOperations(shifts);
 
                 statusEl.className = 'status success';
                 statusEl.textContent = '✅ All data loaded successfully!';
@@ -635,18 +696,6 @@
                 return dispatch;
             }
 
-            // Find the header row to detect column positions
-            let headerRow = null;
-            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
-                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
-                if (col0.includes('location')) {
-                    headerRow = data[i];
-                    console.log('📊 DISPATCH header:', headerRow);
-                    break;
-                }
-            }
-
-            // Extract data rows
             for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
@@ -654,21 +703,21 @@
                 if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
                     console.log(`\n📊 DISPATCH Row ${i} [${col0}]:`);
 
-                    // Smart detection: Find text columns (length > 20 chars with letters)
-                    const textCols = findTextColumns(row, 4); // Start searching from column 4
+                    const textCols = findTextColumns(row, 4);
                     console.log(`  Text columns found at: [${textCols.join(', ')}]`);
 
+                    // SWAPPED ORDER: First text is Remarks, Second is Rake Details
                     let rakeDetails = '';
                     let remarks = '';
 
-                    // Extract text from found columns
-                    if (textCols.length >= 1) {
-                        rakeDetails = (row[textCols[0]] || '').toString().trim();
-                        console.log(`  RakeDetails[${textCols[0]}]: "${rakeDetails.substring(0, 50)}..."`);
-                    }
                     if (textCols.length >= 2) {
-                        remarks = (row[textCols[1]] || '').toString().trim();
-                        console.log(`  Remarks[${textCols[1]}]: "${remarks.substring(0, 50)}..."`);
+                        remarks = (row[textCols[0]] || '').toString().trim(); // First = Remarks
+                        rakeDetails = (row[textCols[1]] || '').toString().trim(); // Second = Rake Details
+                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
+                        console.log(`  RakeDetails[${textCols[1]}]: "${rakeDetails.substring(0, 50)}..."`);
+                    } else if (textCols.length >= 1) {
+                        remarks = (row[textCols[0]] || '').toString().trim();
+                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
                     }
 
                     dispatch.push({
@@ -708,18 +757,6 @@
                 return forecast;
             }
 
-            // Find header
-            let headerRow = null;
-            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
-                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
-                if (col0.includes('location')) {
-                    headerRow = data[i];
-                    console.log('📋 FORECAST header:', headerRow);
-                    break;
-                }
-            }
-
-            // Extract data rows
             for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
@@ -727,20 +764,21 @@
                 if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
                     console.log(`\n📋 FORECAST Row ${i} [${col0}]:`);
 
-                    // Smart detection: Find text columns starting from column 2
                     const textCols = findTextColumns(row, 2);
                     console.log(`  Text columns found at: [${textCols.join(', ')}]`);
 
+                    // SWAPPED ORDER: First text is Remarks, Second is Rake Details
                     let rakeDetails = '';
                     let remarks = '';
 
-                    if (textCols.length >= 1) {
-                        rakeDetails = (row[textCols[0]] || '').toString().trim();
-                        console.log(`  RakeDetails[${textCols[0]}]: "${rakeDetails.substring(0, 50)}..."`);
-                    }
                     if (textCols.length >= 2) {
-                        remarks = (row[textCols[1]] || '').toString().trim();
-                        console.log(`  Remarks[${textCols[1]}]: "${remarks.substring(0, 50)}..."`);
+                        remarks = (row[textCols[0]] || '').toString().trim(); // First = Remarks
+                        rakeDetails = (row[textCols[1]] || '').toString().trim(); // Second = Rake Details
+                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
+                        console.log(`  RakeDetails[${textCols[1]}]: "${rakeDetails.substring(0, 50)}..."`);
+                    } else if (textCols.length >= 1) {
+                        remarks = (row[textCols[0]] || '').toString().trim();
+                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
                     }
 
                     forecast.push({
@@ -783,6 +821,36 @@
 
             console.log(`✅ Extracted ${issues.length} issues`);
             return issues;
+        }
+
+        function extractShiftData(data, mineName) {
+            console.log(`⚙️ Extracting shift data for ${mineName}...`);
+
+            let totalProduction = 0;
+            const shifts = { A: 0, B: 0, C: 0 };
+
+            // Look for shift-wise data in mine sheets
+            for (let i = 0; i < Math.min(50, data.length); i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').toString().trim().toUpperCase();
+
+                // Look for shift identifiers
+                if (col0 === 'SHIFT A' || col0 === 'A SHIFT' || col0.includes('SHIFT-A')) {
+                    shifts.A = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                }
+                if (col0 === 'SHIFT B' || col0 === 'B SHIFT' || col0.includes('SHIFT-B')) {
+                    shifts.B = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                }
+                if (col0 === 'SHIFT C' || col0 === 'C SHIFT' || col0.includes('SHIFT-C')) {
+                    shifts.C = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                }
+            }
+
+            totalProduction = shifts.A + shifts.B + shifts.C;
+
+            console.log(`  ${mineName} - Total: ${totalProduction}, A: ${shifts.A}, B: ${shifts.B}, C: ${shifts.C}`);
+
+            return { mineName, totalProduction, shifts };
         }
 
         function renderKPIs(kpis) {
@@ -850,6 +918,38 @@
                 </tr>`;
             });
             document.getElementById('issues-table').innerHTML = html || '<tr><td colspan="2" style="text-align:center;color:#999;">No major issues reported</td></tr>';
+        }
+
+        function renderShiftOperations(shifts) {
+            let html = '';
+
+            Object.keys(shifts).forEach(mineName => {
+                const mineData = shifts[mineName];
+
+                html += `
+                    <div class="shift-mine">
+                        <div class="shift-mine-title">🏭 ${mineData.mineName}</div>
+                        <div class="shift-data">
+                            <div class="shift-label">Total Production</div>
+                            <div class="shift-value">${mineData.totalProduction.toLocaleString()} MT</div>
+                        </div>
+                        <div class="shift-data">
+                            <div class="shift-label">Shift A</div>
+                            <div class="shift-value">${mineData.shifts.A.toLocaleString()} MT</div>
+                        </div>
+                        <div class="shift-data">
+                            <div class="shift-label">Shift B</div>
+                            <div class="shift-value">${mineData.shifts.B.toLocaleString()} MT</div>
+                        </div>
+                        <div class="shift-data">
+                            <div class="shift-label">Shift C</div>
+                            <div class="shift-value">${mineData.shifts.C.toLocaleString()} MT</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('shift-operations').innerHTML = html;
         }
 
         let secondsUntilRefresh = 60;
