@@ -354,7 +354,7 @@
                             <th style="width: 100px;">Rakes Dispatched</th>
                             <th style="width: 100px;">Daily COD</th>
                             <th style="width: 100px;">Achievement %</th>
-                            <th style="width: 400px;">Rake Details</th>
+                            <th style="width: 300px;">Rake Details</th>
                             <th style="width: 300px;">Remarks</th>
                         </tr>
                     </thead>
@@ -372,8 +372,8 @@
                             <tr>
                                 <th style="width: 80px;">Location</th>
                                 <th style="width: 100px;">Planned Rakes</th>
-                                <th>Rake Details</th>
-                                <th>Remarks</th>
+                                <th style="width: 300px;">Rake Details</th>
+                                <th style="width: 300px;">Remarks</th>
                             </tr>
                         </thead>
                         <tbody id="forecast-table"></tbody>
@@ -466,13 +466,10 @@
                 statusEl.textContent = '⏳ Loading data from Google Sheets...';
 
                 const edData = await fetchSheet('ED Dashboard');
-                console.log(`✅ Loaded ${edData.length} rows from ED Dashboard`);
-
                 const bolaniData = await fetchSheet('Bolani Input');
                 const barsuaData = await fetchSheet('Barsua Input');
                 const taldihData = await fetchSheet('Taldih Input');
                 const kaltaData = await fetchSheet('Kalta Input');
-                console.log('✅ Loaded all mine sheets');
 
                 const kpis = extractKPIs(edData);
                 const production = extractProduction(edData);
@@ -495,8 +492,8 @@
                 renderShiftOperations(shifts);
 
                 statusEl.className = 'status success';
-                statusEl.textContent = '✅ All data loaded! Open Console (F12) to see detailed extraction logs.';
-                setTimeout(() => statusEl.className = 'status status-hidden', 4000);
+                statusEl.textContent = '✅ All data loaded successfully!';
+                setTimeout(() => statusEl.className = 'status status-hidden', 3000);
 
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleTimeString();
                 startCountdown();
@@ -512,41 +509,28 @@
             let totalProduction = 0, lumpPercentage = 0, rakesDispatched = 0, dailyCODPlan = 0;
             let productionDate = '', reportingDate = '';
 
-            console.log('🔍 Extracting KPIs...');
-
-            for (let i = 0; i < Math.min(40, data.length); i++) {
+            for (let i = 0; i < Math.min(10, data.length); i++) {
                 const row = data[i];
                 if (!row) continue;
 
-                const rowText = row.join(' ').toLowerCase();
-
-                for (let j = 0; j < row.length; j++) {
-                    const cell = (row[j] || '').toString();
-                    const dateMatch = cell.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}(\s+\d{1,2}:\d{2}(:\d{2})?)?)/);
-
-                    if (dateMatch) {
-                        if (!productionDate && (cell.toLowerCase().includes('production') || rowText.includes('production date'))) {
-                            productionDate = dateMatch[1].split(' ')[0];
-                            console.log(`✅ Production Date: ${productionDate}`);
-                        }
-                        if (!reportingDate && (cell.toLowerCase().includes('report') || cell.toLowerCase().includes('generat') || rowText.includes('report generat'))) {
-                            reportingDate = dateMatch[1];
-                            console.log(`✅ Report Generated: ${reportingDate}`);
-                        }
-                    }
+                const col0 = (row[0] || '').toString().trim();
+                if (col0 === ' Production Date:' || col0 === 'Production Date:') {
+                    productionDate = (row[1] || '').toString().trim();
+                }
+                if (col0 === 'Report Generated:') {
+                    reportingDate = (row[1] || '').toString().trim();
                 }
 
-                const col0 = parseFloat((row[0] || '').toString().replace(/,/g, ''));
-                const col1 = parseFloat((row[1] || '').toString().replace(/,/g, ''));
-                const col2 = parseFloat((row[2] || '').toString().replace(/,/g, ''));
-                const col3 = parseFloat((row[3] || '').toString().replace(/,/g, ''));
+                const val0 = parseFloat((row[0] || '').toString().replace(/,/g, ''));
+                const val1 = parseFloat((row[1] || '').toString().replace(/,/g, ''));
+                const val2 = parseFloat((row[2] || '').toString().replace(/,/g, ''));
+                const val3 = parseFloat((row[3] || '').toString().replace(/,/g, ''));
 
-                if (totalProduction === 0 && col0 > 5000 && col1 > 0 && col2 > 0 && col3 > 0) {
-                    totalProduction = col0;
-                    dailyCODPlan = col1;
-                    lumpPercentage = col2;
-                    rakesDispatched = col3;
-                    console.log(`✅ KPIs found:`, {totalProduction, dailyCODPlan, lumpPercentage, rakesDispatched});
+                if (val0 > 5000 && val1 > 0 && val2 > 0 && val3 > 0) {
+                    totalProduction = val0;
+                    dailyCODPlan = val1;
+                    lumpPercentage = val2;
+                    rakesDispatched = val3;
                 }
             }
 
@@ -566,16 +550,16 @@
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
-                if (col0.toLowerCase().includes('production performance') || col0.toLowerCase().includes('mine/area')) {
+                if (col0.toLowerCase().includes('production performance')) {
                     inSection = true;
                     continue;
                 }
 
-                if (inSection && (col0.toLowerCase().includes('dispatch') || col0.toLowerCase().includes('loading'))) {
+                if (inSection && col0.toLowerCase().includes('dispatch')) {
                     break;
                 }
 
-                if (inSection && col0 && col0.match(/Bolani|Barsua|Taldih|Kalta|OGISHA GROUP/i)) {
+                if (inSection && col0 && col0.match(/Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA/i)) {
                     production.push({
                         mine: col0,
                         type: (row[1] || '').toString().trim(),
@@ -593,66 +577,38 @@
                 }
             }
 
-            console.log(`✅ Extracted ${production.length} production rows`);
             return production;
         }
 
         function extractDispatch(data) {
             const dispatch = [];
-            let startRow = -1, endRow = -1;
+            let inSection = false;
 
-            console.log('\n' + '='.repeat(80));
-            console.log('📊 DISPATCH PERFORMANCE - DEEP ANALYSIS');
-            console.log('='.repeat(80));
-
-            // Find section boundaries
             for (let i = 0; i < data.length; i++) {
-                const rowText = data[i].join('|').toUpperCase();
-                if (rowText.includes('DISPATCH PERFORMANCE') && startRow === -1) {
-                    startRow = i;
-                    console.log(`Section starts at row ${i}`);
-                }
-                if (startRow > -1 && i > startRow + 1 && (rowText.includes('LOADING FORECAST') || rowText.includes("TODAY'S") || rowText.includes('MAJOR ISSUES'))) {
-                    endRow = i;
-                    console.log(`Section ends at row ${i}`);
-                    break;
-                }
-            }
-
-            if (startRow === -1) {
-                console.error('❌ DISPATCH section not found');
-                return dispatch;
-            }
-
-            // Show ALL columns of ALL rows in this section
-            console.log('\n📋 SHOWING ALL COLUMNS IN DISPATCH SECTION:');
-            for (let i = startRow; i < (endRow > -1 ? endRow : Math.min(startRow + 15, data.length)); i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
-                console.log(`\nRow ${i} [${col0}]:`);
-                for (let j = 0; j < Math.min(15, row.length); j++) {
-                    const cell = (row[j] || '').toString();
-                    const preview = cell.length > 60 ? cell.substring(0, 60) + '...' : cell;
-                    console.log(`  Col[${j}]: "${preview}" ${cell ? `(len:${cell.length})` : '(EMPTY)'}`);
+                if (col0.toLowerCase().includes('dispatch performance')) {
+                    inSection = true;
+                    continue;
                 }
 
-                // Extract data from BOL, BAR, TAL, KAL, TOTAL
-                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    // Try to find text columns (long text)
-                    let rakeDetails = '';
-                    let remarks = '';
+                if (inSection && (col0.toLowerCase().includes('loading forecast') || col0.toLowerCase().includes("today's"))) {
+                    break;
+                }
 
-                    for (let j = 4; j < row.length; j++) {
-                        const cell = (row[j] || '').toString().trim();
-                        if (cell.length > 20 && cell.match(/[a-zA-Z]/)) {
-                            if (!rakeDetails) {
-                                rakeDetails = cell;
-                                console.log(`  ✅ Found Rake Details at col[${j}]: "${cell.substring(0, 50)}..."`);
-                            } else if (!remarks) {
-                                remarks = cell;
-                                console.log(`  ✅ Found Remarks at col[${j}]: "${cell.substring(0, 50)}..."`);
-                            }
+                if (inSection && ['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    // Column E (index 4) = Rake Details
+                    // Column F (index 5) = Remarks
+                    let rakeDetails = (row[4] || '').toString().trim();
+                    let remarks = (row[5] || '').toString().trim();
+
+                    // Check next row for multi-line continuation
+                    if (i + 1 < data.length) {
+                        const nextRow = data[i + 1];
+                        const nextCol0 = (nextRow[0] || '').toString().trim();
+                        if (!['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(nextCol0) && nextCol0.length > 0) {
+                            remarks += ' ' + nextCol0;
                         }
                     }
 
@@ -667,68 +623,31 @@
                 }
             }
 
-            console.log(`\n✅ Extracted ${dispatch.length} DISPATCH rows`);
             return dispatch;
         }
 
         function extractForecast(data) {
             const forecast = [];
-            let startRow = -1, endRow = -1;
+            let inSection = false;
 
-            console.log('\n' + '='.repeat(80));
-            console.log('📋 LOADING FORECAST - DEEP ANALYSIS');
-            console.log('='.repeat(80));
-
-            // Find section boundaries
             for (let i = 0; i < data.length; i++) {
-                const rowText = data[i].join('|').toUpperCase();
-                if ((rowText.includes('LOADING FORECAST') || (rowText.includes('TODAY') && rowText.includes('LOADING'))) && startRow === -1) {
-                    startRow = i;
-                    console.log(`Section starts at row ${i}`);
-                }
-                if (startRow > -1 && i > startRow + 1 && (rowText.includes('SHIFT') || rowText.includes('MAJOR ISSUES'))) {
-                    endRow = i;
-                    console.log(`Section ends at row ${i}`);
-                    break;
-                }
-            }
-
-            if (startRow === -1) {
-                console.error('❌ FORECAST section not found');
-                return forecast;
-            }
-
-            // Show ALL columns of ALL rows in this section
-            console.log('\n📋 SHOWING ALL COLUMNS IN FORECAST SECTION:');
-            for (let i = startRow; i < (endRow > -1 ? endRow : Math.min(startRow + 15, data.length)); i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
-                console.log(`\nRow ${i} [${col0}]:`);
-                for (let j = 0; j < Math.min(15, row.length); j++) {
-                    const cell = (row[j] || '').toString();
-                    const preview = cell.length > 60 ? cell.substring(0, 60) + '...' : cell;
-                    console.log(`  Col[${j}]: "${preview}" ${cell ? `(len:${cell.length})` : '(EMPTY)'}`);
+                if (col0.toLowerCase().includes('loading forecast') || col0.toLowerCase().includes("today's")) {
+                    inSection = true;
+                    continue;
                 }
 
-                // Extract data from BOL, BAR, TAL, KAL, TOTAL
-                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    // Try to find text columns (long text)
-                    let rakeDetails = '';
-                    let remarks = '';
+                if (inSection && col0.toLowerCase().includes('major issues')) {
+                    break;
+                }
 
-                    for (let j = 2; j < row.length; j++) {
-                        const cell = (row[j] || '').toString().trim();
-                        if (cell.length > 20 && cell.match(/[a-zA-Z]/)) {
-                            if (!rakeDetails) {
-                                rakeDetails = cell;
-                                console.log(`  ✅ Found Rake Details at col[${j}]: "${cell.substring(0, 50)}..."`);
-                            } else if (!remarks) {
-                                remarks = cell;
-                                console.log(`  ✅ Found Remarks at col[${j}]: "${cell.substring(0, 50)}..."`);
-                            }
-                        }
-                    }
+                if (inSection && ['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    // Column C (index 2) = Rake Details
+                    // Column D (index 3) = Remarks
+                    let rakeDetails = (row[2] || '').toString().trim();
+                    let remarks = (row[3] || '').toString().trim();
 
                     forecast.push({
                         location: col0,
@@ -739,7 +658,6 @@
                 }
             }
 
-            console.log(`\n✅ Extracted ${forecast.length} FORECAST rows`);
             return forecast;
         }
 
@@ -756,27 +674,32 @@
                     continue;
                 }
 
-                if (inSection && col0.toLowerCase().includes('loading forecast')) {
-                    break;
-                }
-
                 if (inSection && col0.match(/Bolani|Barsua|Taldih|Kalta/i)) {
+                    let issueText = (row[1] || '').toString().trim();
+
+                    // Collect multi-line issue text
+                    for (let j = i + 1; j < data.length; j++) {
+                        const nextRow = data[j];
+                        const nextCol0 = (nextRow[0] || '').toString().trim();
+                        if (nextCol0.match(/Bolani|Barsua|Taldih|Kalta/i)) {
+                            break;
+                        }
+                        if (nextCol0.length > 0 && !nextCol0.match(/Mine|Key|Issues/i)) {
+                            issueText += ' ' + nextCol0;
+                        }
+                    }
+
                     issues.push({
                         mine: col0,
-                        issue: (row[1] || '').toString().trim()
+                        issue: issueText
                     });
                 }
             }
 
-            console.log(`✅ Extracted ${issues.length} issues`);
             return issues;
         }
 
         function extractShiftData(data, mineName) {
-            console.log('\n' + '='.repeat(80));
-            console.log(`⚙️ ${mineName.toUpperCase()} SHIFT DATA - DEEP ANALYSIS`);
-            console.log('='.repeat(80));
-
             const result = {
                 mineName: mineName,
                 totalProduction: 0,
@@ -787,54 +710,36 @@
                 }
             };
 
-            // Show first 50 rows with all columns
-            console.log('\n📋 SHOWING FIRST 50 ROWS WITH ALL COLUMNS:');
-            for (let i = 0; i < Math.min(50, data.length); i++) {
+            for (let i = 0; i < data.length; i++) {
                 const row = data[i];
-                const col0 = (row[0] || '').toString().trim();
-                const col1 = (row[1] || '').toString().trim();
+                const col0 = (row[0] || '').toString().trim().toUpperCase();
+                const col1 = (row[1] || '').toString().trim().toUpperCase();
 
-                console.log(`\nRow ${i} [${col0}]:`);
-                for (let j = 0; j < Math.min(15, row.length); j++) {
-                    const cell = (row[j] || '').toString();
-                    const preview = cell.length > 40 ? cell.substring(0, 40) + '...' : cell;
-                    console.log(`  Col[${j}]: "${preview}" ${cell ? `(len:${cell.length})` : '(EMPTY)'}`);
-                }
-
-                // Try to detect shift rows
-                const rowText = (col0 + ' ' + col1).toUpperCase();
                 let shift = null;
+                if (col0 === 'A' || (col0.includes('SHIFT') && col0.includes('A'))) shift = 'A';
+                else if (col0 === 'B' || (col0.includes('SHIFT') && col0.includes('B'))) shift = 'B';
+                else if (col0 === 'C' || (col0.includes('SHIFT') && col0.includes('C'))) shift = 'C';
 
-                if (rowText.includes('SHIFT') && rowText.includes('A')) shift = 'A';
-                else if (rowText.includes('SHIFT') && rowText.includes('B')) shift = 'B';
-                else if (rowText.includes('SHIFT') && rowText.includes('C')) shift = 'C';
-                else if (col0 === 'A' || col1 === 'A') shift = 'A';
-                else if (col0 === 'B' || col1 === 'B') shift = 'B';
-                else if (col0 === 'C' || col1 === 'C') shift = 'C';
+                if (shift && col1 === 'CP') {
+                    // CP row: Trips, Production, Operating Hours, Loss Time
+                    result.shifts[shift].trips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].production = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].operatingHrs = parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].lossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
 
-                if (shift) {
-                    console.log(`  🔍 DETECTED SHIFT ${shift} - Extracting data...`);
-
-                    // Try different column combinations
-                    for (let j = 2; j < Math.min(12, row.length); j++) {
-                        const val = parseFloat((row[j] || '').toString().replace(/,/g, ''));
-                        if (val > 0) {
-                            console.log(`    Col[${j}] = ${val}`);
+                    // Check next row for LWP data
+                    if (i + 1 < data.length) {
+                        const nextRow = data[i + 1];
+                        const nextCol1 = (nextRow[1] || '').toString().trim().toUpperCase();
+                        if (nextCol1 === 'LWP') {
+                            result.shifts[shift].production += parseFloat((nextRow[3] || '').toString().replace(/,/g, '')) || 0;
+                            result.shifts[shift].lossTime += parseFloat((nextRow[6] || '').toString().replace(/,/g, '')) || 0;
                         }
                     }
-
-                    // Extract data - try columns 2, 3, 4, 5, 6, 7, 8, 9
-                    result.shifts[shift].trips = parseFloat((row[2] || row[3] || '').toString().replace(/,/g, '')) || 0;
-                    result.shifts[shift].production = parseFloat((row[3] || row[4] || '').toString().replace(/,/g, '')) || 0;
-                    result.shifts[shift].operatingHrs = parseFloat((row[6] || row[7] || row[8] || '').toString().replace(/,/g, '')) || 0;
-                    result.shifts[shift].lossTime = parseFloat((row[8] || row[9] || row[10] || '').toString().replace(/,/g, '')) || 0;
-
-                    console.log(`  ✅ Shift ${shift}: Prod=${result.shifts[shift].production}, Trips=${result.shifts[shift].trips}, Hrs=${result.shifts[shift].operatingHrs}, Loss=${result.shifts[shift].lossTime}`);
                 }
             }
 
             result.totalProduction = result.shifts.A.production + result.shifts.B.production + result.shifts.C.production;
-            console.log(`\n✅ Total Production: ${result.totalProduction} MT`);
 
             return result;
         }
@@ -875,7 +780,7 @@
                     <td>${d.rakes > 0 ? d.rakes : ''}</td>
                     <td>${d.dailyCOD > 0 ? d.dailyCOD.toFixed(2) : ''}</td>
                     <td>${d.achievement > 0 ? d.achievement.toFixed(2) : ''}</td>
-                    <td style="font-size:12px;line-height:1.5;white-space:normal;">${d.rakeDetails || '<span style="color:#999;">No data</span>'}</td>
+                    <td style="font-size:12px;line-height:1.5;white-space:normal;">${d.rakeDetails || ''}</td>
                     <td style="font-size:12px;line-height:1.5;white-space:normal;">${d.remarks || ''}</td>
                 </tr>`;
             });
@@ -888,7 +793,7 @@
                 html += `<tr${f.location === 'TOTAL' ? ' class="total-row"' : ''}>
                     <td><strong>${f.location}</strong></td>
                     <td>${f.plannedRakes > 0 ? f.plannedRakes : ''}</td>
-                    <td style="font-size:12px;line-height:1.5;white-space:normal;">${f.rakeDetails || '<span style="color:#999;">No data</span>'}</td>
+                    <td style="font-size:12px;line-height:1.5;white-space:normal;">${f.rakeDetails || ''}</td>
                     <td style="font-size:12px;line-height:1.5;white-space:normal;">${f.remarks || ''}</td>
                 </tr>`;
             });
