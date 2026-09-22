@@ -459,17 +459,6 @@
             return parseCSV(await response.text());
         }
 
-        // Find column by header name
-        function findColumnByHeader(headerRow, searchText) {
-            for (let i = 0; i < headerRow.length; i++) {
-                const header = (headerRow[i] || '').toString().toLowerCase();
-                if (header.includes(searchText.toLowerCase())) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
         async function loadAllData() {
             const statusEl = document.getElementById('status');
             try {
@@ -506,7 +495,7 @@
                 renderShiftOperations(shifts);
 
                 statusEl.className = 'status success';
-                statusEl.textContent = '✅ All data loaded successfully! Check console (F12) for details.';
+                statusEl.textContent = '✅ All data loaded! Open Console (F12) to see detailed extraction logs.';
                 setTimeout(() => statusEl.className = 'status status-hidden', 4000);
 
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleTimeString();
@@ -610,10 +599,13 @@
 
         function extractDispatch(data) {
             const dispatch = [];
-            let startRow = -1, endRow = -1, headerRow = null;
+            let startRow = -1, endRow = -1;
 
-            console.log('\n📊 ========== DISPATCH PERFORMANCE ==========');
+            console.log('\n' + '='.repeat(80));
+            console.log('📊 DISPATCH PERFORMANCE - DEEP ANALYSIS');
+            console.log('='.repeat(80));
 
+            // Find section boundaries
             for (let i = 0; i < data.length; i++) {
                 const rowText = data[i].join('|').toUpperCase();
                 if (rowText.includes('DISPATCH PERFORMANCE') && startRow === -1) {
@@ -632,56 +624,62 @@
                 return dispatch;
             }
 
-            // Find header row and column mappings
-            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
-                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
-                if (col0.includes('location')) {
-                    headerRow = data[i];
-                    console.log('Header row:', headerRow);
+            // Show ALL columns of ALL rows in this section
+            console.log('\n📋 SHOWING ALL COLUMNS IN DISPATCH SECTION:');
+            for (let i = startRow; i < (endRow > -1 ? endRow : Math.min(startRow + 15, data.length)); i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').toString().trim();
 
-                    const rakeDetailsCol = findColumnByHeader(headerRow, 'rake details');
-                    const remarksCol = findColumnByHeader(headerRow, 'remark');
+                console.log(`\nRow ${i} [${col0}]:`);
+                for (let j = 0; j < Math.min(15, row.length); j++) {
+                    const cell = (row[j] || '').toString();
+                    const preview = cell.length > 60 ? cell.substring(0, 60) + '...' : cell;
+                    console.log(`  Col[${j}]: "${preview}" ${cell ? `(len:${cell.length})` : '(EMPTY)'}`);
+                }
 
-                    console.log(`Rake Details column: ${rakeDetailsCol}`);
-                    console.log(`Remarks column: ${remarksCol}`);
+                // Extract data from BOL, BAR, TAL, KAL, TOTAL
+                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    // Try to find text columns (long text)
+                    let rakeDetails = '';
+                    let remarks = '';
 
-                    // Extract data rows
-                    for (let j = i + 1; j < (endRow > -1 ? endRow : data.length); j++) {
-                        const row = data[j];
-                        const location = (row[0] || '').toString().trim();
-
-                        if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(location)) {
-                            const rakeDetails = (row[rakeDetailsCol] || '').toString().trim();
-                            const remarks = (row[remarksCol] || '').toString().trim();
-
-                            console.log(`\n${location}:`);
-                            console.log(`  Rake Details [col ${rakeDetailsCol}]: "${rakeDetails.substring(0, 50)}..."`);
-                            console.log(`  Remarks [col ${remarksCol}]: "${remarks.substring(0, 50)}..."`);
-
-                            dispatch.push({
-                                location: location,
-                                rakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
-                                dailyCOD: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
-                                achievement: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
-                                rakeDetails: rakeDetails,
-                                remarks: remarks
-                            });
+                    for (let j = 4; j < row.length; j++) {
+                        const cell = (row[j] || '').toString().trim();
+                        if (cell.length > 20 && cell.match(/[a-zA-Z]/)) {
+                            if (!rakeDetails) {
+                                rakeDetails = cell;
+                                console.log(`  ✅ Found Rake Details at col[${j}]: "${cell.substring(0, 50)}..."`);
+                            } else if (!remarks) {
+                                remarks = cell;
+                                console.log(`  ✅ Found Remarks at col[${j}]: "${cell.substring(0, 50)}..."`);
+                            }
                         }
                     }
-                    break;
+
+                    dispatch.push({
+                        location: col0,
+                        rakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
+                        dailyCOD: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
+                        achievement: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
+                        rakeDetails: rakeDetails,
+                        remarks: remarks
+                    });
                 }
             }
 
-            console.log(`✅ Extracted ${dispatch.length} DISPATCH rows`);
+            console.log(`\n✅ Extracted ${dispatch.length} DISPATCH rows`);
             return dispatch;
         }
 
         function extractForecast(data) {
             const forecast = [];
-            let startRow = -1, endRow = -1, headerRow = null;
+            let startRow = -1, endRow = -1;
 
-            console.log('\n📋 ========== LOADING FORECAST ==========');
+            console.log('\n' + '='.repeat(80));
+            console.log('📋 LOADING FORECAST - DEEP ANALYSIS');
+            console.log('='.repeat(80));
 
+            // Find section boundaries
             for (let i = 0; i < data.length; i++) {
                 const rowText = data[i].join('|').toUpperCase();
                 if ((rowText.includes('LOADING FORECAST') || (rowText.includes('TODAY') && rowText.includes('LOADING'))) && startRow === -1) {
@@ -700,45 +698,48 @@
                 return forecast;
             }
 
-            // Find header row and column mappings
-            for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
-                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
-                if (col0.includes('location')) {
-                    headerRow = data[i];
-                    console.log('Header row:', headerRow);
+            // Show ALL columns of ALL rows in this section
+            console.log('\n📋 SHOWING ALL COLUMNS IN FORECAST SECTION:');
+            for (let i = startRow; i < (endRow > -1 ? endRow : Math.min(startRow + 15, data.length)); i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').toString().trim();
 
-                    const rakeDetailsCol = findColumnByHeader(headerRow, 'rake details');
-                    const remarksCol = findColumnByHeader(headerRow, 'remark');
+                console.log(`\nRow ${i} [${col0}]:`);
+                for (let j = 0; j < Math.min(15, row.length); j++) {
+                    const cell = (row[j] || '').toString();
+                    const preview = cell.length > 60 ? cell.substring(0, 60) + '...' : cell;
+                    console.log(`  Col[${j}]: "${preview}" ${cell ? `(len:${cell.length})` : '(EMPTY)'}`);
+                }
 
-                    console.log(`Rake Details column: ${rakeDetailsCol}`);
-                    console.log(`Remarks column: ${remarksCol}`);
+                // Extract data from BOL, BAR, TAL, KAL, TOTAL
+                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    // Try to find text columns (long text)
+                    let rakeDetails = '';
+                    let remarks = '';
 
-                    // Extract data rows
-                    for (let j = i + 1; j < (endRow > -1 ? endRow : data.length); j++) {
-                        const row = data[j];
-                        const location = (row[0] || '').toString().trim();
-
-                        if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(location)) {
-                            const rakeDetails = (row[rakeDetailsCol] || '').toString().trim();
-                            const remarks = (row[remarksCol] || '').toString().trim();
-
-                            console.log(`\n${location}:`);
-                            console.log(`  Rake Details [col ${rakeDetailsCol}]: "${rakeDetails.substring(0, 50)}..."`);
-                            console.log(`  Remarks [col ${remarksCol}]: "${remarks.substring(0, 50)}..."`);
-
-                            forecast.push({
-                                location: location,
-                                plannedRakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
-                                rakeDetails: rakeDetails,
-                                remarks: remarks
-                            });
+                    for (let j = 2; j < row.length; j++) {
+                        const cell = (row[j] || '').toString().trim();
+                        if (cell.length > 20 && cell.match(/[a-zA-Z]/)) {
+                            if (!rakeDetails) {
+                                rakeDetails = cell;
+                                console.log(`  ✅ Found Rake Details at col[${j}]: "${cell.substring(0, 50)}..."`);
+                            } else if (!remarks) {
+                                remarks = cell;
+                                console.log(`  ✅ Found Remarks at col[${j}]: "${cell.substring(0, 50)}..."`);
+                            }
                         }
                     }
-                    break;
+
+                    forecast.push({
+                        location: col0,
+                        plannedRakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
+                        rakeDetails: rakeDetails,
+                        remarks: remarks
+                    });
                 }
             }
 
-            console.log(`✅ Extracted ${forecast.length} FORECAST rows`);
+            console.log(`\n✅ Extracted ${forecast.length} FORECAST rows`);
             return forecast;
         }
 
@@ -772,7 +773,9 @@
         }
 
         function extractShiftData(data, mineName) {
-            console.log(`\n⚙️ ========== ${mineName} SHIFT DATA ==========`);
+            console.log('\n' + '='.repeat(80));
+            console.log(`⚙️ ${mineName.toUpperCase()} SHIFT DATA - DEEP ANALYSIS`);
+            console.log('='.repeat(80));
 
             const result = {
                 mineName: mineName,
@@ -784,32 +787,54 @@
                 }
             };
 
-            // Search for shift data
-            for (let i = 0; i < Math.min(100, data.length); i++) {
+            // Show first 50 rows with all columns
+            console.log('\n📋 SHOWING FIRST 50 ROWS WITH ALL COLUMNS:');
+            for (let i = 0; i < Math.min(50, data.length); i++) {
                 const row = data[i];
-                const col0 = (row[0] || '').toString().trim().toUpperCase();
-                const col1 = (row[1] || '').toString().trim().toUpperCase();
+                const col0 = (row[0] || '').toString().trim();
+                const col1 = (row[1] || '').toString().trim();
 
-                // Detect shift rows
+                console.log(`\nRow ${i} [${col0}]:`);
+                for (let j = 0; j < Math.min(15, row.length); j++) {
+                    const cell = (row[j] || '').toString();
+                    const preview = cell.length > 40 ? cell.substring(0, 40) + '...' : cell;
+                    console.log(`  Col[${j}]: "${preview}" ${cell ? `(len:${cell.length})` : '(EMPTY)'}`);
+                }
+
+                // Try to detect shift rows
+                const rowText = (col0 + ' ' + col1).toUpperCase();
                 let shift = null;
-                if (col0.includes('SHIFT A') || col0 === 'A' || col1.includes('SHIFT A')) shift = 'A';
-                else if (col0.includes('SHIFT B') || col0 === 'B' || col1.includes('SHIFT B')) shift = 'B';
-                else if (col0.includes('SHIFT C') || col0 === 'C' || col1.includes('SHIFT C')) shift = 'C';
+
+                if (rowText.includes('SHIFT') && rowText.includes('A')) shift = 'A';
+                else if (rowText.includes('SHIFT') && rowText.includes('B')) shift = 'B';
+                else if (rowText.includes('SHIFT') && rowText.includes('C')) shift = 'C';
+                else if (col0 === 'A' || col1 === 'A') shift = 'A';
+                else if (col0 === 'B' || col1 === 'B') shift = 'B';
+                else if (col0 === 'C' || col1 === 'C') shift = 'C';
 
                 if (shift) {
-                    // Try to extract data from various columns
-                    result.shifts[shift].trips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
-                    result.shifts[shift].production = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
-                    result.shifts[shift].operatingHrs = parseFloat((row[6] || row[7] || '').toString().replace(/,/g, '')) || 0;
-                    result.shifts[shift].lossTime = parseFloat((row[8] || row[9] || '').toString().replace(/,/g, '')) || 0;
+                    console.log(`  🔍 DETECTED SHIFT ${shift} - Extracting data...`);
 
-                    console.log(`Shift ${shift}: Prod=${result.shifts[shift].production}, Trips=${result.shifts[shift].trips}, Hrs=${result.shifts[shift].operatingHrs}, Loss=${result.shifts[shift].lossTime}`);
+                    // Try different column combinations
+                    for (let j = 2; j < Math.min(12, row.length); j++) {
+                        const val = parseFloat((row[j] || '').toString().replace(/,/g, ''));
+                        if (val > 0) {
+                            console.log(`    Col[${j}] = ${val}`);
+                        }
+                    }
+
+                    // Extract data - try columns 2, 3, 4, 5, 6, 7, 8, 9
+                    result.shifts[shift].trips = parseFloat((row[2] || row[3] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].production = parseFloat((row[3] || row[4] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].operatingHrs = parseFloat((row[6] || row[7] || row[8] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].lossTime = parseFloat((row[8] || row[9] || row[10] || '').toString().replace(/,/g, '')) || 0;
+
+                    console.log(`  ✅ Shift ${shift}: Prod=${result.shifts[shift].production}, Trips=${result.shifts[shift].trips}, Hrs=${result.shifts[shift].operatingHrs}, Loss=${result.shifts[shift].lossTime}`);
                 }
             }
 
             result.totalProduction = result.shifts.A.production + result.shifts.B.production + result.shifts.C.production;
-
-            console.log(`Total Production: ${result.totalProduction}`);
+            console.log(`\n✅ Total Production: ${result.totalProduction} MT`);
 
             return result;
         }
@@ -905,6 +930,14 @@
                                 <div class="shift-label">Shift A - Trips</div>
                                 <div class="shift-value">${mineData.shifts.A.trips}</div>
                             </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift A - Operating Hrs</div>
+                                <div class="shift-value">${mineData.shifts.A.operatingHrs.toFixed(1)}</div>
+                            </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift A - Loss Time</div>
+                                <div class="shift-value">${mineData.shifts.A.lossTime.toFixed(0)} min</div>
+                            </div>
                         </div>
                         <div class="shift-row">
                             <div class="shift-data">
@@ -915,6 +948,14 @@
                                 <div class="shift-label">Shift B - Trips</div>
                                 <div class="shift-value">${mineData.shifts.B.trips}</div>
                             </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift B - Operating Hrs</div>
+                                <div class="shift-value">${mineData.shifts.B.operatingHrs.toFixed(1)}</div>
+                            </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift B - Loss Time</div>
+                                <div class="shift-value">${mineData.shifts.B.lossTime.toFixed(0)} min</div>
+                            </div>
                         </div>
                         <div class="shift-row">
                             <div class="shift-data">
@@ -924,6 +965,14 @@
                             <div class="shift-data">
                                 <div class="shift-label">Shift C - Trips</div>
                                 <div class="shift-value">${mineData.shifts.C.trips}</div>
+                            </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift C - Operating Hrs</div>
+                                <div class="shift-value">${mineData.shifts.C.operatingHrs.toFixed(1)}</div>
+                            </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift C - Loss Time</div>
+                                <div class="shift-value">${mineData.shifts.C.lossTime.toFixed(0)} min</div>
                             </div>
                         </div>
                     </div>
