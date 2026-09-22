@@ -179,6 +179,46 @@
             font-weight: 600;
         }
 
+        /* Total Row Highlighting */
+        .total-row-card {
+            background: linear-gradient(135deg, rgba(255,215,0,0.25) 0%, rgba(255,165,0,0.25) 100%) !important;
+            border: 2px solid rgba(255,215,0,0.5) !important;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3) !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .total-row-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(255,215,0,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .total-row-header {
+            font-size: 16px !important;
+            font-weight: 800 !important;
+            color: #FFD700 !important;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+            letter-spacing: 0.5px;
+        }
+
+        .total-row-value {
+            font-size: 18px !important;
+            font-weight: 800 !important;
+            color: #FFD700 !important;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
         /* Dispatch/Forecast Cards */
         .mobile-dispatch-card {
             background: rgba(255,255,255,0.08);
@@ -592,6 +632,24 @@
             background: rgba(255,255,255,0.05);
         }
 
+        /* Total Row Styling for TV Tables */
+        table.tv-table tr.total-row-tv {
+            background: linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,165,0,0.3) 100%);
+            border-top: 3px solid #FFD700;
+            border-bottom: 3px solid #FFD700;
+        }
+
+        table.tv-table tr.total-row-tv td {
+            font-weight: 800 !important;
+            color: #FFD700 !important;
+            font-size: 18px !important;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        table.tv-table tr.total-row-tv:hover {
+            background: linear-gradient(135deg, rgba(255,215,0,0.4) 0%, rgba(255,165,0,0.4) 100%);
+        }
+
         /* Grid Layouts */
         .grid-2-tv {
             display: grid;
@@ -711,8 +769,9 @@
                     <div class="mobile-meta-value" id="mobile-report-date">Loading...</div>
                 </div>
                 <div class="mobile-meta-item">
-                    <div class="mobile-meta-label">🔴 Status</div>
-                    <div class="mobile-meta-value">LIVE</div>
+                    <div class="mobile-meta-label" id="mobile-status-icon">🔴</div>
+                    <div class="mobile-meta-label"> Status</div>
+                    <div class="mobile-meta-value" id="mobile-status-text">LIVE</div>
                 </div>
             </div>
         </div>
@@ -778,8 +837,8 @@
                     <div class="tv-meta-value" id="tv-report-date">22/09/2026 12:24:59</div>
                 </div>
                 <div class="tv-meta">
-                    <div class="tv-meta-label">🔴 Status</div>
-                    <div class="tv-meta-value">LIVE</div>
+                    <div class="tv-meta-label"><span id="tv-status-icon">🔴</span> Status</div>
+                    <div class="tv-meta-value" id="tv-status-text">LIVE</div>
                 </div>
             </div>
         </div>
@@ -1276,39 +1335,46 @@
                 // For total/group rows, use overall achievement if mine achievement is 0
                 const achievementValue = (mine.isTotal && !mine.achievement) ? overallAchievement : mine.achievement;
                 console.log(`  Mine ${idx}: ${mine.mine} - Achievement: ${achievementValue} (isTotal: ${mine.isTotal})`);
-                return `<div class="mobile-mine-card">
+
+                // Apply beautiful styling for total/group rows
+                const cardClass = mine.isTotal ? 'mobile-mine-card total-row-card' : 'mobile-mine-card';
+                const headerClass = mine.isTotal ? 'mobile-mine-name total-row-header' : 'mobile-mine-name';
+                const valueClass = mine.isTotal ? 'mobile-data-value total-row-value' : 'mobile-data-value';
+                const labelStyle = mine.isTotal ? 'color: #FFD700; font-weight: 600;' : '';
+
+                return `<div class="${cardClass}" style="${mine.isTotal ? 'z-index: 1;' : ''}">
                     <div class="mobile-mine-header">
-                        <div class="mobile-mine-name">${mine.mine}</div>
+                        <div class="${headerClass}">${mine.isTotal ? '🏆 ' : ''}${mine.mine}</div>
                         <div class="mobile-mine-type">${mine.type}</div>
                     </div>
                     <div class="mobile-data-grid">
                         <div class="mobile-data-item">
-                            <div class="mobile-data-label">Total Production</div>
-                            <div class="mobile-data-value">${mine.total > 0 ? mine.total.toLocaleString() : '0'} MT</div>
+                            <div class="mobile-data-label" style="${labelStyle}">Total Production</div>
+                            <div class="${valueClass}">${mine.total > 0 ? mine.total.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
-                            <div class="mobile-data-label">Lump</div>
-                            <div class="mobile-data-value">${mine.lump > 0 ? mine.lump.toLocaleString() : '0'} MT</div>
+                            <div class="mobile-data-label" style="${labelStyle}">Lump</div>
+                            <div class="${valueClass}">${mine.lump > 0 ? mine.lump.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
-                            <div class="mobile-data-label">Fines</div>
-                            <div class="mobile-data-value">${mine.fines > 0 ? mine.fines.toLocaleString() : '0'} MT</div>
+                            <div class="mobile-data-label" style="${labelStyle}">Fines</div>
+                            <div class="${valueClass}">${mine.fines > 0 ? mine.fines.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
-                            <div class="mobile-data-label">ROM</div>
-                            <div class="mobile-data-value">${mine.rom > 0 ? mine.rom.toLocaleString() : '0'} MT</div>
+                            <div class="mobile-data-label" style="${labelStyle}">ROM</div>
+                            <div class="${valueClass}">${mine.rom > 0 ? mine.rom.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item" style="background: rgba(76,175,80,0.2); padding: 8px; border-radius: 6px;">
                             <div class="mobile-data-label" style="color: #4CAF50; font-weight: 600;">Lump %</div>
-                            <div class="mobile-data-value" style="color: #4CAF50; font-size: 18px;">${mine.lumpPercent > 0 ? mine.lumpPercent.toFixed(2) : '0.00'}%</div>
+                            <div class="${mine.isTotal ? 'total-row-value' : 'mobile-data-value'}" style="color: #4CAF50; font-size: 18px;">${mine.lumpPercent > 0 ? mine.lumpPercent.toFixed(2) : '0.00'}%</div>
                         </div>
                         <div class="mobile-data-item">
-                            <div class="mobile-data-label">Daily Plan</div>
-                            <div class="mobile-data-value">${mine.plan > 0 ? mine.plan.toLocaleString() : '0'} MT</div>
+                            <div class="mobile-data-label" style="${labelStyle}">Daily Plan</div>
+                            <div class="${valueClass}">${mine.plan > 0 ? mine.plan.toLocaleString() : '0'} MT</div>
                         </div>
                         <div class="mobile-data-item">
-                            <div class="mobile-data-label">Achievement %</div>
-                            <div class="mobile-data-value">${achievementValue ? achievementValue.toFixed(2) + '%' : '-'}</div>
+                            <div class="mobile-data-label" style="${labelStyle}">Achievement %</div>
+                            <div class="${valueClass}">${achievementValue ? achievementValue.toFixed(2) + '%' : '-'}</div>
                         </div>
                     </div>
                 </div>`;
@@ -1323,6 +1389,15 @@
                 document.getElementById('mobile-dispatch').innerHTML = '<div style="padding:20px; text-align:center; opacity:0.7;">No dispatch data available</div>';
                 return;
             }
+
+            // Calculate totals
+            let totalRakes = 0;
+            let totalDailyCOD = 0;
+            dispatch.forEach(item => {
+                totalRakes += parseFloat(item.rakes) || 0;
+                totalDailyCOD += parseFloat(item.dailyCOD) || 0;
+            });
+            const totalAchievement = totalDailyCOD > 0 ? ((totalRakes / totalDailyCOD) * 100) : 0;
 
             const html = dispatch.map(item => `
                 <div class="mobile-dispatch-card">
@@ -1343,7 +1418,27 @@
                     ${item.remarks && item.remarks.trim() ? `<div class="mobile-dispatch-details"><strong>Remarks:</strong><br>${item.remarks}</div>` : ''}
                 </div>
             `).join('');
-            document.getElementById('mobile-dispatch').innerHTML = html;
+
+            // Add beautiful TOTAL card
+            const totalCard = `
+                <div class="mobile-dispatch-card total-row-card" style="margin-top: 15px; z-index: 1;">
+                    <div class="mobile-dispatch-header total-row-header">🏆 TOTAL DISPATCH</div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span style="color: #FFD700; font-weight: 600;">Total Rakes:</span>
+                        <strong class="total-row-value">${totalRakes.toFixed(0)}</strong>
+                    </div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span style="color: #FFD700; font-weight: 600;">Total Daily COD:</span>
+                        <strong class="total-row-value">${totalDailyCOD.toFixed(0)}</strong>
+                    </div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span style="color: #FFD700; font-weight: 600;">Overall Achievement:</span>
+                        <strong class="total-row-value">${totalAchievement.toFixed(2)}%</strong>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mobile-dispatch').innerHTML = html + totalCard;
         }
 
         function renderMobileForecast(forecast) {
@@ -1353,6 +1448,12 @@
                 document.getElementById('mobile-forecast').innerHTML = '<div style="padding:20px; text-align:center; opacity:0.7;">No forecast data available</div>';
                 return;
             }
+
+            // Calculate total
+            let totalPlannedRakes = 0;
+            forecast.forEach(item => {
+                totalPlannedRakes += parseFloat(item.plannedRakes) || 0;
+            });
 
             const html = forecast.map(item => `
                 <div class="mobile-dispatch-card">
@@ -1365,7 +1466,19 @@
                     ${item.remarks && item.remarks.trim() ? `<div class="mobile-dispatch-details"><strong>Remarks:</strong><br>${item.remarks}</div>` : ''}
                 </div>
             `).join('');
-            document.getElementById('mobile-forecast').innerHTML = html;
+
+            // Add beautiful TOTAL card
+            const totalCard = `
+                <div class="mobile-dispatch-card total-row-card" style="margin-top: 15px; z-index: 1;">
+                    <div class="mobile-dispatch-header total-row-header">🏆 TOTAL FORECAST</div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span style="color: #FFD700; font-weight: 600;">Total Planned Rakes:</span>
+                        <strong class="total-row-value">${totalPlannedRakes.toFixed(0)}</strong>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mobile-forecast').innerHTML = html + totalCard;
         }
 
         function renderMobileShifts(allShifts) {
@@ -1493,13 +1606,13 @@
             let html = '';
             production.forEach(p => {
                 html += `<tr${p.isTotal ? ' class="total-row-tv"' : ''}>
-                    <td><strong>${p.mine}</strong></td>
+                    <td><strong>${p.isTotal ? '🏆 ' : ''}${p.mine}</strong></td>
                     <td>${p.type}</td>
                     <td>${p.total > 0 ? p.total.toLocaleString() : ''}</td>
                     <td>${p.lump > 0 ? p.lump.toLocaleString() : ''}</td>
                     <td>${p.fines > 0 ? p.fines.toLocaleString() : ''}</td>
                     <td>${p.rom > 0 ? p.rom.toLocaleString() : ''}</td>
-                    <td><strong style="color:#4CAF50;">${p.lumpPercent > 0 ? p.lumpPercent.toFixed(2) : ''}</strong></td>
+                    <td><strong style="color:${p.isTotal ? '#FFD700' : '#4CAF50'};">${p.lumpPercent > 0 ? p.lumpPercent.toFixed(2) : ''}</strong></td>
                     <td>${p.plan > 0 ? p.plan.toLocaleString() : ''}</td>
                     <td>${p.achievement > 0 ? p.achievement.toFixed(2) : ''}</td>
                 </tr>`;
@@ -1513,6 +1626,15 @@
                 return;
             }
 
+            // Calculate totals
+            let totalRakes = 0;
+            let totalDailyCOD = 0;
+            dispatch.forEach(item => {
+                totalRakes += parseFloat(item.rakes) || 0;
+                totalDailyCOD += parseFloat(item.dailyCOD) || 0;
+            });
+            const totalAchievement = totalDailyCOD > 0 ? ((totalRakes / totalDailyCOD) * 100) : 0;
+
             const html = dispatch.map(item => `
                 <tr>
                     <td><strong>${item.location || 'Unknown'}</strong></td>
@@ -1523,7 +1645,19 @@
                     <td>${item.remarks || '-'}</td>
                 </tr>
             `).join('');
-            document.getElementById('tv-dispatch-body').innerHTML = html;
+
+            // Add beautiful TOTAL row
+            const totalRow = `
+                <tr style="background: linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,165,0,0.3) 100%); border-top: 3px solid #FFD700; border-bottom: 3px solid #FFD700;">
+                    <td><strong style="color: #FFD700; font-size: 18px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">🏆 TOTAL</strong></td>
+                    <td><strong style="color: #FFD700; font-size: 18px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">${totalRakes.toFixed(0)}</strong></td>
+                    <td><strong style="color: #FFD700; font-size: 18px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">${totalDailyCOD.toFixed(0)}</strong></td>
+                    <td><strong style="color: #FFD700; font-size: 18px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">${totalAchievement.toFixed(2)}%</strong></td>
+                    <td colspan="2" style="text-align: center;">-</td>
+                </tr>
+            `;
+
+            document.getElementById('tv-dispatch-body').innerHTML = html + totalRow;
         }
 
         function renderTVForecast(forecast) {
@@ -1531,6 +1665,12 @@
                 document.getElementById('tv-forecast-body').innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; opacity:0.7;">No forecast data available</td></tr>';
                 return;
             }
+
+            // Calculate total
+            let totalPlannedRakes = 0;
+            forecast.forEach(item => {
+                totalPlannedRakes += parseFloat(item.plannedRakes) || 0;
+            });
 
             const html = forecast.map(item => `
                 <tr>
@@ -1540,7 +1680,17 @@
                     <td>${item.remarks || '-'}</td>
                 </tr>
             `).join('');
-            document.getElementById('tv-forecast-body').innerHTML = html;
+
+            // Add beautiful TOTAL row
+            const totalRow = `
+                <tr style="background: linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,165,0,0.3) 100%); border-top: 3px solid #FFD700; border-bottom: 3px solid #FFD700;">
+                    <td><strong style="color: #FFD700; font-size: 18px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">🏆 TOTAL</strong></td>
+                    <td><strong style="color: #FFD700; font-size: 18px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">${totalPlannedRakes.toFixed(0)}</strong></td>
+                    <td colspan="2" style="text-align: center;">-</td>
+                </tr>
+            `;
+
+            document.getElementById('tv-forecast-body').innerHTML = html + totalRow;
         }
 
         function renderTVIssues(issues) {
@@ -1711,8 +1861,10 @@
 
                 console.log('✅ Data loaded successfully');
                 nextRefreshTime = Date.now() + REFRESH_INTERVAL;
+                updateStatus(true); // GREEN - Data flowing
             } catch (error) {
                 console.error('❌ Error loading data:', error);
+                updateStatus(false); // RED - Data not flowing
             }
         }
 
@@ -1801,6 +1953,42 @@
             if (e.key === ' ') { e.preventDefault(); togglePause(); }
             if (e.key >= '1' && e.key <= '4') showSection(parseInt(e.key));
         });
+
+        // Update status indicator
+        function updateStatus(isOnline) {
+            const mobileIcon = document.getElementById('mobile-status-icon');
+            const mobileText = document.getElementById('mobile-status-text');
+            const tvIcon = document.getElementById('tv-status-icon');
+            const tvText = document.getElementById('tv-status-text');
+
+            if (isOnline) {
+                // GREEN - Data flowing
+                if (mobileIcon) mobileIcon.textContent = '🟢';
+                if (mobileText) {
+                    mobileText.textContent = 'LIVE';
+                    mobileText.style.color = '#4CAF50';
+                }
+                if (tvIcon) tvIcon.textContent = '🟢';
+                if (tvText) {
+                    tvText.textContent = 'LIVE';
+                    tvText.style.color = '#4CAF50';
+                }
+                console.log('✅ Status: GREEN (Data flowing)');
+            } else {
+                // RED - Data not flowing
+                if (mobileIcon) mobileIcon.textContent = '🔴';
+                if (mobileText) {
+                    mobileText.textContent = 'OFFLINE';
+                    mobileText.style.color = '#f44336';
+                }
+                if (tvIcon) tvIcon.textContent = '🔴';
+                if (tvText) {
+                    tvText.textContent = 'OFFLINE';
+                    tvText.style.color = '#f44336';
+                }
+                console.log('❌ Status: RED (Data not flowing)');
+            }
+        }
 
         // Update timestamp independently
         function updateTimestamp() {
