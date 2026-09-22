@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OGOM CMLO - Mining Operations Dashboard (TV Display)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e3c72">
+    <title>OGOM CMLO - Mining Operations Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -188,6 +192,280 @@
             10% { opacity: 1; transform: translateY(0); }
             90% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* ============================================ */
+        /* MOBILE RESPONSIVE (Android/iPhone)          */
+        /* ============================================ */
+        @media screen and (max-width: 768px) {
+            .tv-header {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .tv-header h1 {
+                font-size: 20px;
+                text-align: center;
+            }
+
+            .tv-header-right {
+                flex-direction: row;
+                gap: 15px;
+                font-size: 12px;
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .tv-meta {
+                align-items: center;
+            }
+
+            .tv-meta-label {
+                font-size: 10px;
+            }
+
+            .tv-meta-value {
+                font-size: 14px;
+            }
+
+            .section {
+                padding: 15px 10px;
+            }
+
+            #section-1 {
+                padding: 15px 10px;
+            }
+
+            #section-4 {
+                padding: 15px 10px;
+            }
+
+            .section-title {
+                font-size: 18px;
+                padding: 10px 15px;
+                margin-bottom: 10px;
+            }
+
+            #section-1 .section-title,
+            #section-4 .section-title {
+                font-size: 16px;
+                padding: 8px 12px;
+            }
+
+            /* KPI Cards - Mobile */
+            .kpi-grid-tv {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .kpi-card-tv {
+                padding: 12px 10px;
+            }
+
+            .kpi-label-tv {
+                font-size: 10px;
+                margin-bottom: 5px;
+            }
+
+            .kpi-value-tv {
+                font-size: 24px;
+            }
+
+            .kpi-sub-tv {
+                font-size: 10px;
+                margin-top: 3px;
+            }
+
+            /* Tables - Mobile */
+            .table-container-tv {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table.tv-table th {
+                padding: 8px 6px;
+                font-size: 10px;
+            }
+
+            table.tv-table td {
+                padding: 6px;
+                font-size: 11px;
+            }
+
+            #section-1 table.tv-table th {
+                padding: 6px 4px;
+                font-size: 9px;
+            }
+
+            #section-1 table.tv-table td {
+                padding: 5px;
+                font-size: 10px;
+            }
+
+            /* Shift Grid - Mobile */
+            .shift-grid-tv {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .shift-mine-tv {
+                padding: 10px;
+            }
+
+            .shift-mine-title-tv {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+
+            .shift-total-tv {
+                padding: 8px;
+            }
+
+            .shift-total-label-tv {
+                font-size: 10px;
+            }
+
+            .shift-total-value-tv {
+                font-size: 20px;
+            }
+
+            .shift-detail-header-tv {
+                font-size: 13px;
+            }
+
+            .shift-metric-label-tv {
+                font-size: 9px;
+            }
+
+            .shift-metric-value-tv {
+                font-size: 14px;
+            }
+
+            .shift-metrics-tv {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            /* Controls - Mobile */
+            .control-panel {
+                top: auto;
+                bottom: 70px;
+                right: 10px;
+                left: auto;
+                padding: 8px 12px;
+                gap: 8px;
+                flex-wrap: wrap;
+                max-width: calc(100% - 20px);
+            }
+
+            .control-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                flex: 1;
+                min-width: 70px;
+                justify-content: center;
+            }
+
+            .section-indicator {
+                bottom: 10px;
+                padding: 6px 15px;
+                gap: 8px;
+            }
+
+            .indicator-dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            .pause-indicator {
+                font-size: 20px;
+                padding: 12px 25px;
+            }
+
+            .drag-hint {
+                top: auto;
+                bottom: 130px;
+                right: 10px;
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+
+            .grid-2-tv {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        /* Portrait Mode - Extra optimization */
+        @media screen and (max-width: 768px) and (orientation: portrait) {
+            .kpi-grid-tv {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                bottom: 60px;
+                right: 50%;
+                transform: translateX(50%);
+                flex-direction: row;
+            }
+
+            .shift-metrics-tv {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tablet Landscape */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .tv-header h1 {
+                font-size: 28px;
+            }
+
+            .section {
+                padding: 25px 30px;
+            }
+
+            .kpi-value-tv {
+                font-size: 32px;
+            }
+
+            table.tv-table th {
+                font-size: 12px;
+                padding: 10px 8px;
+            }
+
+            table.tv-table td {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+
+        /* Large TV / 4K Screens */
+        @media screen and (min-width: 1920px) {
+            .tv-header h1 {
+                font-size: 48px;
+            }
+
+            .tv-meta-value {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 42px;
+            }
+
+            .kpi-value-tv {
+                font-size: 52px;
+            }
+
+            table.tv-table th {
+                font-size: 18px;
+            }
+
+            table.tv-table td {
+                font-size: 20px;
+            }
         }
 
         .section {
@@ -672,9 +950,10 @@
 
         <!-- Control Panel -->
         <div class="control-panel">
-            <button class="control-btn" id="prev-btn" onclick="previousSection()">◀ Previous</button>
+            <button class="control-btn" id="prev-btn" onclick="previousSection()">◀ Prev</button>
             <button class="control-btn active" id="pause-btn" onclick="togglePause()">⏸️ Pause</button>
             <button class="control-btn" id="next-btn" onclick="nextSection()">Next ▶</button>
+            <button class="control-btn" id="fullscreen-btn" onclick="toggleFullscreen()" style="display:none;">⛶ Full</button>
         </div>
 
         <!-- Pause Indicator -->
@@ -686,7 +965,15 @@
 
     <script>
         const SHEET_ID = '1Ggjr0VeEEzBIJphWyyCYRQS5noukQz_ydI4Kauom7n4';
-        const SECTION_DURATION = 10000; // 10 seconds per section
+
+        // Device detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTablet = /(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isLargeScreen = window.innerWidth >= 1920;
+
+        // Adaptive timing based on device
+        const SECTION_DURATION = isMobile ? 15000 : 10000; // Mobile: 15s, TV: 10s
         const REFRESH_INTERVAL = 15000; // 15 seconds data refresh
 
         let currentSection = 1;
@@ -694,6 +981,17 @@
         let refreshTimer;
         let progressInterval;
         let isPaused = false;
+
+        // Log device info
+        console.log('Device Info:', {
+            isMobile: isMobile,
+            isTablet: isTablet,
+            isAndroid: isAndroid,
+            isLargeScreen: isLargeScreen,
+            screenWidth: window.innerWidth,
+            screenHeight: window.innerHeight,
+            sectionDuration: SECTION_DURATION + 'ms'
+        });
 
         function parseCSV(text) {
             const rows = [];
@@ -1436,16 +1734,161 @@
             el.style.transform = `translate(${xPos}px, ${yPos}px)`;
         }
 
+        // Swipe gesture support for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            // Don't handle swipe if touching control panel
+            if (e.target.closest('.control-panel')) return;
+
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            // Don't handle swipe if touching control panel
+            if (e.target.closest('.control-panel')) return;
+
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50; // Minimum distance for a swipe
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+
+            // Horizontal swipe must be more prominent than vertical
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
+                if (deltaX > 0) {
+                    // Swipe right - go to previous section
+                    previousSection();
+                } else {
+                    // Swipe left - go to next section
+                    nextSection();
+                }
+            }
+        }
+
+        // Fullscreen toggle for mobile
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+                // Enter fullscreen
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+                fullscreenBtn.innerHTML = '⛶ Exit';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                fullscreenBtn.innerHTML = '⛶ Full';
+            }
+        }
+
+        // Handle orientation change on mobile
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                location.reload();
+            }, 200);
+        });
+
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                // Reset control panel position on significant resize
+                if (Math.abs(window.innerWidth - initialWidth) > 200) {
+                    xOffset = 0;
+                    yOffset = 0;
+                    setTranslate(0, 0, controlPanel);
+                }
+            }, 250);
+        });
+
+        const initialWidth = window.innerWidth;
+
+        // Add device badge
+        function addDeviceBadge() {
+            const badge = document.createElement('div');
+            badge.style.cssText = `
+                position: fixed;
+                bottom: 60px;
+                left: 20px;
+                background: rgba(0,0,0,0.7);
+                color: white;
+                padding: 5px 12px;
+                border-radius: 15px;
+                font-size: 11px;
+                z-index: 1000;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.2);
+            `;
+
+            let deviceType = '💻 Desktop';
+            if (isMobile && !isTablet) deviceType = '📱 Mobile';
+            else if (isTablet) deviceType = '📲 Tablet';
+            else if (isLargeScreen) deviceType = '📺 Large TV';
+
+            badge.textContent = deviceType + ' | ' + window.innerWidth + 'x' + window.innerHeight;
+            document.body.appendChild(badge);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                badge.style.transition = 'opacity 0.5s';
+                badge.style.opacity = '0';
+                setTimeout(() => badge.remove(), 500);
+            }, 5000);
+        }
+
         // Initialize
         window.addEventListener('load', () => {
             startDataRefresh();
             startAutoRotation();
+            addDeviceBadge();
 
             // Remove drag hint after animation
             const dragHint = document.getElementById('drag-hint');
             setTimeout(() => {
                 if (dragHint) dragHint.remove();
             }, 4500);
+
+            // Show fullscreen button on mobile
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            if (isMobile || isTablet) {
+                fullscreenBtn.style.display = 'flex';
+            }
+
+            // Show mobile-specific tips
+            if (isMobile) {
+                console.log('📱 Mobile Mode Active:');
+                console.log('- Swipe LEFT/RIGHT to navigate sections');
+                console.log('- Tap anywhere to pause/resume');
+                console.log('- Longer auto-rotation (15s per section)');
+                console.log('- Touch-optimized controls');
+                console.log('- Fullscreen button available');
+            }
         });
     </script>
 </body>
