@@ -1027,11 +1027,11 @@
             document.getElementById('shift-operations').innerHTML = html;
         }
 
-        let secondsUntilRefresh = 60;
+        let secondsUntilRefresh = 15;
         let refreshInterval;
 
         function startCountdown() {
-            secondsUntilRefresh = 60;
+            secondsUntilRefresh = 15;
             if (refreshInterval) clearInterval(refreshInterval);
             refreshInterval = setInterval(() => {
                 secondsUntilRefresh--;
