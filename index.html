@@ -442,9 +442,17 @@
             return rows;
         }
 
-        async function fetchSheet(sheetName) {
+        async function fetchSheet(sheetName, range = null) {
             const timestamp = new Date().getTime();
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&t=${timestamp}`;
+            let url;
+
+            if (range) {
+                // Fetch specific range using export API
+                url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&range=${range}&t=${timestamp}`;
+            } else {
+                // Fetch entire sheet
+                url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&t=${timestamp}`;
+            }
 
             const response = await fetch(url, {
                 method: 'GET',
@@ -466,6 +474,9 @@
                 statusEl.textContent = '⏳ Loading data from Google Sheets...';
 
                 const edData = await fetchSheet('ED Dashboard');
+                const dispatchData = await fetchSheet(null, 'A22:F28'); // Fetch Dispatch with columns E & F
+                const forecastData = await fetchSheet(null, 'A30:D35'); // Fetch Forecast with columns C & D
+
                 const bolaniData = await fetchSheet('Bolani Input');
                 const barsuaData = await fetchSheet('Barsua Input');
                 const taldihData = await fetchSheet('Taldih Input');
@@ -473,8 +484,8 @@
 
                 const kpis = extractKPIs(edData);
                 const production = extractProduction(edData);
-                const dispatch = extractDispatch(edData);
-                const forecast = extractForecast(edData);
+                const dispatch = extractDispatchFromRange(dispatchData);
+                const forecast = extractForecastFromRange(forecastData);
                 const issues = extractIssues(edData);
 
                 const shifts = {
@@ -580,45 +591,26 @@
             return production;
         }
 
-        function extractDispatch(data) {
+        function extractDispatchFromRange(data) {
             const dispatch = [];
-            let inSection = false;
 
-            for (let i = 0; i < data.length; i++) {
+            // Skip header row (row 0), start from row 1
+            for (let i = 1; i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
-                if (col0.toLowerCase().includes('dispatch performance')) {
-                    inSection = true;
-                    continue;
-                }
-
-                if (inSection && (col0.toLowerCase().includes('loading forecast') || col0.toLowerCase().includes("today's"))) {
-                    break;
-                }
-
-                if (inSection && ['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    // Column E (index 4) = Rake Details
-                    // Column F (index 5) = Remarks
-                    let rakeDetails = (row[4] || '').toString().trim();
-                    let remarks = (row[5] || '').toString().trim();
-
-                    // Check next row for multi-line continuation
-                    if (i + 1 < data.length) {
-                        const nextRow = data[i + 1];
-                        const nextCol0 = (nextRow[0] || '').toString().trim();
-                        if (!['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(nextCol0) && nextCol0.length > 0) {
-                            remarks += ' ' + nextCol0;
-                        }
-                    }
+                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    // Range A22:F28 gives us:
+                    // Col 0 = Location, Col 1 = Rakes, Col 2 = Daily COD, Col 3 = Achievement%
+                    // Col 4 = Rake Details (Column E), Col 5 = Remarks (Column F)
 
                     dispatch.push({
                         location: col0,
                         rakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
                         dailyCOD: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
                         achievement: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
-                        rakeDetails: rakeDetails,
-                        remarks: remarks
+                        rakeDetails: (row[4] || '').toString().trim(),
+                        remarks: (row[5] || '').toString().trim()
                     });
                 }
             }
@@ -626,39 +618,39 @@
             return dispatch;
         }
 
-        function extractForecast(data) {
-            const forecast = [];
-            let inSection = false;
+        function extractDispatch(data) {
+            // Legacy function - kept for compatibility
+            return [];
+        }
 
-            for (let i = 0; i < data.length; i++) {
+        function extractForecastFromRange(data) {
+            const forecast = [];
+
+            // Skip header row (row 0), start from row 1
+            for (let i = 1; i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
-                if (col0.toLowerCase().includes('loading forecast') || col0.toLowerCase().includes("today's")) {
-                    inSection = true;
-                    continue;
-                }
-
-                if (inSection && col0.toLowerCase().includes('major issues')) {
-                    break;
-                }
-
-                if (inSection && ['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    // Column C (index 2) = Rake Details
-                    // Column D (index 3) = Remarks
-                    let rakeDetails = (row[2] || '').toString().trim();
-                    let remarks = (row[3] || '').toString().trim();
+                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                    // Range A30:D35 gives us:
+                    // Col 0 = Location, Col 1 = Planned Rakes
+                    // Col 2 = Rake Details (Column C), Col 3 = Remarks (Column D)
 
                     forecast.push({
                         location: col0,
                         plannedRakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
-                        rakeDetails: rakeDetails,
-                        remarks: remarks
+                        rakeDetails: (row[2] || '').toString().trim(),
+                        remarks: (row[3] || '').toString().trim()
                     });
                 }
             }
 
             return forecast;
+        }
+
+        function extractForecast(data) {
+            // Legacy function - kept for compatibility
+            return [];
         }
 
         function extractIssues(data) {
