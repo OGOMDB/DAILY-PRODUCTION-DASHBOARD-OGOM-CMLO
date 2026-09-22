@@ -86,32 +86,32 @@
 
         .control-panel {
             position: fixed;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 20px;
+            right: 20px;
             display: flex;
-            gap: 15px;
+            gap: 10px;
             z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            padding: 15px 25px;
-            border-radius: 50px;
+            background: rgba(0,0,0,0.85);
+            padding: 10px 15px;
+            border-radius: 25px;
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
         .control-btn {
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .control-btn:hover {
@@ -130,16 +130,17 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(255, 152, 0, 0.9);
+            background: rgba(255, 152, 0, 0.95);
             color: white;
-            padding: 20px 40px;
-            border-radius: 50px;
-            font-size: 32px;
+            padding: 15px 35px;
+            border-radius: 40px;
+            font-size: 28px;
             font-weight: 700;
             z-index: 10000;
-            box-shadow: 0 10px 40px rgba(255, 152, 0, 0.5);
+            box-shadow: 0 8px 30px rgba(255, 152, 0, 0.6);
             animation: pulse 1.5s ease-in-out infinite;
             display: none;
+            pointer-events: none;
         }
 
         .pause-indicator.visible {
@@ -160,6 +161,16 @@
 
         #section-1 {
             padding: 25px 50px;
+        }
+
+        #section-4 {
+            padding: 25px 40px;
+        }
+
+        #section-4 .section-title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            padding: 12px 20px;
         }
 
         .section.active {
@@ -318,24 +329,24 @@
         .shift-grid-tv {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
+            gap: 15px;
             max-height: 75vh;
             overflow-y: auto;
         }
 
         .shift-mine-tv {
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
-            padding: 30px;
-            border-radius: 16px;
+            padding: 15px;
+            border-radius: 12px;
             border: 2px solid rgba(102, 126, 234, 0.3);
             backdrop-filter: blur(10px);
         }
 
         .shift-mine-title-tv {
-            font-size: 32px;
+            font-size: 22px;
             font-weight: 700;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 2px solid rgba(255,255,255,0.2);
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
@@ -345,29 +356,29 @@
 
         .shift-total-tv {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
         .shift-total-label-tv {
-            font-size: 16px;
+            font-size: 12px;
             opacity: 0.9;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .shift-total-value-tv {
-            font-size: 42px;
+            font-size: 28px;
             font-weight: 700;
         }
 
         .shift-detail-tv {
             background: rgba(255,255,255,0.05);
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin: 10px 0;
-            border-left: 4px solid;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 3px solid;
         }
 
         .shift-detail-tv.shift-a { border-left-color: #4CAF50; }
@@ -375,32 +386,32 @@
         .shift-detail-tv.shift-c { border-left-color: #03A9F4; }
 
         .shift-detail-header-tv {
-            font-size: 22px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .shift-metrics-tv {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
         }
 
         .shift-metric-tv {
             background: rgba(0,0,0,0.2);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
         }
 
         .shift-metric-label-tv {
-            font-size: 13px;
+            font-size: 10px;
             opacity: 0.7;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             text-transform: uppercase;
         }
 
         .shift-metric-value-tv {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
         }
 
@@ -452,10 +463,15 @@
         .section-indicator {
             position: fixed;
             bottom: 20px;
-            right: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 12px;
             z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
         }
 
         .indicator-dot {
