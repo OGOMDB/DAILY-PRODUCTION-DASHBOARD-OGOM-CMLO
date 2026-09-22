@@ -666,31 +666,42 @@
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
 
-                if (col0.toLowerCase().includes('production performance')) {
+                // Start section
+                if (col0.toLowerCase().includes('production performance') || col0.toLowerCase().includes('mine/area')) {
                     inSection = true;
                     continue;
                 }
 
-                if (inSection && col0.toLowerCase().includes('dispatch')) {
+                // End section
+                if (inSection && (col0.toLowerCase().includes('dispatch') || i > 30)) {
                     break;
                 }
 
-                if (inSection && col0 && col0.match(/Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA/i)) {
-                    production.push({
-                        mine: col0,
-                        type: (row[1] || '').toString().trim(),
-                        total: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
-                        lump: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
-                        fines: parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0,
-                        rom: parseFloat((row[5] || '').toString().replace(/,/g, '')) || 0,
-                        lumpPercent: parseFloat((row[8] || '').toString().replace(/,/g, '')) || 0,
-                        plan: parseFloat((row[9] || '').toString().replace(/,/g, '')) || 0,
-                        achievement: parseFloat((row[10] || '').toString().replace(/,/g, '')) || 0,
-                        isTotal: col0.toUpperCase().includes('TOTAL') || col0.toUpperCase().includes('GROUP')
-                    });
+                // Extract mine data - check for any row with mine names
+                if (inSection && col0.length > 0) {
+                    // Check if this row contains mine data
+                    const isMineRow = col0.match(/^(Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA)/i);
+
+                    if (isMineRow) {
+                        console.log(`Found mine row: ${col0} | Type: ${row[1]} | Total: ${row[2]}`);
+
+                        production.push({
+                            mine: col0,
+                            type: (row[1] || '').toString().trim(),
+                            total: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
+                            lump: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
+                            fines: parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0,
+                            rom: parseFloat((row[5] || '').toString().replace(/,/g, '')) || 0,
+                            lumpPercent: parseFloat((row[8] || '').toString().replace(/,/g, '')) || 0,
+                            plan: parseFloat((row[9] || '').toString().replace(/,/g, '')) || 0,
+                            achievement: parseFloat((row[10] || '').toString().replace(/,/g, '')) || 0,
+                            isTotal: col0.toUpperCase().includes('TOTAL') || col0.toUpperCase().includes('GROUP')
+                        });
+                    }
                 }
             }
 
+            console.log(`Total production rows extracted: ${production.length}`);
             return production;
         }
 
