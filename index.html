@@ -925,30 +925,39 @@
             return rows;
         }
 
-        // Data Extraction Functions (same as before)
+        // Data Extraction Functions
         function extractKPIs(data) {
             const kpis = {
-                totalProduction: 0,
-                dailyCODPlan: 0,
-                lumpPercent: 0,
-                rakesDispatched: 0
+                totalProduction: '0',
+                dailyCODPlan: '0',
+                lumpPercent: '0',
+                rakesDispatched: '0'
             };
 
             for (let i = 0; i < Math.min(50, data.length); i++) {
                 const row = data[i];
-                const cellText = row.join('|').toLowerCase();
+                const col0 = (row[0] || '').toString().trim().toLowerCase();
+                const col1 = (row[1] || '').toString().trim();
 
-                if (cellText.includes('total production') && row[1]) {
-                    kpis.totalProduction = row[1].toString().trim();
+                // Skip if col1 is a header or empty
+                if (!col1 || col1.toLowerCase().includes('value') || col1.toLowerCase().includes('plan') || col1.toLowerCase().includes('production')) {
+                    continue;
                 }
-                if ((cellText.includes('daily cod') || cellText.includes('cod plan')) && row[1]) {
-                    kpis.dailyCODPlan = row[1].toString().trim();
+
+                // Check if it's a data row (col1 should be a number or numeric string)
+                const isNumeric = /^[\d,\.]+$/.test(col1);
+
+                if (col0.includes('total production') && isNumeric) {
+                    kpis.totalProduction = col1;
                 }
-                if (cellText.includes('lump %') && row[1]) {
-                    kpis.lumpPercent = row[1].toString().trim();
+                if ((col0.includes('daily cod') || col0.includes('cod plan')) && isNumeric) {
+                    kpis.dailyCODPlan = col1;
                 }
-                if (cellText.includes('rakes dispatched') && row[1]) {
-                    kpis.rakesDispatched = row[1].toString().trim();
+                if (col0.includes('lump %') && isNumeric) {
+                    kpis.lumpPercent = col1;
+                }
+                if (col0.includes('rakes dispatched') && isNumeric) {
+                    kpis.rakesDispatched = col1;
                 }
             }
 
@@ -993,6 +1002,15 @@
                 }
 
                 if (inSection && /^(Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA)/i.test(col0)) {
+                    const total = parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0;
+                    const lump = parseFloat((row[3] || '0').toString().replace(/,/g, '')) || 0;
+
+                    // Calculate Lump % = (Lump / Total) * 100
+                    let lumpPercent = '0';
+                    if (total > 0 && lump > 0) {
+                        lumpPercent = ((lump / total) * 100).toFixed(2);
+                    }
+
                     const mine = {
                         name: col0,
                         type: (row[1] || '').toString().trim(),
@@ -1000,7 +1018,7 @@
                         lump: (row[3] || '0').toString().trim(),
                         fines: (row[4] || '0').toString().trim(),
                         rom: (row[5] || '0').toString().trim(),
-                        lumpPercent: (row[6] || '0').toString().trim(),
+                        lumpPercent: lumpPercent,
                         dailyPlan: (row[7] || '0').toString().trim(),
                         achievement: (row[8] || '0').toString().trim()
                     };
@@ -1125,9 +1143,18 @@
         }
 
         function extractShiftData(data, mineName) {
-            const shifts = { total: 0, A: {}, B: {}, C: {}, CP: null, LWP: null };
+            const shifts = {
+                total: 0,
+                A: { production: 0 },
+                B: { production: 0 },
+                C: { production: 0 },
+                CP: null,
+                LWP: null
+            };
             let inSection = false;
             let hasCPData = false;
+
+            console.log(`⚙️ Extracting shift data for ${mineName}...`);
 
             for (let i = 0; i < data.length; i++) {
                 const row = data[i];
@@ -1137,16 +1164,19 @@
                 if (col0.includes('SHIFT') && col0.includes('WISE')) {
                     inSection = true;
                     if (row.join('|').toUpperCase().includes('CP')) hasCPData = true;
+                    console.log(`  Found shift section at row ${i}, hasCPData: ${hasCPData}`);
                     continue;
                 }
 
                 if (inSection && (col0.includes('REMARK') || i > data.length - 5)) {
+                    console.log(`  End of shift section at row ${i}`);
                     break;
                 }
 
                 if (inSection) {
                     if (col0 === 'TOTAL' && col1 === '') {
-                        shifts.total = parseFloat(row[2]) || 0;
+                        shifts.total = parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0;
+                        console.log(`  Total: ${shifts.total}`);
                     }
 
                     if (['A', 'B', 'C'].includes(col0)) {
@@ -1154,30 +1184,34 @@
                             if (col1 === 'CP') {
                                 shifts.CP = shifts.CP || {};
                                 shifts.CP[col0] = {
-                                    trips: parseFloat(row[2]) || 0,
-                                    operatingHours: parseFloat(row[3]) || 0,
-                                    lossTime: parseFloat(row[4]) || 0
+                                    trips: parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0,
+                                    operatingHours: parseFloat((row[3] || '0').toString().replace(/,/g, '')) || 0,
+                                    lossTime: parseFloat((row[4] || '0').toString().replace(/,/g, '')) || 0
                                 };
+                                console.log(`  CP ${col0}: ${JSON.stringify(shifts.CP[col0])}`);
                             } else if (col1 === 'LWP') {
                                 shifts.LWP = shifts.LWP || {};
                                 shifts.LWP[col0] = {
-                                    production: parseFloat(row[2]) || 0,
-                                    lossTime: parseFloat(row[5]) || 0
+                                    production: parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0,
+                                    lossTime: parseFloat((row[5] || '0').toString().replace(/,/g, '')) || 0
                                 };
-                                shifts[col0].production = shifts.LWP[col0].production;
+                                shifts[col0] = { production: shifts.LWP[col0].production };
+                                console.log(`  LWP ${col0}: ${JSON.stringify(shifts.LWP[col0])}`);
                             }
                         } else {
                             shifts[col0] = {
-                                production: parseFloat(row[2]) || 0,
-                                trips: parseFloat(row[3]) || 0,
-                                operatingHours: parseFloat(row[4]) || 0,
-                                lossTime: parseFloat(row[5]) || 0
+                                production: parseFloat((row[2] || '0').toString().replace(/,/g, '')) || 0,
+                                trips: parseFloat((row[3] || '0').toString().replace(/,/g, '')) || 0,
+                                operatingHours: parseFloat((row[4] || '0').toString().replace(/,/g, '')) || 0,
+                                lossTime: parseFloat((row[5] || '0').toString().replace(/,/g, '')) || 0
                             };
+                            console.log(`  Shift ${col0}: ${JSON.stringify(shifts[col0])}`);
                         }
                     }
                 }
             }
 
+            console.log(`  ✅ ${mineName} final shift data:`, shifts);
             return shifts;
         }
 
@@ -1296,10 +1330,15 @@
         }
 
         function renderMobileShifts(allShifts) {
+            console.log('📱 Rendering mobile shifts:', allShifts);
             const mines = ['Bolani', 'Barsua', 'Taldih', 'Kalta'];
             const html = mines.map(mine => {
                 const shifts = allShifts[mine];
-                if (!shifts || !shifts.total) return '';
+                if (!shifts) {
+                    console.log(`  ❌ No shift data for ${mine}`);
+                    return '';
+                }
+                console.log(`  ✅ Rendering ${mine}:`, shifts);
 
                 let shiftHTML = '';
                 if (shifts.CP && shifts.LWP) {
@@ -1474,10 +1513,15 @@
         }
 
         function renderTVShifts(allShifts) {
+            console.log('📺 Rendering TV shifts:', allShifts);
             const mines = ['Bolani', 'Barsua', 'Taldih', 'Kalta'];
             const html = mines.map(mine => {
                 const shifts = allShifts[mine];
-                if (!shifts || !shifts.total) return '';
+                if (!shifts) {
+                    console.log(`  ❌ No shift data for ${mine}`);
+                    return '';
+                }
+                console.log(`  ✅ Rendering ${mine}:`, shifts);
 
                 let shiftHTML = '';
                 if (shifts.CP && shifts.LWP) {
@@ -1591,13 +1635,19 @@
                 const issues = extractMajorIssues(edData);
 
                 // Debug logging
+                console.log('====== DATA EXTRACTION COMPLETE ======');
                 console.log('📊 KPIs:', kpis);
                 console.log('📅 Dates:', dates);
-                console.log('🏭 Production:', production);
+                console.log('🏭 Production:', production.length, 'mines');
+                production.forEach(m => console.log(`  ${m.name}: Total=${m.total}, Lump=${m.lump}, Lump%=${m.lumpPercent}`));
                 console.log('🚂 Dispatch:', dispatch.length, 'items');
                 console.log('📋 Forecast:', forecast.length, 'items');
                 console.log('⚙️ Shifts:', Object.keys(mineData));
+                Object.keys(mineData).forEach(mine => {
+                    console.log(`  ${mine}: Total=${mineData[mine].total}, Shifts A/B/C:`, mineData[mine].A, mineData[mine].B, mineData[mine].C);
+                });
                 console.log('⚠️ Issues:', issues.length, 'items');
+                console.log('=====================================');
 
                 // Update Dates
                 if (isMobile || isTablet) {
