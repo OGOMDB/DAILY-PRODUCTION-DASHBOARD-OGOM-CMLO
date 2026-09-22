@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e3c72">
-    <title>OGOM CMLO - Mining Operations Dashboard</title>
+    <title>OGOM CMLO - Mining Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -15,15 +14,293 @@
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #0a0e27;
             color: white;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
         }
 
-        .tv-screen {
+        /* ========================================== */
+        /* MOBILE DASHBOARD - Card Based Layout      */
+        /* ========================================== */
+        #mobile-dashboard {
+            display: none;
+            min-height: 100vh;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            padding-bottom: 30px;
+        }
+
+        .mobile-header {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .mobile-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .mobile-header-meta {
+            display: flex;
+            justify-content: space-around;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .mobile-meta-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mobile-meta-label {
+            font-size: 9px;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .mobile-meta-value {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .mobile-content {
+            padding: 15px 12px;
+        }
+
+        .mobile-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mobile-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #4CAF50;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(76,175,80,0.3);
+        }
+
+        /* KPI Cards - Mobile */
+        .mobile-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mobile-kpi-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .mobile-kpi-label {
+            font-size: 10px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+            line-height: 1.2;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+
+        .mobile-kpi-sub {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        /* Production Cards */
+        .mobile-mine-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .mobile-mine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mobile-mine-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+
+        .mobile-mine-type {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .mobile-data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .mobile-data-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-data-label {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .mobile-data-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Dispatch/Forecast Cards */
+        .mobile-dispatch-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .mobile-dispatch-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2196F3;
+            margin-bottom: 8px;
+        }
+
+        .mobile-dispatch-details {
+            font-size: 11px;
+            line-height: 1.5;
+            margin-top: 6px;
+            padding: 8px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+        }
+
+        .mobile-dispatch-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        /* Shift Cards */
+        .mobile-shift-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #FF9800;
+        }
+
+        .mobile-shift-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #FF9800;
+            margin-bottom: 10px;
+        }
+
+        .mobile-shift-total {
+            background: rgba(255,152,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .mobile-shift-total-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .mobile-shift-total-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FF9800;
+        }
+
+        .mobile-shift-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .mobile-shift-item {
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .mobile-shift-name {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #FF9800;
+        }
+
+        .mobile-shift-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .mobile-shift-label {
+            font-size: 9px;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        /* Major Issues */
+        .mobile-issues-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .mobile-issues-list li {
+            background: rgba(244,67,54,0.2);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            line-height: 1.5;
+            border-left: 3px solid #F44336;
+        }
+
+        /* ========================================== */
+        /* TV DASHBOARD - Original Layout             */
+        /* ========================================== */
+        #tv-dashboard {
+            display: none;
             width: 100vw;
             height: 100vh;
-            position: relative;
+            overflow: hidden;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
         }
 
@@ -37,7 +314,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 1000;
+            z-index: 900;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
@@ -45,7 +322,6 @@
             font-size: 38px;
             font-weight: 700;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-            letter-spacing: 1px;
         }
 
         .tv-header-right {
@@ -72,6 +348,7 @@
             font-weight: 700;
         }
 
+        /* Progress Bar */
         .progress-bar {
             position: fixed;
             top: 80px;
@@ -79,7 +356,7 @@
             height: 4px;
             background: #4CAF50;
             transition: width 0.1s linear;
-            z-index: 999;
+            z-index: 899;
             box-shadow: 0 0 10px #4CAF50;
         }
 
@@ -88,39 +365,21 @@
             box-shadow: 0 0 10px #FF9800;
         }
 
+        /* Control Panel - TV */
         .control-panel {
             position: fixed;
-            top: 14px;
+            top: 90px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 8px;
+            gap: 10px;
             z-index: 1001;
             background: rgba(0,0,0,0.9);
-            padding: 6px 18px;
+            padding: 8px 20px;
             border-radius: 30px;
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.2);
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            user-select: none;
-            transition: box-shadow 0.3s;
-        }
-
-        .control-panel.dragging {
-            box-shadow: 0 8px 40px rgba(102, 126, 234, 0.8);
-            opacity: 0.9;
-            cursor: grabbing;
-        }
-
-        .control-panel::before {
-            content: '⋮⋮';
-            position: absolute;
-            left: -8px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255,255,255,0.4);
-            font-size: 16px;
-            letter-spacing: -2px;
         }
 
         .control-btn {
@@ -145,10 +404,29 @@
         }
 
         .control-btn.active {
-            background: #4CAF50;
+            background: rgba(76, 175, 80, 0.5);
             border-color: #4CAF50;
         }
 
+        /* Refresh Counter */
+        .refresh-counter {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1001;
+            border: 2px solid rgba(76,175,80,0.3);
+        }
+
+        .refresh-counter-time {
+            color: #4CAF50;
+            font-weight: 700;
+        }
+
+        /* Pause Indicator */
         .pause-indicator {
             position: fixed;
             top: 50%;
@@ -164,7 +442,6 @@
             box-shadow: 0 8px 30px rgba(255, 152, 0, 0.6);
             animation: fadeOut 1s ease-in-out forwards;
             display: none;
-            pointer-events: none;
         }
 
         .pause-indicator.visible {
@@ -177,755 +454,18 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
 
-        .drag-hint {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: rgba(102, 126, 234, 0.95);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 10001;
-            animation: fadeInOut 4s ease-in-out forwards;
-            pointer-events: none;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(-10px); }
-            10% { opacity: 1; transform: translateY(0); }
-            90% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-10px); }
-        }
-
-        /* Scroll indicator for tables on mobile */
-        .scroll-hint {
-            position: relative;
-        }
-
-        .scroll-hint::after {
-            content: '← Swipe to see more →';
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10px;
-            color: rgba(255,255,255,0.5);
-            white-space: nowrap;
-            pointer-events: none;
-        }
-
-        /* ============================================ */
-        /* MOBILE RESPONSIVE (Android/iPhone)          */
-        /* ============================================ */
-        @media screen and (max-width: 768px) {
-            /* Mobile: Enable vertical scrolling, show all sections */
-            body {
-                overflow-y: auto !important;
-                height: auto !important;
-            }
-
-            .tv-screen {
-                overflow-y: auto !important;
-                height: auto !important;
-                min-height: 100vh;
-                padding-bottom: 30px;
-            }
-
-            .section {
-                display: block !important;
-                position: relative !important;
-                opacity: 1 !important;
-                transform: none !important;
-                margin-bottom: 20px;
-            }
-
-            /* Hide controls on mobile */
-            .control-panel {
-                display: none !important;
-            }
-
-            .section-indicators {
-                display: none !important;
-            }
-
-            .progress-bar {
-                display: none !important;
-            }
-
-            .tv-header {
-                padding: 10px 12px;
-                flex-direction: column;
-                gap: 8px;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-            }
-
-            .tv-header h1 {
-                font-size: 16px;
-                text-align: center;
-                line-height: 1.3;
-            }
-
-            .tv-header-right {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 10px;
-                font-size: 10px;
-                width: 100%;
-                justify-content: space-around;
-            }
-
-            .tv-meta {
-                align-items: center;
-                flex: 0 0 auto;
-            }
-
-            .tv-meta-label {
-                font-size: 9px;
-            }
-
-            .tv-meta-value {
-                font-size: 12px;
-                font-weight: 600;
-            }
-
-            .sections-container {
-                margin-top: 110px;
-                padding-top: 0;
-                padding-bottom: 20px;
-            }
-
-            .section {
-                padding: 15px 10px !important;
-                overflow-y: visible;
-                margin-bottom: 20px;
-            }
-
-            .section-title {
-                font-size: 16px;
-                padding: 12px 15px;
-                margin-bottom: 15px;
-                line-height: 1.3;
-            }
-
-            /* KPI Cards - Mobile */
-            .kpi-grid-tv {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-                margin-bottom: 15px;
-            }
-
-            .kpi-card-tv {
-                padding: 15px 12px;
-                min-height: 100px;
-            }
-
-            .kpi-label-tv {
-                font-size: 11px;
-                margin-bottom: 8px;
-                line-height: 1.3;
-                min-height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-            }
-
-            .kpi-value-tv {
-                font-size: 26px;
-                margin-bottom: 4px;
-            }
-
-            .kpi-sub-tv {
-                font-size: 11px;
-                margin-top: 4px;
-            }
-
-            /* Tables - Mobile */
-            .table-container-tv {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                max-width: 100%;
-                border-radius: 8px;
-                position: relative;
-                margin-bottom: 25px;
-            }
-
-            .table-container-tv.scroll-hint::after {
-                content: '← Swipe table to see more →';
-                position: absolute;
-                bottom: -22px;
-                left: 50%;
-                transform: translateX(-50%);
-                font-size: 10px;
-                color: rgba(76, 175, 80, 0.7);
-                white-space: nowrap;
-                pointer-events: none;
-                animation: blink 2s ease-in-out infinite;
-                font-weight: 600;
-            }
-
-            @keyframes blink {
-                0%, 50%, 100% { opacity: 0.4; }
-                25%, 75% { opacity: 0.8; }
-            }
-
-            table.tv-table {
-                min-width: 100%;
-                width: auto;
-                display: table;
-                white-space: nowrap;
-            }
-
-            table.tv-table thead,
-            table.tv-table tbody {
-                display: table-row-group;
-                width: auto;
-            }
-
-            table.tv-table tr {
-                display: table-row;
-            }
-
-            table.tv-table th {
-                padding: 8px 10px;
-                font-size: 11px;
-                white-space: nowrap;
-                min-width: 80px;
-            }
-
-            table.tv-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-                white-space: nowrap;
-                line-height: 1.4;
-                min-width: 80px;
-            }
-
-            /* Section 1 Production table - specific column widths */
-            #section-1 table.tv-table th:nth-child(1),
-            #section-1 table.tv-table td:nth-child(1) {
-                min-width: 100px;
-                max-width: 150px;
-                white-space: normal;
-                word-wrap: break-word;
-            }
-
-            #section-1 table.tv-table th:nth-child(2),
-            #section-1 table.tv-table td:nth-child(2) {
-                min-width: 70px;
-            }
-
-            #section-1 table.tv-table th,
-            #section-1 table.tv-table td {
-                font-size: 11px;
-            }
-
-            /* Dispatch and Forecast tables - allow text wrapping for Rake Details */
-            #section-2 table.tv-table td:nth-last-child(2),
-            #section-2 table.tv-table td:last-child,
-            #section-3 table.tv-table td:nth-last-child(2),
-            #section-3 table.tv-table td:last-child {
-                min-width: 150px;
-                max-width: 250px;
-                white-space: normal;
-                word-wrap: break-word;
-            }
-
-            #section-2 table.tv-table th,
-            #section-2 table.tv-table td {
-                font-size: 11px;
-            }
-
-            #section-3 table.tv-table th,
-            #section-3 table.tv-table td {
-                font-size: 11px;
-            }
-
-            /* Shift Grid - Mobile */
-            .shift-grid-tv {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .shift-mine-tv {
-                padding: 12px;
-            }
-
-            .shift-mine-title-tv {
-                font-size: 15px;
-                margin-bottom: 10px;
-            }
-
-            .shift-total-tv {
-                padding: 10px;
-            }
-
-            .shift-total-label-tv {
-                font-size: 11px;
-            }
-
-            .shift-total-value-tv {
-                font-size: 20px;
-            }
-
-            .shift-total-value-tv {
-                font-size: 20px;
-            }
-
-            .shift-detail-header-tv {
-                font-size: 13px;
-                margin-bottom: 8px;
-            }
-
-            .shift-metric-label-tv {
-                font-size: 10px;
-            }
-
-            .shift-metric-value-tv {
-                font-size: 16px;
-            }
-
-            .shift-metrics-tv {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            /* Major Issues - Mobile */
-            .major-issues-tv {
-                padding: 12px;
-            }
-
-            .major-issues-tv li {
-                font-size: 11px;
-                line-height: 1.5;
-                margin-bottom: 8px;
-            }
-
-            .indicator-dot {
-                width: 10px;
-                height: 10px;
-            }
-
-            .pause-indicator {
-                font-size: 16px;
-                padding: 8px 20px;
-                border-radius: 25px;
-            }
-
-            .drag-hint {
-                top: auto;
-                bottom: 130px;
-                right: 10px;
-                font-size: 12px;
-                padding: 8px 15px;
-            }
-
-            .grid-2-tv {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-        }
-
-        /* Portrait Mode - Extra optimization */
-        @media screen and (max-width: 768px) and (orientation: portrait) {
-            .kpi-grid-tv {
-                grid-template-columns: 1fr;
-            }
-
-            .control-panel {
-                bottom: 60px;
-                right: 50%;
-                transform: translateX(50%);
-                flex-direction: row;
-            }
-
-            .shift-metrics-tv {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Tablet Landscape */
-        @media screen and (min-width: 769px) and (max-width: 1024px) {
-            .tv-header h1 {
-                font-size: 28px;
-            }
-
-            .section {
-                padding: 25px 30px;
-            }
-
-            .kpi-value-tv {
-                font-size: 32px;
-            }
-
-            table.tv-table th {
-                font-size: 12px;
-                padding: 10px 8px;
-            }
-
-            table.tv-table td {
-                font-size: 14px;
-                padding: 8px;
-            }
-        }
-
-        /* Large TV / 4K Screens */
-        @media screen and (min-width: 1920px) {
-            .tv-header h1 {
-                font-size: 48px;
-            }
-
-            .tv-meta-value {
-                font-size: 24px;
-            }
-
-            .section-title {
-                font-size: 42px;
-            }
-
-            .kpi-value-tv {
-                font-size: 52px;
-            }
-
-            table.tv-table th {
-                font-size: 18px;
-            }
-
-            table.tv-table td {
-                font-size: 20px;
-            }
-        }
-
-        .section {
-            position: absolute;
-            top: 100px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            padding: 40px 60px;
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #section-1 {
-            padding: 25px 50px;
-        }
-
-        #section-4 {
-            padding: 25px 40px;
-        }
-
-        #section-4 .section-title {
-            font-size: 28px;
-            margin-bottom: 15px;
-            padding: 12px 20px;
-        }
-
-        .section.active {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .section.exiting {
-            opacity: 0;
-            transform: translateX(-100%);
-        }
-
-        .section-title {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            padding: 15px 25px;
-            background: linear-gradient(90deg, rgba(102, 126, 234, 0.3) 0%, transparent 100%);
-            border-left: 6px solid #667eea;
-            border-radius: 8px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        #section-1 .section-title {
-            font-size: 28px;
-            margin-bottom: 15px;
-            padding: 12px 20px;
-        }
-
-        /* KPI Cards */
-        .kpi-grid-tv {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .kpi-card-tv {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-            padding: 20px 18px;
-            border-radius: 16px;
-            border: 2px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-
-        .kpi-card-tv::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .kpi-card-tv:hover {
-            transform: translateY(-5px);
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
-        }
-
-        .kpi-label-tv {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .kpi-value-tv {
-            font-size: 42px;
-            font-weight: 700;
-            line-height: 1;
-            background: linear-gradient(135deg, #ffffff 0%, #a8b8ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .kpi-sub-tv {
-            font-size: 13px;
-            opacity: 0.7;
-            margin-top: 6px;
-        }
-
-        /* Tables */
-        .table-container-tv {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        table.tv-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table.tv-table thead {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
-        }
-
-        table.tv-table th {
-            padding: 12px 10px;
-            text-align: left;
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid rgba(255,255,255,0.2);
-        }
-
-        table.tv-table td {
-            padding: 10px;
-            font-size: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* Compact production table specifically */
-        #section-1 table.tv-table th {
-            padding: 10px 8px;
-            font-size: 13px;
-        }
-
-        #section-1 table.tv-table td {
-            padding: 8px;
-            font-size: 15px;
-        }
-
-        table.tv-table tbody tr {
-            transition: all 0.3s;
-        }
-
-        table.tv-table tbody tr:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .total-row-tv {
-            background: rgba(76, 175, 80, 0.2) !important;
-            font-weight: 700;
-            border-top: 2px solid #4CAF50 !important;
-        }
-
-        /* Grid Layouts */
-        .grid-2-tv {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-        }
-
-        /* Shift Cards */
-        .shift-grid-tv {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            max-height: 75vh;
-            overflow-y: auto;
-        }
-
-        .shift-mine-tv {
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
-            padding: 15px;
-            border-radius: 12px;
-            border: 2px solid rgba(102, 126, 234, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .shift-mine-title-tv {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid rgba(255,255,255,0.2);
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .shift-total-tv {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .shift-total-label-tv {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 3px;
-        }
-
-        .shift-total-value-tv {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .shift-detail-tv {
-            background: rgba(255,255,255,0.05);
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin: 8px 0;
-            border-left: 3px solid;
-        }
-
-        .shift-detail-tv.shift-a { border-left-color: #4CAF50; }
-        .shift-detail-tv.shift-b { border-left-color: #FF9800; }
-        .shift-detail-tv.shift-c { border-left-color: #03A9F4; }
-
-        .shift-detail-header-tv {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .shift-metrics-tv {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 8px;
-        }
-
-        .shift-metric-tv {
-            background: rgba(0,0,0,0.2);
-            padding: 8px;
-            border-radius: 6px;
-        }
-
-        .shift-metric-label-tv {
-            font-size: 10px;
-            opacity: 0.7;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-        }
-
-        .shift-metric-value-tv {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .pulse {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.5);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(102, 126, 234, 0.8);
-        }
-
-        /* Status Indicator */
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 16px;
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #4CAF50;
-            box-shadow: 0 0 10px #4CAF50;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .section-indicator {
+        /* Section Indicators */
+        .section-indicators {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 12px;
-            z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            padding: 8px 20px;
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.8);
             border-radius: 25px;
-            backdrop-filter: blur(10px);
+            z-index: 1000;
         }
 
         .indicator-dot {
@@ -934,198 +474,420 @@
             border-radius: 50%;
             background: rgba(255,255,255,0.3);
             transition: all 0.3s;
+            cursor: pointer;
         }
 
         .indicator-dot.active {
             background: #4CAF50;
-            box-shadow: 0 0 15px #4CAF50;
+            box-shadow: 0 0 10px #4CAF50;
             transform: scale(1.3);
+        }
+
+        /* Sections Container */
+        .sections-container {
+            position: fixed;
+            top: 150px;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+            overflow: hidden;
+        }
+
+        .section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 20px 40px;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section.active {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 10;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(102, 126, 234, 0.2);
+            border-left: 5px solid #667eea;
+            border-radius: 8px;
+        }
+
+        /* KPI Grid - TV */
+        .kpi-grid-tv {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card-tv {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .kpi-card-tv:hover {
+            transform: translateY(-5px);
+        }
+
+        .kpi-label-tv {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value-tv {
+            font-size: 36px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+
+        .kpi-sub-tv {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+
+        /* Tables - TV */
+        .table-container-tv {
+            overflow-x: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        table.tv-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.tv-table th {
+            background: rgba(102, 126, 234, 0.3);
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.5);
+        }
+
+        table.tv-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+        }
+
+        table.tv-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Grid Layouts */
+        .grid-2-tv {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        /* Shift Grid - TV */
+        .shift-grid-tv {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .shift-mine-tv {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #FF9800;
+        }
+
+        .shift-mine-title-tv {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #FF9800;
+        }
+
+        .shift-total-tv {
+            background: rgba(255,152,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .shift-total-label-tv {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .shift-total-value-tv {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FF9800;
+        }
+
+        .shift-metrics-tv {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .shift-metric-tv {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .shift-metric-label-tv {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .shift-metric-value-tv {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .shift-detail-header-tv {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Major Issues */
+        .major-issues-tv {
+            background: rgba(244,67,54,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #F44336;
+        }
+
+        .major-issues-tv ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .major-issues-tv li {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(244,67,54,0.2);
+            border-radius: 6px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div class="tv-screen">
-        <div class="tv-header">
-            <div>
-                <h1>🏭 DAILY MINING OPERATIONS DASHBOARD</h1>
-                <div style="font-size: 18px; opacity: 0.9; margin-top: 5px;">ED (MINES) - OGOM CMLO</div>
+
+    <!-- ============================================ -->
+    <!-- MOBILE DASHBOARD                             -->
+    <!-- ============================================ -->
+    <div id="mobile-dashboard">
+        <div class="mobile-header">
+            <h1>DAILY MINING OPERATIONS DASHBOARD<br>ED (MINES) - OGOM CMLO</h1>
+            <div class="mobile-header-meta">
+                <div class="mobile-meta-item">
+                    <div class="mobile-meta-label">📅 Production Date</div>
+                    <div class="mobile-meta-value" id="mobile-prod-date">Loading...</div>
+                </div>
+                <div class="mobile-meta-item">
+                    <div class="mobile-meta-label">📊 Report Generated</div>
+                    <div class="mobile-meta-value" id="mobile-report-date">Loading...</div>
+                </div>
+                <div class="mobile-meta-item">
+                    <div class="mobile-meta-label">🔴 Status</div>
+                    <div class="mobile-meta-value">LIVE</div>
+                </div>
             </div>
+        </div>
+
+        <div class="mobile-content" id="mobile-content">
+            <div class="mobile-section">
+                <div class="mobile-section-title">📊 KEY PERFORMANCE INDICATORS</div>
+                <div class="mobile-kpi-grid" id="mobile-kpis">
+                    <!-- KPIs will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mobile-section">
+                <div class="mobile-section-title">🏭 PRODUCTION BY MINE</div>
+                <div id="mobile-production">
+                    <!-- Production cards will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mobile-section">
+                <div class="mobile-section-title">🚂 DISPATCH PERFORMANCE</div>
+                <div id="mobile-dispatch">
+                    <!-- Dispatch cards will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mobile-section">
+                <div class="mobile-section-title">📋 TODAY'S LOADING FORECAST</div>
+                <div id="mobile-forecast">
+                    <!-- Forecast cards will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mobile-section">
+                <div class="mobile-section-title">⚙️ SHIFT-WISE OPERATIONS</div>
+                <div id="mobile-shifts">
+                    <!-- Shift cards will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mobile-section">
+                <div class="mobile-section-title">⚠️ MAJOR ISSUES</div>
+                <ul class="mobile-issues-list" id="mobile-issues">
+                    <!-- Issues will be inserted here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TV DASHBOARD                                 -->
+    <!-- ============================================ -->
+    <div id="tv-dashboard">
+        <div class="tv-header">
+            <h1>DAILY MINING OPERATIONS DASHBOARD</h1>
             <div class="tv-header-right">
                 <div class="tv-meta">
                     <div class="tv-meta-label">📅 Production Date</div>
-                    <div class="tv-meta-value" id="prod-date">--</div>
+                    <div class="tv-meta-value" id="tv-prod-date">21/09/2026</div>
                 </div>
                 <div class="tv-meta">
-                    <div class="tv-meta-label">🕒 Report Generated</div>
-                    <div class="tv-meta-value" id="report-date">--</div>
+                    <div class="tv-meta-label">📊 Report Generated</div>
+                    <div class="tv-meta-value" id="tv-report-date">22/09/2026 12:24:59</div>
                 </div>
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span>LIVE</span>
+                <div class="tv-meta">
+                    <div class="tv-meta-label">🔴 Status</div>
+                    <div class="tv-meta-value">LIVE</div>
                 </div>
             </div>
         </div>
 
         <div class="progress-bar" id="progress-bar"></div>
 
-        <!-- Section 1: KPIs + Production -->
-        <div class="section active" id="section-1">
-            <div class="section-title">📊 KEY PERFORMANCE INDICATORS & PRODUCTION</div>
-
-            <div class="kpi-grid-tv">
-                <div class="kpi-card-tv">
-                    <div class="kpi-label-tv">⛏️ Total Production</div>
-                    <div class="kpi-value-tv"><span id="kpi-prod-1">0</span> MT</div>
-                </div>
-                <div class="kpi-card-tv">
-                    <div class="kpi-label-tv">🎯 COD Plan</div>
-                    <div class="kpi-value-tv"><span id="kpi-ach-1">0</span>%</div>
-                    <div class="kpi-sub-tv" id="kpi-ach-sub-1">of 0 MT</div>
-                </div>
-                <div class="kpi-card-tv">
-                    <div class="kpi-label-tv">💎 Lump %</div>
-                    <div class="kpi-value-tv"><span id="kpi-lump-1">0</span>%</div>
-                </div>
-                <div class="kpi-card-tv">
-                    <div class="kpi-label-tv">🚂 Rakes Dispatched</div>
-                    <div class="kpi-value-tv" id="kpi-rakes-1">0</div>
-                </div>
-            </div>
-
-            <div class="table-container-tv">
-                <table class="tv-table">
-                    <thead>
-                        <tr>
-                            <th>Mine/Area</th>
-                            <th>Type</th>
-                            <th>Total (MT)</th>
-                            <th>Lump (MT)</th>
-                            <th>Fines (MT)</th>
-                            <th>ROM (MT)</th>
-                            <th>Lump %</th>
-                            <th>Daily Plan</th>
-                            <th>Achievement %</th>
-                        </tr>
-                    </thead>
-                    <tbody id="prod-table-1"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Section 2: Dispatch Performance -->
-        <div class="section" id="section-2">
-            <div class="section-title">🚛 DISPATCH PERFORMANCE</div>
-
-            <div class="table-container-tv">
-                <table class="tv-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 100px;">Location</th>
-                            <th style="width: 120px;">Rakes</th>
-                            <th style="width: 120px;">Daily COD</th>
-                            <th style="width: 130px;">Achievement %</th>
-                            <th>Rake Details</th>
-                            <th>Remarks</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dispatch-table-1"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Section 3: Loading Forecast + Issues -->
-        <div class="section" id="section-3">
-            <div class="section-title">📋 TODAY'S LOADING FORECAST & MAJOR ISSUES</div>
-
-            <div class="grid-2-tv">
-                <div class="table-container-tv">
-                    <table class="tv-table">
-                        <thead>
-                            <tr>
-                                <th>Location</th>
-                                <th>Planned Rakes</th>
-                                <th>Rake Details</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="forecast-table-1"></tbody>
-                    </table>
-                </div>
-
-                <div class="table-container-tv">
-                    <table class="tv-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 150px;">Mine</th>
-                                <th>Key Issues</th>
-                            </tr>
-                        </thead>
-                        <tbody id="issues-table-1"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 4: Shift-wise Operations -->
-        <div class="section" id="section-4">
-            <div class="section-title">⚙️ SHIFT-WISE OPERATIONS - ALL MINES</div>
-
-            <div class="shift-grid-tv" id="shift-operations-1"></div>
-        </div>
-
-        <!-- Section Indicators -->
-        <div class="section-indicator">
-            <div class="indicator-dot active" data-section="1"></div>
-            <div class="indicator-dot" data-section="2"></div>
-            <div class="indicator-dot" data-section="3"></div>
-            <div class="indicator-dot" data-section="4"></div>
-        </div>
-
-        <!-- Control Panel -->
-        <div class="control-panel">
-            <button class="control-btn" id="prev-btn" onclick="previousSection()">◀ Prev</button>
+        <div class="control-panel" id="control-panel">
+            <button class="control-btn" onclick="previousSection()">◄ Prev</button>
             <button class="control-btn active" id="pause-btn" onclick="togglePause()">⏸️ Pause</button>
-            <button class="control-btn" id="next-btn" onclick="nextSection()">Next ▶</button>
-            <button class="control-btn" id="fullscreen-btn" onclick="toggleFullscreen()" style="display:none;">⛶ Full</button>
+            <button class="control-btn" onclick="nextSection()">Next ►</button>
         </div>
 
-        <!-- Pause Indicator -->
+        <div class="refresh-counter" id="refresh-counter">
+            Next refresh in: <span class="refresh-counter-time" id="countdown">15s</span>
+        </div>
+
         <div class="pause-indicator" id="pause-indicator">⏸️ PAUSED</div>
 
-        <!-- Drag Hint -->
-        <div class="drag-hint" id="drag-hint">💡 Drag controls to move</div>
+        <div class="section-indicators" id="section-indicators">
+            <div class="indicator-dot active" onclick="showSection(1)"></div>
+            <div class="indicator-dot" onclick="showSection(2)"></div>
+            <div class="indicator-dot" onclick="showSection(3)"></div>
+            <div class="indicator-dot" onclick="showSection(4)"></div>
+        </div>
+
+        <div class="sections-container">
+            <!-- Section 1: KPIs & Production -->
+            <div class="section active" id="section-1">
+                <div class="section-title">📊 KEY PERFORMANCE INDICATORS & PRODUCTION</div>
+                <div class="kpi-grid-tv" id="tv-kpis"></div>
+                <div class="table-container-tv">
+                    <table class="tv-table" id="tv-production-table">
+                        <thead><tr><th>Mine/Area</th><th>Type</th><th>Total (MT)</th><th>Lump (MT)</th><th>Fines (MT)</th><th>ROM (MT)</th><th>Lump %</th><th>Daily Plan</th><th>Achievement %</th></tr></thead>
+                        <tbody id="tv-production-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 2: Dispatch Performance -->
+            <div class="section" id="section-2">
+                <div class="section-title">🚂 DISPATCH PERFORMANCE</div>
+                <div class="table-container-tv">
+                    <table class="tv-table" id="tv-dispatch-table">
+                        <thead><tr><th>Location</th><th>Rakes</th><th>Daily COD</th><th>Achievement %</th><th>Rake Details</th><th>Remarks</th></tr></thead>
+                        <tbody id="tv-dispatch-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 3: Loading Forecast & Major Issues -->
+            <div class="section" id="section-3">
+                <div class="grid-2-tv">
+                    <div>
+                        <div class="section-title">📋 TODAY'S LOADING FORECAST</div>
+                        <div class="table-container-tv">
+                            <table class="tv-table" id="tv-forecast-table">
+                                <thead><tr><th>Location</th><th>Planned Rakes</th><th>Rake Details</th><th>Remarks</th></tr></thead>
+                                <tbody id="tv-forecast-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-title">⚠️ MAJOR ISSUES</div>
+                        <div class="major-issues-tv">
+                            <ul id="tv-issues-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Shift-wise Operations -->
+            <div class="section" id="section-4">
+                <div class="section-title">⚙️ SHIFT-WISE OPERATIONS</div>
+                <div class="shift-grid-tv" id="tv-shifts-grid"></div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Constants
         const SHEET_ID = '1Ggjr0VeEEzBIJphWyyCYRQS5noukQz_ydI4Kauom7n4';
+        const REFRESH_INTERVAL = 15000; // 15 seconds
+        const SECTION_DURATION = 10000; // 10 seconds per section on TV
 
-        // Device detection
+        // Device Detection
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isTablet = /(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(navigator.userAgent);
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        const isLargeScreen = window.innerWidth >= 1920;
 
-        // Adaptive timing based on device
-        const SECTION_DURATION = isMobile ? 15000 : 10000; // Mobile: 15s, TV: 10s
-        const REFRESH_INTERVAL = 15000; // 15 seconds data refresh
-
+        // State
         let currentSection = 1;
         let sectionTimer;
         let refreshTimer;
         let progressInterval;
         let isPaused = false;
+        let nextRefreshTime = Date.now() + REFRESH_INTERVAL;
 
-        // Log device info
-        console.log('Device Info:', {
-            isMobile: isMobile,
-            isTablet: isTablet,
-            isAndroid: isAndroid,
-            isLargeScreen: isLargeScreen,
-            screenWidth: window.innerWidth,
-            screenHeight: window.innerHeight,
-            sectionDuration: SECTION_DURATION + 'ms'
-        });
+        // Initialize
+        if (isMobile || isTablet) {
+            document.getElementById('mobile-dashboard').style.display = 'block';
+            console.log('📱 MOBILE MODE - Card-based layout');
+        } else {
+            document.getElementById('tv-dashboard').style.display = 'block';
+            startAutoRotation();
+            startRefreshCountdown();
+            console.log('📺 TV MODE - Auto-rotation enabled');
+        }
 
+        // CSV Parser
         function parseCSV(text) {
             const rows = [];
             let row = [];
@@ -1144,9 +906,10 @@
                 } else if (c === ',' && !inQuotes) {
                     row.push(cell);
                     cell = '';
-                } else if (c === '\n' && !inQuotes) {
+                } else if ((c === '\n' || c === '\r') && !inQuotes) {
+                    if (c === '\r' && next === '\n') i++;
                     row.push(cell);
-                    if (row.length > 0) rows.push(row);
+                    if (row.length > 0 && row.some(c => c.trim() !== '')) rows.push(row);
                     row = [];
                     cell = '';
                 } else {
@@ -1162,92 +925,53 @@
             return rows;
         }
 
-        async function fetchSheet(sheetName) {
-            const timestamp = new Date().getTime();
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&t=${timestamp}`;
-
-            const response = await fetch(url, {
-                method: 'GET',
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                }
-            });
-
-            if (!response.ok) throw new Error(`Failed to fetch ${sheetName}`);
-            return parseCSV(await response.text());
-        }
-
-        async function loadAllData() {
-            try {
-                const edData = await fetchSheet('ED Dashboard');
-                const dispatchInputData = await fetchSheet('Dispatch Input');
-                const bolaniData = await fetchSheet('Bolani Input');
-                const barsuaData = await fetchSheet('Barsua Input');
-                const taldihData = await fetchSheet('Taldih Input');
-                const kaltaData = await fetchSheet('Kalta Input');
-
-                const kpis = extractKPIs(edData);
-                const production = extractProduction(edData);
-                const dispatch = extractDispatchFromInput(dispatchInputData);
-                const forecast = extractForecastFromInput(dispatchInputData);
-                const issues = extractIssues(edData);
-
-                const shifts = {
-                    Bolani: extractShiftData(bolaniData, 'Bolani'),
-                    Barsua: extractShiftData(barsuaData, 'Barsua'),
-                    Taldih: extractShiftData(taldihData, 'Taldih'),
-                    Kalta: extractShiftData(kaltaData, 'Kalta')
-                };
-
-                renderKPIs(kpis);
-                renderProduction(production);
-                renderDispatch(dispatch);
-                renderForecast(forecast);
-                renderIssues(issues);
-                renderShiftOperations(shifts);
-
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
+        // Data Extraction Functions (same as before)
         function extractKPIs(data) {
-            let totalProduction = 0, lumpPercentage = 0, rakesDispatched = 0, dailyCODPlan = 0;
-            let productionDate = '', reportingDate = '';
+            const kpis = {
+                totalProduction: 0,
+                dailyCODPlan: 0,
+                lumpPercent: 0,
+                rakesDispatched: 0
+            };
 
-            for (let i = 0; i < Math.min(10, data.length); i++) {
+            for (let i = 0; i < Math.min(50, data.length); i++) {
                 const row = data[i];
-                if (!row) continue;
+                const cellText = row.join('|').toLowerCase();
 
-                const col0 = (row[0] || '').toString().trim();
-                if (col0 === ' Production Date:' || col0 === 'Production Date:') {
-                    productionDate = (row[1] || '').toString().trim();
+                if (cellText.includes('total production') && row[1]) {
+                    kpis.totalProduction = row[1].toString().trim();
                 }
-                if (col0 === 'Report Generated:') {
-                    reportingDate = (row[1] || '').toString().trim();
+                if ((cellText.includes('daily cod') || cellText.includes('cod plan')) && row[1]) {
+                    kpis.dailyCODPlan = row[1].toString().trim();
                 }
-
-                const val0 = parseFloat((row[0] || '').toString().replace(/,/g, ''));
-                const val1 = parseFloat((row[1] || '').toString().replace(/,/g, ''));
-                const val2 = parseFloat((row[2] || '').toString().replace(/,/g, ''));
-                const val3 = parseFloat((row[3] || '').toString().replace(/,/g, ''));
-
-                if (val0 > 5000 && val1 > 0 && val2 > 0 && val3 > 0) {
-                    totalProduction = val0;
-                    dailyCODPlan = val1;
-                    lumpPercentage = val2;
-                    rakesDispatched = val3;
+                if (cellText.includes('lump %') && row[1]) {
+                    kpis.lumpPercent = row[1].toString().trim();
+                }
+                if (cellText.includes('rakes dispatched') && row[1]) {
+                    kpis.rakesDispatched = row[1].toString().trim();
                 }
             }
 
-            document.getElementById('prod-date').textContent = productionDate || 'Not Found';
-            document.getElementById('report-date').textContent = reportingDate || 'Not Found';
+            return kpis;
+        }
 
-            const planAchievement = dailyCODPlan > 0 ? (totalProduction / dailyCODPlan) * 100 : 0;
+        function extractDates(data) {
+            let prodDate = '';
+            let reportDate = '';
 
-            return { totalProduction, planAchievement, lumpPercentage, rakesDispatched, dailyCODPlan };
+            for (let i = 0; i < Math.min(30, data.length); i++) {
+                const row = data[i];
+                const cellText = row.join('|').toLowerCase();
+
+                if ((cellText.includes('production date') || cellText.includes('reporting date')) && row[1]) {
+                    prodDate = row[1].toString().trim();
+                }
+                if (cellText.includes('report generated') && row[1]) {
+                    reportDate = row[1].toString().trim();
+                }
+            }
+
+            return { prodDate, reportDate };
         }
 
         function extractProduction(data) {
@@ -1257,79 +981,74 @@
             for (let i = 0; i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
+                const rowText = row.join('|').toUpperCase();
 
-                // Start section
-                if (col0.toLowerCase().includes('production performance') || col0.toLowerCase().includes('mine/area')) {
+                if (rowText.includes('PRODUCTION PERFORMANCE') || rowText.includes('PRODUCTION BY MINE')) {
                     inSection = true;
                     continue;
                 }
 
-                // End section
-                if (inSection && (col0.toLowerCase().includes('dispatch') || i > 30)) {
+                if (inSection && (rowText.includes('DISPATCH') || rowText.includes('LOADING FORECAST') || i > 100)) {
                     break;
                 }
 
-                // Extract mine data - check for any row with mine names
-                if (inSection && col0.length > 0) {
-                    // Check if this row contains mine data
-                    const isMineRow = col0.match(/^(Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA)/i);
-
-                    if (isMineRow) {
-                        console.log(`Found mine row: ${col0} | Type: ${row[1]} | Total: ${row[2]}`);
-
-                        production.push({
-                            mine: col0,
-                            type: (row[1] || '').toString().trim(),
-                            total: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
-                            lump: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
-                            fines: parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0,
-                            rom: parseFloat((row[5] || '').toString().replace(/,/g, '')) || 0,
-                            lumpPercent: parseFloat((row[8] || '').toString().replace(/,/g, '')) || 0,
-                            plan: parseFloat((row[9] || '').toString().replace(/,/g, '')) || 0,
-                            achievement: parseFloat((row[10] || '').toString().replace(/,/g, '')) || 0,
-                            isTotal: col0.toUpperCase().includes('TOTAL') || col0.toUpperCase().includes('GROUP')
-                        });
-                    }
+                if (inSection && /^(Bolani|Barsua|Taldih|Kalta|OGISHA|ODISHA)/i.test(col0)) {
+                    const mine = {
+                        name: col0,
+                        type: (row[1] || '').toString().trim(),
+                        total: (row[2] || '0').toString().trim(),
+                        lump: (row[3] || '0').toString().trim(),
+                        fines: (row[4] || '0').toString().trim(),
+                        rom: (row[5] || '0').toString().trim(),
+                        lumpPercent: (row[6] || '0').toString().trim(),
+                        dailyPlan: (row[7] || '0').toString().trim(),
+                        achievement: (row[8] || '0').toString().trim()
+                    };
+                    production.push(mine);
                 }
             }
 
-            console.log(`Total production rows extracted: ${production.length}`);
             return production;
         }
 
         function extractDispatchFromInput(data) {
             const dispatch = [];
-            let inDispatchSection = false;
-            let startRow = -1;
+            let inSection = false;
 
             for (let i = 0; i < data.length; i++) {
-                const rowText = (data[i][0] || '').toString().toUpperCase();
-                if (rowText.includes('YESTERDAY') && rowText.includes('DISPATCH')) {
-                    inDispatchSection = true;
-                    startRow = i;
-                    break;
-                }
-            }
-
-            if (startRow === -1) return dispatch;
-
-            for (let i = startRow + 2; i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
+                const rowText = row.join('|').toUpperCase();
 
-                const rowText = (row[0] || '').toString().toUpperCase();
-                if (rowText.includes('LOADING FORECAST') || rowText.includes("TODAY'S")) {
+                if (rowText.includes('YESTERDAY') && rowText.includes('DISPATCH')) {
+                    inSection = true;
+                    continue;
+                }
+
+                if (inSection && rowText.includes('LOADING FORECAST')) {
                     break;
                 }
 
-                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                if (inSection && /^(BOL|BAR|TAL|KAL|Bolani|Barsua|Taldih|Kalta)/i.test(col0)) {
+                    let rakeDetails = (row[4] || '').toString().trim();
+                    let remarks = (row[5] || '').toString().trim();
+
+                    // Collect multi-line continuation
+                    for (let j = i + 1; j < Math.min(i + 5, data.length); j++) {
+                        const nextRow = data[j];
+                        const nextCol0 = (nextRow[0] || '').toString().trim();
+                        if (!nextCol0 || /^(BOL|BAR|TAL|KAL|TOTAL)/i.test(nextCol0)) break;
+                        if (nextRow[4]) rakeDetails += ' ' + nextRow[4].toString().trim();
+                        if (nextRow[5]) remarks += ' ' + nextRow[5].toString().trim();
+                    }
+
                     dispatch.push({
                         location: col0,
-                        rakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
-                        dailyCOD: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
-                        achievement: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
-                        rakeDetails: (row[4] || '').toString().trim(),
-                        remarks: (row[5] || '').toString().trim()
+                        rakes: (row[1] || '0').toString().trim(),
+                        dailyCOD: (row[2] || '0').toString().trim(),
+                        achievement: (row[3] || '0').toString().trim(),
+                        rakeDetails: rakeDetails,
+                        remarks: remarks
                     });
                 }
             }
@@ -1339,377 +1058,508 @@
 
         function extractForecastFromInput(data) {
             const forecast = [];
-            let startRow = -1;
+            let inSection = false;
 
             for (let i = 0; i < data.length; i++) {
-                const rowText = (data[i][0] || '').toString().toUpperCase();
-                if (rowText.includes('LOADING FORECAST')) {
-                    startRow = i;
-                    break;
-                }
-            }
-
-            if (startRow === -1) return forecast;
-
-            for (let i = startRow + 2; i < data.length; i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim();
+                const rowText = row.join('|').toUpperCase();
 
-                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
+                if (rowText.includes('LOADING FORECAST')) {
+                    inSection = true;
+                    continue;
+                }
+
+                if (inSection && (rowText.includes('SHIFT') || rowText.includes('MAJOR ISSUES') || i > 200)) {
+                    break;
+                }
+
+                if (inSection && /^(BOL|BAR|TAL|KAL|Bolani|Barsua|Taldih|Kalta)/i.test(col0)) {
                     let rakeDetails = (row[2] || '').toString().trim();
+                    let remarks = (row[4] || '').toString().trim();
 
-                    let j = i + 1;
-                    while (j < data.length) {
+                    // Collect multi-line continuation
+                    for (let j = i + 1; j < Math.min(i + 5, data.length); j++) {
                         const nextRow = data[j];
                         const nextCol0 = (nextRow[0] || '').toString().trim();
-
-                        if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(nextCol0)) {
-                            break;
-                        }
-
-                        if (nextCol0.length > 0) {
-                            rakeDetails += ' ' + nextCol0;
-                        }
-
-                        j++;
+                        if (!nextCol0 || /^(BOL|BAR|TAL|KAL|TOTAL)/i.test(nextCol0)) break;
+                        if (nextRow[2]) rakeDetails += ' ' + nextRow[2].toString().trim();
+                        if (nextRow[4]) remarks += ' ' + nextRow[4].toString().trim();
                     }
 
                     forecast.push({
                         location: col0,
-                        plannedRakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
+                        plannedRakes: (row[1] || '0').toString().trim(),
                         rakeDetails: rakeDetails,
-                        remarks: (row[4] || '').toString().trim()
+                        remarks: remarks
                     });
-
-                    i = j - 1;
                 }
             }
 
             return forecast;
         }
 
-        function extractIssues(data) {
+        function extractMajorIssues(data) {
             const issues = [];
             let inSection = false;
 
             for (let i = 0; i < data.length; i++) {
                 const row = data[i];
-                const col0 = (row[0] || '').toString().trim();
+                const rowText = row.join('|').toUpperCase();
 
-                if (col0.toLowerCase().includes('major issues')) {
+                if (rowText.includes('MAJOR ISSUES')) {
                     inSection = true;
                     continue;
                 }
 
-                if (inSection && col0.match(/Bolani|Barsua|Taldih|Kalta/i)) {
-                    let issueText = (row[1] || '').toString().trim();
+                if (inSection && (rowText.includes('SHIFT') || i > 250)) {
+                    break;
+                }
 
-                    for (let j = i + 1; j < data.length; j++) {
-                        const nextRow = data[j];
-                        const nextCol0 = (nextRow[0] || '').toString().trim();
-                        if (nextCol0.match(/Bolani|Barsua|Taldih|Kalta/i)) {
-                            break;
-                        }
-                        if (nextCol0.length > 0 && !nextCol0.match(/Mine|Key|Issues/i)) {
-                            issueText += ' ' + nextCol0;
-                        }
-                    }
-
-                    issues.push({
-                        mine: col0,
-                        issue: issueText
-                    });
+                if (inSection && row[1] && row[1].toString().trim()) {
+                    issues.push(row[1].toString().trim());
                 }
             }
 
-            return issues;
+            return issues.length > 0 ? issues : ['No major issues reported'];
         }
 
         function extractShiftData(data, mineName) {
-            const result = {
-                mineName: mineName,
-                totalProduction: 0,
-                hasCPData: false,
-                hasShiftBreakdown: false,
-                totalLossTime: 0,
-                shifts: {
-                    A: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
-                    B: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
-                    C: { lwpProduction: 0, cpTrips: 0, cpOperatingHrs: 0, cpLossTime: 0, lwpLossTime: 0, production: 0, trips: 0, operatingHrs: 0, lossTime: 0 }
+            const shifts = { total: 0, A: {}, B: {}, C: {}, CP: null, LWP: null };
+            let inSection = false;
+            let hasCPData = false;
+
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').toString().trim().toUpperCase();
+                const col1 = (row[1] || '').toString().trim().toUpperCase();
+
+                if (col0.includes('SHIFT') && col0.includes('WISE')) {
+                    inSection = true;
+                    if (row.join('|').toUpperCase().includes('CP')) hasCPData = true;
+                    continue;
                 }
-            };
 
-            let hasLWP = false, hasCP = false, hasShiftABC = false, hasShiftAll = false;
-
-            for (let i = 0; i < Math.min(50, data.length); i++) {
-                const col0 = (data[i][0] || '').toString().trim().toUpperCase();
-                const col1 = (data[i][1] || '').toString().trim().toUpperCase();
-                if (col1 === 'LWP') hasLWP = true;
-                if (col1 === 'CP') hasCP = true;
-                if (col0 === 'A' || col0 === 'B' || col0 === 'C') hasShiftABC = true;
-                if (col0 === 'ALL') hasShiftAll = true;
-            }
-
-            result.hasCPData = hasCP && hasLWP;
-            result.hasShiftBreakdown = hasShiftABC;
-
-            for (let i = 0; i < Math.min(10, data.length); i++) {
-                const col0 = (data[i][0] || '').toString().trim();
-                if (col0 === 'Production') {
-                    result.totalProduction = parseFloat((data[i][1] || '').toString().replace(/,/g, '')) || 0;
+                if (inSection && (col0.includes('REMARK') || i > data.length - 5)) {
                     break;
                 }
-            }
 
-            if (result.hasCPData) {
-                for (let i = 0; i < data.length; i++) {
-                    const row = data[i];
-                    const col0 = (row[0] || '').toString().trim().toUpperCase();
-                    const col1 = (row[1] || '').toString().trim().toUpperCase();
-
-                    let shift = null;
-                    if (col0 === 'A') shift = 'A';
-                    else if (col0 === 'B') shift = 'B';
-                    else if (col0 === 'C') shift = 'C';
-
-                    if (shift) {
-                        if (col1 === 'CP') {
-                            result.shifts[shift].cpTrips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
-                            result.shifts[shift].cpOperatingHrs = parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0;
-                            result.shifts[shift].cpLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
-                        } else if (col1 === 'LWP') {
-                            result.shifts[shift].lwpProduction = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
-                            result.shifts[shift].lwpLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
-                        }
+                if (inSection) {
+                    if (col0 === 'TOTAL' && col1 === '') {
+                        shifts.total = parseFloat(row[2]) || 0;
                     }
-                }
-                result.totalProduction = result.shifts.A.lwpProduction + result.shifts.B.lwpProduction + result.shifts.C.lwpProduction;
 
-            } else if (result.hasShiftBreakdown) {
-                for (let i = 0; i < data.length; i++) {
-                    const row = data[i];
-                    const col0 = (row[0] || '').toString().trim().toUpperCase();
-                    const col1 = (row[1] || '').toString().trim().toUpperCase();
-
-                    let shift = null;
-                    if (col0 === 'A') shift = 'A';
-                    else if (col0 === 'B') shift = 'B';
-                    else if (col0 === 'C') shift = 'C';
-
-                    if (shift && col1 === 'ROM') {
-                        result.shifts[shift].trips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
-                        result.shifts[shift].production = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
-                        result.shifts[shift].operatingHrs = parseFloat((row[4] || '').toString().replace(/,/g, '')) || 0;
-                        result.shifts[shift].lossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
-                    }
-                }
-
-            } else if (hasShiftAll) {
-                for (let i = 0; i < data.length; i++) {
-                    const row = data[i];
-                    const col0 = (row[0] || '').toString().trim().toUpperCase();
-
-                    if (col0 === 'ALL') {
-                        result.totalLossTime = parseFloat((row[6] || '').toString().replace(/,/g, '')) || 0;
-                        break;
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        function renderKPIs(kpis) {
-            document.getElementById('kpi-prod-1').textContent = kpis.totalProduction.toLocaleString();
-            document.getElementById('kpi-ach-1').textContent = kpis.planAchievement.toFixed(1);
-            document.getElementById('kpi-ach-sub-1').textContent = `of ${kpis.dailyCODPlan.toLocaleString()} MT`;
-            document.getElementById('kpi-lump-1').textContent = kpis.lumpPercentage.toFixed(1);
-            document.getElementById('kpi-rakes-1').textContent = kpis.rakesDispatched;
-        }
-
-        function renderProduction(production) {
-            let html = '';
-            production.forEach(p => {
-                html += `<tr${p.isTotal ? ' class="total-row-tv"' : ''}>
-                    <td><strong>${p.mine}</strong></td>
-                    <td>${p.type}</td>
-                    <td>${p.total > 0 ? p.total.toLocaleString() : ''}</td>
-                    <td>${p.lump > 0 ? p.lump.toLocaleString() : ''}</td>
-                    <td>${p.fines > 0 ? p.fines.toLocaleString() : ''}</td>
-                    <td>${p.rom > 0 ? p.rom.toLocaleString() : ''}</td>
-                    <td>${p.lumpPercent > 0 ? p.lumpPercent.toFixed(2) : ''}</td>
-                    <td>${p.plan > 0 ? p.plan.toLocaleString() : ''}</td>
-                    <td>${p.achievement > 0 ? p.achievement.toFixed(2) : ''}</td>
-                </tr>`;
-            });
-            document.getElementById('prod-table-1').innerHTML = html;
-        }
-
-        function renderDispatch(dispatch) {
-            let html = '';
-            dispatch.forEach(d => {
-                html += `<tr${d.location === 'TOTAL' ? ' class="total-row-tv"' : ''}>
-                    <td><strong>${d.location}</strong></td>
-                    <td>${d.rakes > 0 ? d.rakes : ''}</td>
-                    <td>${d.dailyCOD > 0 ? d.dailyCOD.toFixed(2) : ''}</td>
-                    <td>${d.achievement > 0 ? d.achievement.toFixed(2) : ''}</td>
-                    <td style="line-height:1.6;">${d.rakeDetails || ''}</td>
-                    <td style="line-height:1.6;">${d.remarks || ''}</td>
-                </tr>`;
-            });
-            document.getElementById('dispatch-table-1').innerHTML = html;
-        }
-
-        function renderForecast(forecast) {
-            let html = '';
-            forecast.forEach(f => {
-                html += `<tr${f.location === 'TOTAL' ? ' class="total-row-tv"' : ''}>
-                    <td><strong>${f.location}</strong></td>
-                    <td>${f.plannedRakes > 0 ? f.plannedRakes : ''}</td>
-                    <td style="line-height:1.6;">${f.rakeDetails || ''}</td>
-                    <td style="line-height:1.6;">${f.remarks || ''}</td>
-                </tr>`;
-            });
-            document.getElementById('forecast-table-1').innerHTML = html;
-        }
-
-        function renderIssues(issues) {
-            let html = '';
-            issues.forEach(issue => {
-                html += `<tr>
-                    <td><strong>${issue.mine}</strong></td>
-                    <td style="line-height:1.6; font-size: 16px;">${issue.issue}</td>
-                </tr>`;
-            });
-            document.getElementById('issues-table-1').innerHTML = html || '<tr><td colspan="2" style="text-align:center;opacity:0.5;">No major issues reported</td></tr>';
-        }
-
-        function renderShiftOperations(shifts) {
-            let html = '';
-
-            Object.keys(shifts).forEach(mineName => {
-                const mineData = shifts[mineName];
-
-                html += `<div class="shift-mine-tv">
-                    <div class="shift-mine-title-tv">🏭 ${mineData.mineName}</div>
-
-                    <div class="shift-total-tv">
-                        <div class="shift-total-label-tv">Total Production ${mineData.hasCPData ? '(LWP Only)' : ''}</div>
-                        <div class="shift-total-value-tv">${mineData.totalProduction.toLocaleString()} MT</div>
-                    </div>`;
-
-                if (mineData.hasShiftBreakdown || mineData.hasCPData) {
-                    ['A', 'B', 'C'].forEach(shiftName => {
-                        const shift = mineData.shifts[shiftName];
-
-                        if (!mineData.hasCPData && shift.production === 0 && shift.trips === 0) {
-                            return;
-                        }
-
-                        html += `<div class="shift-detail-tv shift-${shiftName.toLowerCase()}">
-                            <div class="shift-detail-header-tv">⚙️ SHIFT ${shiftName}</div>
-                            <div class="shift-metrics-tv">`;
-
-                        if (mineData.hasCPData) {
-                            html += `
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">LWP Production</div>
-                                    <div class="shift-metric-value-tv">${shift.lwpProduction.toLocaleString()} MT</div>
-                                </div>
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">CP Trips</div>
-                                    <div class="shift-metric-value-tv">${shift.cpTrips}</div>
-                                </div>
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">CP Hrs</div>
-                                    <div class="shift-metric-value-tv">${shift.cpOperatingHrs.toFixed(1)}</div>
-                                </div>
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">CP Loss</div>
-                                    <div class="shift-metric-value-tv">${shift.cpLossTime} min</div>
-                                </div>
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">LWP Loss</div>
-                                    <div class="shift-metric-value-tv">${shift.lwpLossTime} min</div>
-                                </div>`;
+                    if (['A', 'B', 'C'].includes(col0)) {
+                        if (hasCPData) {
+                            if (col1 === 'CP') {
+                                shifts.CP = shifts.CP || {};
+                                shifts.CP[col0] = {
+                                    trips: parseFloat(row[2]) || 0,
+                                    operatingHours: parseFloat(row[3]) || 0,
+                                    lossTime: parseFloat(row[4]) || 0
+                                };
+                            } else if (col1 === 'LWP') {
+                                shifts.LWP = shifts.LWP || {};
+                                shifts.LWP[col0] = {
+                                    production: parseFloat(row[2]) || 0,
+                                    lossTime: parseFloat(row[5]) || 0
+                                };
+                                shifts[col0].production = shifts.LWP[col0].production;
+                            }
                         } else {
-                            html += `
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">ROM Production</div>
-                                    <div class="shift-metric-value-tv">${shift.production.toLocaleString()} MT</div>
-                                </div>
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">Trips</div>
-                                    <div class="shift-metric-value-tv">${shift.trips}</div>
-                                </div>
-                                <div class="shift-metric-tv">
-                                    <div class="shift-metric-label-tv">Loss Time</div>
-                                    <div class="shift-metric-value-tv">${shift.lossTime} min</div>
-                                </div>`;
+                            shifts[col0] = {
+                                production: parseFloat(row[2]) || 0,
+                                trips: parseFloat(row[3]) || 0,
+                                operatingHours: parseFloat(row[4]) || 0,
+                                lossTime: parseFloat(row[5]) || 0
+                            };
                         }
+                    }
+                }
+            }
 
-                        html += `</div></div>`;
-                    });
-                } else if (mineData.totalLossTime > 0) {
-                    html += `<div class="shift-detail-tv">
-                        <div class="shift-metric-tv">
-                            <div class="shift-metric-label-tv">Total Loss Time</div>
-                            <div class="shift-metric-value-tv">${mineData.totalLossTime} min</div>
+            return shifts;
+        }
+
+        // Render Functions - MOBILE
+        function renderMobileKPIs(kpis) {
+            document.getElementById('mobile-kpis').innerHTML = `
+                <div class="mobile-kpi-card">
+                    <div class="mobile-kpi-label">Total Production</div>
+                    <div class="mobile-kpi-value">${kpis.totalProduction}</div>
+                    <div class="mobile-kpi-sub">MT</div>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="mobile-kpi-label">Daily COD Plan Achievement</div>
+                    <div class="mobile-kpi-value">${kpis.dailyCODPlan}</div>
+                    <div class="mobile-kpi-sub">of 50,500 MT</div>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="mobile-kpi-label">Lump %</div>
+                    <div class="mobile-kpi-value">${kpis.lumpPercent}</div>
+                </div>
+                <div class="mobile-kpi-card">
+                    <div class="mobile-kpi-label">Rakes Dispatched</div>
+                    <div class="mobile-kpi-value">${kpis.rakesDispatched}</div>
+                </div>
+            `;
+        }
+
+        function renderMobileProduction(production) {
+            const html = production.map(mine => `
+                <div class="mobile-mine-card">
+                    <div class="mobile-mine-header">
+                        <div class="mobile-mine-name">${mine.name}</div>
+                        <div class="mobile-mine-type">${mine.type}</div>
+                    </div>
+                    <div class="mobile-data-grid">
+                        <div class="mobile-data-item">
+                            <div class="mobile-data-label">Total Production</div>
+                            <div class="mobile-data-value">${mine.total} MT</div>
                         </div>
-                    </div>`;
+                        <div class="mobile-data-item">
+                            <div class="mobile-data-label">Lump</div>
+                            <div class="mobile-data-value">${mine.lump} MT</div>
+                        </div>
+                        <div class="mobile-data-item">
+                            <div class="mobile-data-label">Fines</div>
+                            <div class="mobile-data-value">${mine.fines} MT</div>
+                        </div>
+                        <div class="mobile-data-item">
+                            <div class="mobile-data-label">ROM</div>
+                            <div class="mobile-data-value">${mine.rom} MT</div>
+                        </div>
+                        <div class="mobile-data-item">
+                            <div class="mobile-data-label">Lump %</div>
+                            <div class="mobile-data-value">${mine.lumpPercent}%</div>
+                        </div>
+                        <div class="mobile-data-item">
+                            <div class="mobile-data-label">Daily Plan</div>
+                            <div class="mobile-data-value">${mine.dailyPlan} MT</div>
+                        </div>
+                        <div class="mobile-data-item">
+                            <div class="mobile-data-label">Achievement</div>
+                            <div class="mobile-data-value">${mine.achievement}%</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('mobile-production').innerHTML = html;
+        }
+
+        function renderMobileDispatch(dispatch) {
+            const html = dispatch.map(item => `
+                <div class="mobile-dispatch-card">
+                    <div class="mobile-dispatch-header">${item.location}</div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span>Rakes:</span>
+                        <strong>${item.rakes}</strong>
+                    </div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span>Daily COD:</span>
+                        <strong>${item.dailyCOD}</strong>
+                    </div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span>Achievement:</span>
+                        <strong>${item.achievement}%</strong>
+                    </div>
+                    ${item.rakeDetails ? `<div class="mobile-dispatch-details"><strong>Rake Details:</strong><br>${item.rakeDetails}</div>` : ''}
+                    ${item.remarks ? `<div class="mobile-dispatch-details"><strong>Remarks:</strong><br>${item.remarks}</div>` : ''}
+                </div>
+            `).join('');
+            document.getElementById('mobile-dispatch').innerHTML = html;
+        }
+
+        function renderMobileForecast(forecast) {
+            const html = forecast.map(item => `
+                <div class="mobile-dispatch-card">
+                    <div class="mobile-dispatch-header">${item.location}</div>
+                    <div class="mobile-dispatch-detail-row">
+                        <span>Planned Rakes:</span>
+                        <strong>${item.plannedRakes}</strong>
+                    </div>
+                    ${item.rakeDetails ? `<div class="mobile-dispatch-details"><strong>Rake Details:</strong><br>${item.rakeDetails}</div>` : ''}
+                    ${item.remarks ? `<div class="mobile-dispatch-details"><strong>Remarks:</strong><br>${item.remarks}</div>` : ''}
+                </div>
+            `).join('');
+            document.getElementById('mobile-forecast').innerHTML = html;
+        }
+
+        function renderMobileShifts(allShifts) {
+            const mines = ['Bolani', 'Barsua', 'Taldih', 'Kalta'];
+            const html = mines.map(mine => {
+                const shifts = allShifts[mine];
+                if (!shifts) return '';
+
+                let shiftHTML = '';
+                if (shifts.CP && shifts.LWP) {
+                    // Bolani with CP/LWP
+                    shiftHTML = `
+                        <div class="mobile-shift-grid">
+                            ${['A', 'B', 'C'].map(s => `
+                                <div class="mobile-shift-item">
+                                    <div class="mobile-shift-name">Shift ${s}</div>
+                                    <div class="mobile-shift-value">${shifts[s].production || 0}</div>
+                                    <div class="mobile-shift-label">MT</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top:10px; font-size:11px; opacity:0.8;">
+                            CP & LWP data available - Total from LWP only
+                        </div>
+                    `;
+                } else {
+                    shiftHTML = `
+                        <div class="mobile-shift-grid">
+                            ${['A', 'B', 'C'].map(s => `
+                                <div class="mobile-shift-item">
+                                    <div class="mobile-shift-name">Shift ${s}</div>
+                                    <div class="mobile-shift-value">${shifts[s]?.production || 0}</div>
+                                    <div class="mobile-shift-label">MT</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
                 }
 
-                html += `</div>`;
+                return `
+                    <div class="mobile-shift-card">
+                        <div class="mobile-shift-header">${mine}</div>
+                        <div class="mobile-shift-total">
+                            <div class="mobile-shift-total-label">Total Production</div>
+                            <div class="mobile-shift-total-value">${shifts.total} MT</div>
+                        </div>
+                        ${shiftHTML}
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('mobile-shifts').innerHTML = html;
+        }
+
+        function renderMobileIssues(issues) {
+            const html = issues.map(issue => `<li>${issue}</li>`).join('');
+            document.getElementById('mobile-issues').innerHTML = html;
+        }
+
+        // Render Functions - TV
+        function renderTVKPIs(kpis) {
+            document.getElementById('tv-kpis').innerHTML = `
+                <div class="kpi-card-tv">
+                    <div class="kpi-label-tv">Total Production</div>
+                    <div class="kpi-value-tv">${kpis.totalProduction}</div>
+                    <div class="kpi-sub-tv">MT</div>
+                </div>
+                <div class="kpi-card-tv">
+                    <div class="kpi-label-tv">Daily COD Plan Achievement</div>
+                    <div class="kpi-value-tv">${kpis.dailyCODPlan}</div>
+                    <div class="kpi-sub-tv">of 50,500 MT</div>
+                </div>
+                <div class="kpi-card-tv">
+                    <div class="kpi-label-tv">Lump %</div>
+                    <div class="kpi-value-tv">${kpis.lumpPercent}</div>
+                </div>
+                <div class="kpi-card-tv">
+                    <div class="kpi-label-tv">Rakes Dispatched</div>
+                    <div class="kpi-value-tv">${kpis.rakesDispatched}</div>
+                </div>
+            `;
+        }
+
+        function renderTVProduction(production) {
+            const html = production.map(mine => `
+                <tr>
+                    <td><strong>${mine.name}</strong></td>
+                    <td>${mine.type}</td>
+                    <td>${mine.total}</td>
+                    <td>${mine.lump}</td>
+                    <td>${mine.fines}</td>
+                    <td>${mine.rom}</td>
+                    <td>${mine.lumpPercent}</td>
+                    <td>${mine.dailyPlan}</td>
+                    <td>${mine.achievement}</td>
+                </tr>
+            `).join('');
+            document.getElementById('tv-production-body').innerHTML = html;
+        }
+
+        function renderTVDispatch(dispatch) {
+            const html = dispatch.map(item => `
+                <tr>
+                    <td><strong>${item.location}</strong></td>
+                    <td>${item.rakes}</td>
+                    <td>${item.dailyCOD}</td>
+                    <td>${item.achievement}</td>
+                    <td>${item.rakeDetails || '-'}</td>
+                    <td>${item.remarks || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('tv-dispatch-body').innerHTML = html;
+        }
+
+        function renderTVForecast(forecast) {
+            const html = forecast.map(item => `
+                <tr>
+                    <td><strong>${item.location}</strong></td>
+                    <td>${item.plannedRakes}</td>
+                    <td>${item.rakeDetails || '-'}</td>
+                    <td>${item.remarks || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('tv-forecast-body').innerHTML = html;
+        }
+
+        function renderTVIssues(issues) {
+            const html = issues.map(issue => `<li>${issue}</li>`).join('');
+            document.getElementById('tv-issues-list').innerHTML = html;
+        }
+
+        function renderTVShifts(allShifts) {
+            const mines = ['Bolani', 'Barsua', 'Taldih', 'Kalta'];
+            const html = mines.map(mine => {
+                const shifts = allShifts[mine];
+                if (!shifts) return '';
+
+                let shiftHTML = '';
+                if (shifts.CP && shifts.LWP) {
+                    shiftHTML = `
+                        <div class="shift-detail-header-tv">CP (Trips/Hours/Loss)</div>
+                        <div class="shift-metrics-tv">
+                            ${['A', 'B', 'C'].map(s => `
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">Shift ${s}</div>
+                                    <div class="shift-metric-value-tv">
+                                        ${shifts.CP[s]?.trips || 0}T / ${shifts.CP[s]?.operatingHours || 0}H / ${shifts.CP[s]?.lossTime || 0}L
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="shift-detail-header-tv" style="margin-top:15px;">LWP (Production/Loss Time)</div>
+                        <div class="shift-metrics-tv">
+                            ${['A', 'B', 'C'].map(s => `
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">Shift ${s}</div>
+                                    <div class="shift-metric-value-tv">
+                                        ${shifts.LWP[s]?.production || 0} MT / ${shifts.LWP[s]?.lossTime || 0}L
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    shiftHTML = `
+                        <div class="shift-metrics-tv">
+                            ${['A', 'B', 'C'].map(s => `
+                                <div class="shift-metric-tv">
+                                    <div class="shift-metric-label-tv">Shift ${s}</div>
+                                    <div class="shift-metric-value-tv">${shifts[s]?.production || 0} MT</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="shift-mine-tv">
+                        <div class="shift-mine-title-tv">${mine}</div>
+                        <div class="shift-total-tv">
+                            <div class="shift-total-label-tv">Total Production</div>
+                            <div class="shift-total-value-tv">${shifts.total} MT</div>
+                        </div>
+                        ${shiftHTML}
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('tv-shifts-grid').innerHTML = html;
+        }
+
+        // Load All Data
+        async function loadAllData() {
+            try {
+                console.log('🔄 Loading data...');
+                const timestamp = new Date().getTime();
+
+                // Load ED Dashboard
+                const edUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=ED Dashboard&t=${timestamp}`;
+                const edResponse = await fetch(edUrl, { cache: 'no-store' });
+                const edData = parseCSV(await edResponse.text());
+
+                // Load Dispatch Input
+                const dispatchUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Dispatch Input&t=${timestamp}`;
+                const dispatchResponse = await fetch(dispatchUrl, { cache: 'no-store' });
+                const dispatchData = parseCSV(await dispatchResponse.text());
+
+                // Load Mine Sheets
+                const mineSheets = ['Bolani Input', 'Barsua Input', 'Taldih Input', 'Kalta Input'];
+                const mineData = {};
+                for (const sheet of mineSheets) {
+                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheet}&t=${timestamp}`;
+                    const response = await fetch(url, { cache: 'no-store' });
+                    const data = parseCSV(await response.text());
+                    const mineName = sheet.split(' ')[0];
+                    mineData[mineName] = extractShiftData(data, mineName);
+                }
+
+                // Extract Data
+                const kpis = extractKPIs(edData);
+                const dates = extractDates(edData);
+                const production = extractProduction(edData);
+                const dispatch = extractDispatchFromInput(dispatchData);
+                const forecast = extractForecastFromInput(dispatchData);
+                const issues = extractMajorIssues(edData);
+
+                // Update Dates
+                if (isMobile || isTablet) {
+                    document.getElementById('mobile-prod-date').textContent = dates.prodDate || 'N/A';
+                    document.getElementById('mobile-report-date').textContent = dates.reportDate || 'N/A';
+                    renderMobileKPIs(kpis);
+                    renderMobileProduction(production);
+                    renderMobileDispatch(dispatch);
+                    renderMobileForecast(forecast);
+                    renderMobileShifts(mineData);
+                    renderMobileIssues(issues);
+                } else {
+                    document.getElementById('tv-prod-date').textContent = dates.prodDate || 'N/A';
+                    document.getElementById('tv-report-date').textContent = dates.reportDate || 'N/A';
+                    renderTVKPIs(kpis);
+                    renderTVProduction(production);
+                    renderTVDispatch(dispatch);
+                    renderTVForecast(forecast);
+                    renderTVIssues(issues);
+                    renderTVShifts(mineData);
+                }
+
+                console.log('✅ Data loaded successfully');
+                nextRefreshTime = Date.now() + REFRESH_INTERVAL;
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+            }
+        }
+
+        // TV Controls
+        function showSection(num) {
+            const sections = document.querySelectorAll('.section');
+            const indicators = document.querySelectorAll('.indicator-dot');
+
+            sections.forEach((section, index) => {
+                section.classList.remove('active');
+                indicators[index].classList.remove('active');
+                if (index + 1 === num) {
+                    section.classList.add('active');
+                    indicators[index].classList.add('active');
+                }
             });
 
-            document.getElementById('shift-operations-1').innerHTML = html;
+            currentSection = num;
         }
 
-        function showSection(sectionNum) {
-            const currentEl = document.getElementById(`section-${currentSection}`);
-            const nextEl = document.getElementById(`section-${sectionNum}`);
-
-            currentEl.classList.remove('active');
-            currentEl.classList.add('exiting');
-
-            setTimeout(() => {
-                currentEl.classList.remove('exiting');
-                nextEl.classList.add('active');
-            }, 400);
-
-            // Update indicators
-            document.querySelectorAll('.indicator-dot').forEach((dot, idx) => {
-                dot.classList.toggle('active', (idx + 1) === sectionNum);
-            });
-
-            currentSection = sectionNum;
+        function nextSection() {
+            currentSection = currentSection >= 4 ? 1 : currentSection + 1;
+            showSection(currentSection);
         }
 
-        function autoRotate() {
-            let nextSection = currentSection + 1;
-            if (nextSection > 4) nextSection = 1;
-            showSection(nextSection);
-        }
-
-        function startAutoRotation() {
-            if (sectionTimer) clearInterval(sectionTimer);
-            sectionTimer = setInterval(autoRotate, SECTION_DURATION);
-
-            // Progress bar
-            if (progressInterval) clearInterval(progressInterval);
-            let progress = 0;
-            const progressBar = document.getElementById('progress-bar');
-            progressInterval = setInterval(() => {
-                progress += 0.1;
-                if (progress >= 100) progress = 0;
-                progressBar.style.width = progress + '%';
-            }, SECTION_DURATION / 1000);
-        }
-
-        function startDataRefresh() {
-            loadAllData();
-            if (refreshTimer) clearInterval(refreshTimer);
-            refreshTimer = setInterval(loadAllData, REFRESH_INTERVAL);
+        function previousSection() {
+            currentSection = currentSection <= 1 ? 4 : currentSection - 1;
+            showSection(currentSection);
         }
 
         function togglePause() {
@@ -1719,20 +1569,14 @@
             const progressBar = document.getElementById('progress-bar');
 
             if (isPaused) {
-                // Pause
                 if (sectionTimer) clearInterval(sectionTimer);
                 if (progressInterval) clearInterval(progressInterval);
                 pauseBtn.innerHTML = '▶️ Resume';
                 pauseBtn.classList.remove('active');
                 pauseIndicator.classList.add('visible');
                 progressBar.classList.add('paused');
-
-                // Hide pause indicator after 1 second so ED can see data clearly
-                setTimeout(() => {
-                    pauseIndicator.classList.remove('visible');
-                }, 1000);
+                setTimeout(() => pauseIndicator.classList.remove('visible'), 1000);
             } else {
-                // Resume
                 startAutoRotation();
                 pauseBtn.innerHTML = '⏸️ Pause';
                 pauseBtn.classList.add('active');
@@ -1741,340 +1585,46 @@
             }
         }
 
-        function previousSection() {
-            let prevSection = currentSection - 1;
-            if (prevSection < 1) prevSection = 4;
-            showSection(prevSection);
+        function startAutoRotation() {
+            if (sectionTimer) clearInterval(sectionTimer);
+            if (progressInterval) clearInterval(progressInterval);
 
-            // Reset rotation timer if not paused
-            if (!isPaused) {
-                startAutoRotation();
-            }
-        }
+            sectionTimer = setInterval(() => {
+                if (!isPaused) nextSection();
+            }, SECTION_DURATION);
 
-        function nextSection() {
-            let nextSection = currentSection + 1;
-            if (nextSection > 4) nextSection = 1;
-            showSection(nextSection);
-
-            // Reset rotation timer if not paused
-            if (!isPaused) {
-                startAutoRotation();
-            }
-        }
-
-        // Keyboard controls
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                togglePause();
-            } else if (e.code === 'ArrowLeft') {
-                e.preventDefault();
-                previousSection();
-            } else if (e.code === 'ArrowRight') {
-                e.preventDefault();
-                nextSection();
-            } else if (e.code >= 'Digit1' && e.code <= 'Digit4') {
-                e.preventDefault();
-                const section = parseInt(e.code.replace('Digit', ''));
-                showSection(section);
+            // Progress bar animation
+            let progress = 0;
+            progressInterval = setInterval(() => {
                 if (!isPaused) {
-                    startAutoRotation();
+                    progress += 100 / (SECTION_DURATION / 100);
+                    if (progress >= 100) progress = 0;
+                    document.getElementById('progress-bar').style.width = progress + '%';
                 }
-            }
-        });
-
-        // Click anywhere to pause/resume
-        document.addEventListener('click', (e) => {
-            // Don't toggle if clicking on control buttons or dragging controls
-            if (!e.target.closest('.control-btn') && !e.target.closest('.control-panel')) {
-                togglePause();
-            }
-        });
-
-        // Make control panel draggable
-        let isDragging = false;
-        let currentX;
-        let currentY;
-        let initialX;
-        let initialY;
-        let xOffset = 0;
-        let yOffset = 0;
-
-        const controlPanel = document.querySelector('.control-panel');
-
-        controlPanel.addEventListener('mousedown', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
-
-        // Touch events for mobile/touch screens
-        controlPanel.addEventListener('touchstart', dragStart);
-        document.addEventListener('touchmove', drag);
-        document.addEventListener('touchend', dragEnd);
-
-        function dragStart(e) {
-            // Only drag if clicking on the panel background, not the buttons
-            if (e.target.closest('.control-btn')) {
-                return;
-            }
-
-            if (e.type === 'touchstart') {
-                initialX = e.touches[0].clientX - xOffset;
-                initialY = e.touches[0].clientY - yOffset;
-            } else {
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
-            }
-
-            isDragging = true;
-            controlPanel.classList.add('dragging');
+            }, 100);
         }
 
-        function drag(e) {
-            if (isDragging) {
-                e.preventDefault();
-
-                if (e.type === 'touchmove') {
-                    currentX = e.touches[0].clientX - initialX;
-                    currentY = e.touches[0].clientY - initialY;
-                } else {
-                    currentX = e.clientX - initialX;
-                    currentY = e.clientY - initialY;
-                }
-
-                xOffset = currentX;
-                yOffset = currentY;
-
-                // Keep panel within viewport bounds
-                const rect = controlPanel.getBoundingClientRect();
-                const maxX = window.innerWidth - rect.width;
-                const maxY = window.innerHeight - rect.height;
-
-                if (xOffset < -rect.left) xOffset = -rect.left;
-                if (xOffset > maxX - rect.left) xOffset = maxX - rect.left;
-                if (yOffset < -rect.top) yOffset = -rect.top;
-                if (yOffset > maxY - rect.top) yOffset = maxY - rect.top;
-
-                setTranslate(xOffset, yOffset, controlPanel);
-            }
+        function startRefreshCountdown() {
+            setInterval(() => {
+                const remaining = Math.max(0, Math.ceil((nextRefreshTime - Date.now()) / 1000));
+                document.getElementById('countdown').textContent = remaining + 's';
+            }, 1000);
         }
 
-        function dragEnd(e) {
-            if (isDragging) {
-                initialX = currentX;
-                initialY = currentY;
-                isDragging = false;
-                controlPanel.classList.remove('dragging');
-            }
-        }
-
-        function setTranslate(xPos, yPos, el) {
-            el.style.transform = `translate(${xPos}px, ${yPos}px)`;
-        }
-
-        // Swipe gesture support for TV/Desktop only (NOT mobile)
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchEndX = 0;
-        let touchEndY = 0;
-
-        document.addEventListener('touchstart', (e) => {
-            // Disable swipe navigation on mobile - ED wants manual scrolling
+        // Keyboard Controls (TV only)
+        document.addEventListener('keydown', (e) => {
             if (isMobile || isTablet) return;
 
-            // Don't handle swipe if touching control panel
-            if (e.target.closest('.control-panel')) return;
-
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
-
-        document.addEventListener('touchend', (e) => {
-            // Disable swipe navigation on mobile - ED wants manual scrolling
-            if (isMobile || isTablet) return;
-
-            // Don't handle swipe if touching control panel
-            if (e.target.closest('.control-panel')) return;
-
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            // Disable swipe navigation on mobile
-            if (isMobile || isTablet) return;
-            const swipeThreshold = 50; // Minimum distance for a swipe
-            const deltaX = touchEndX - touchStartX;
-            const deltaY = touchEndY - touchStartY;
-
-            // Horizontal swipe must be more prominent than vertical
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
-                if (deltaX > 0) {
-                    // Swipe right - go to previous section
-                    previousSection();
-                } else {
-                    // Swipe left - go to next section
-                    nextSection();
-                }
-            }
-        }
-
-        // Fullscreen toggle for mobile
-        function toggleFullscreen() {
-            const elem = document.documentElement;
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
-
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
-                // Enter fullscreen
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                } else if (elem.mozRequestFullScreen) {
-                    elem.mozRequestFullScreen();
-                } else if (elem.msRequestFullscreen) {
-                    elem.msRequestFullscreen();
-                }
-                fullscreenBtn.innerHTML = '⛶ Exit';
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-                fullscreenBtn.innerHTML = '⛶ Full';
-            }
-        }
-
-        // Handle orientation change on mobile
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                location.reload();
-            }, 200);
+            if (e.key === 'ArrowLeft') previousSection();
+            if (e.key === 'ArrowRight') nextSection();
+            if (e.key === ' ') { e.preventDefault(); togglePause(); }
+            if (e.key >= '1' && e.key <= '4') showSection(parseInt(e.key));
         });
-
-        // Handle window resize
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                // Reset control panel position on significant resize
-                if (Math.abs(window.innerWidth - initialWidth) > 200) {
-                    xOffset = 0;
-                    yOffset = 0;
-                    setTranslate(0, 0, controlPanel);
-                }
-            }, 250);
-        });
-
-        const initialWidth = window.innerWidth;
-
-        // Add device badge
-        function addDeviceBadge() {
-            const badge = document.createElement('div');
-            badge.style.cssText = `
-                position: fixed;
-                bottom: 60px;
-                left: 20px;
-                background: rgba(0,0,0,0.7);
-                color: white;
-                padding: 5px 12px;
-                border-radius: 15px;
-                font-size: 11px;
-                z-index: 1000;
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255,255,255,0.2);
-            `;
-
-            let deviceType = '💻 Desktop';
-            if (isMobile && !isTablet) deviceType = '📱 Mobile';
-            else if (isTablet) deviceType = '📲 Tablet';
-            else if (isLargeScreen) deviceType = '📺 Large TV';
-
-            badge.textContent = deviceType + ' | ' + window.innerWidth + 'x' + window.innerHeight;
-            document.body.appendChild(badge);
-
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                badge.style.transition = 'opacity 0.5s';
-                badge.style.opacity = '0';
-                setTimeout(() => badge.remove(), 500);
-            }, 5000);
-        }
 
         // Initialize
         window.addEventListener('load', () => {
-            startDataRefresh();
-
-            if (isMobile || isTablet) {
-                // MOBILE MODE - No auto-rotation, show all sections vertically
-                console.log('📱 Mobile Mode Active:');
-                console.log('- All sections visible (scroll to view)');
-                console.log('- No auto-rotation');
-                console.log('- Swipe tables horizontally to see all data');
-
-                // Hide control panel on mobile
-                const controlPanel = document.getElementById('control-panel');
-                if (controlPanel) controlPanel.style.display = 'none';
-
-                // Hide section indicators
-                const sectionIndicators = document.getElementById('section-indicators');
-                if (sectionIndicators) sectionIndicators.style.display = 'none';
-
-                // Hide progress bar
-                const progressBar = document.getElementById('progress-bar');
-                if (progressBar) progressBar.style.display = 'none';
-
-                // Show all sections simultaneously
-                const sections = document.querySelectorAll('.section');
-                sections.forEach(section => {
-                    section.style.display = 'block';
-                    section.style.position = 'relative';
-                    section.style.opacity = '1';
-                    section.style.transform = 'none';
-                });
-
-                // Enable vertical scrolling
-                document.body.style.overflow = 'auto';
-                document.querySelector('.tv-screen').style.overflow = 'auto';
-                document.querySelector('.tv-screen').style.height = 'auto';
-
-                // Add scroll hints to tables
-                const tableContainers = document.querySelectorAll('.table-container-tv');
-                tableContainers.forEach(container => {
-                    container.classList.add('scroll-hint');
-                });
-
-                // Remove scroll hints after 10 seconds
-                setTimeout(() => {
-                    tableContainers.forEach(container => {
-                        container.classList.remove('scroll-hint');
-                    });
-                }, 10000);
-
-            } else {
-                // TV/DESKTOP MODE - Auto-rotation with controls
-                startAutoRotation();
-
-                console.log('📺 TV Mode Active:');
-                console.log('- Auto-rotation enabled (10s per section)');
-                console.log('- Controls available');
-                console.log('- Press Pause to stop rotation');
-            }
-
-            addDeviceBadge();
-
-            // Remove drag hint after animation
-            const dragHint = document.getElementById('drag-hint');
-            setTimeout(() => {
-                if (dragHint) dragHint.remove();
-            }, 4500);
+            loadAllData();
+            setInterval(loadAllData, REFRESH_INTERVAL);
         });
     </script>
 </body>
