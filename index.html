@@ -6,19 +6,13 @@
     <title>OGOM CMLO - Daily Mining Operations Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             padding: 20px;
             color: #333;
         }
-
-        .dashboard {
-            max-width: 1800px;
-            margin: 0 auto;
-        }
-
+        .dashboard { max-width: 1800px; margin: 0 auto; }
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
@@ -27,7 +21,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             margin-bottom: 25px;
         }
-
         .header-top {
             display: flex;
             justify-content: space-between;
@@ -35,19 +28,13 @@
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
-
         .header h1 {
             font-size: 32px;
             font-weight: 700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
             letter-spacing: 0.5px;
         }
-
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
-
+        .header-actions { display: flex; gap: 12px; }
         .btn {
             background: rgba(255,255,255,0.15);
             border: 2px solid rgba(255,255,255,0.3);
@@ -60,14 +47,12 @@
             transition: all 0.3s;
             backdrop-filter: blur(10px);
         }
-
         .btn:hover {
             background: white;
             color: #1e3c72;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-
         .header-meta {
             font-size: 15px;
             opacity: 0.95;
@@ -75,23 +60,9 @@
             gap: 25px;
             flex-wrap: wrap;
         }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .meta-label {
-            opacity: 0.8;
-            font-size: 13px;
-        }
-
-        .meta-value {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
+        .meta-item { display: flex; align-items: center; gap: 8px; }
+        .meta-label { opacity: 0.8; font-size: 13px; }
+        .meta-value { font-weight: 600; font-size: 15px; }
         .status {
             padding: 15px 25px;
             margin: 20px 0;
@@ -101,39 +72,32 @@
             text-align: center;
             animation: slideDown 0.3s ease;
         }
-
         @keyframes slideDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .status.loading {
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             color: #0d47a1;
             border-left: 4px solid #1976d2;
         }
-
         .status.error {
             background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
             color: #b71c1c;
             border-left: 4px solid #d32f2f;
         }
-
         .status.success {
             background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             color: #1b5e20;
             border-left: 4px solid #388e3c;
         }
-
         .status-hidden { display: none; }
-
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 25px;
         }
-
         .kpi-card {
             background: white;
             padding: 30px 25px;
@@ -143,7 +107,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .kpi-card::before {
             content: '';
             position: absolute;
@@ -153,12 +116,10 @@
             height: 100%;
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
         }
-
         .kpi-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 32px rgba(0,0,0,0.18);
         }
-
         .kpi-label {
             font-size: 13px;
             color: #666;
@@ -167,7 +128,6 @@
             letter-spacing: 1px;
             margin-bottom: 12px;
         }
-
         .kpi-value {
             font-size: 42px;
             font-weight: 700;
@@ -175,13 +135,11 @@
             line-height: 1;
             margin-bottom: 8px;
         }
-
         .kpi-sub {
             font-size: 14px;
             color: #888;
             font-weight: 500;
         }
-
         .card {
             background: white;
             padding: 30px;
@@ -189,7 +147,6 @@
             border-radius: 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
-
         .card-title {
             font-size: 20px;
             font-weight: 700;
@@ -201,7 +158,6 @@
             align-items: center;
             gap: 10px;
         }
-
         .card-title::before {
             content: '';
             width: 8px;
@@ -209,17 +165,12 @@
             background: #667eea;
             border-radius: 50%;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
-
-        thead {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
+        thead { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
         th {
             padding: 16px 14px;
             text-align: left;
@@ -230,54 +181,40 @@
             letter-spacing: 0.5px;
             border-bottom: 2px solid #dee2e6;
         }
-
         td {
             padding: 14px;
             font-size: 14px;
             color: #495057;
             border-bottom: 1px solid #f1f3f5;
         }
-
-        tbody tr {
-            transition: all 0.2s;
-        }
-
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-
+        tbody tr { transition: all 0.2s; }
+        tbody tr:hover { background: #f8f9fa; }
         .total-row {
             background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%) !important;
             font-weight: 700;
         }
-
         .total-row td {
             color: #1b5e20;
             font-weight: 700;
         }
-
         .grid-2 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
             gap: 25px;
             margin-bottom: 25px;
         }
-
-        /* Shift-wise section */
         .shift-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
-
         .shift-mine {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 12px;
             border-left: 4px solid #667eea;
         }
-
         .shift-mine-title {
             font-size: 18px;
             font-weight: 700;
@@ -286,31 +223,32 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #dee2e6;
         }
-
-        .shift-data {
+        .shift-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
             margin: 10px 0;
         }
-
+        .shift-data {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
         .shift-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
             font-weight: 600;
             text-transform: uppercase;
+            margin-bottom: 4px;
         }
-
         .shift-value {
             font-size: 16px;
             font-weight: 700;
             color: #333;
-            margin-top: 4px;
         }
-
         @media (max-width: 1200px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
+            .grid-2 { grid-template-columns: 1fr; }
         }
-
         @media (max-width: 768px) {
             .header h1 { font-size: 24px; }
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -320,7 +258,6 @@
             th, td { padding: 10px 8px; }
             .shift-grid { grid-template-columns: 1fr; }
         }
-
         @media print {
             body { background: white; padding: 0; }
             .header-actions { display: none; }
@@ -522,17 +459,15 @@
             return parseCSV(await response.text());
         }
 
-        function findTextColumns(row, startCol = 0) {
-            const textColumns = [];
-
-            for (let i = startCol; i < row.length; i++) {
-                const cell = (row[i] || '').toString().trim();
-                if (cell.length > 20 && cell.match(/[a-zA-Z]/)) {
-                    textColumns.push(i);
+        // Find column by header name
+        function findColumnByHeader(headerRow, searchText) {
+            for (let i = 0; i < headerRow.length; i++) {
+                const header = (headerRow[i] || '').toString().toLowerCase();
+                if (header.includes(searchText.toLowerCase())) {
+                    return i;
                 }
             }
-
-            return textColumns;
+            return -1;
         }
 
         async function loadAllData() {
@@ -544,7 +479,6 @@
                 const edData = await fetchSheet('ED Dashboard');
                 console.log(`✅ Loaded ${edData.length} rows from ED Dashboard`);
 
-                // Fetch mine sheets for shift data
                 const bolaniData = await fetchSheet('Bolani Input');
                 const barsuaData = await fetchSheet('Barsua Input');
                 const taldihData = await fetchSheet('Taldih Input');
@@ -572,8 +506,8 @@
                 renderShiftOperations(shifts);
 
                 statusEl.className = 'status success';
-                statusEl.textContent = '✅ All data loaded successfully!';
-                setTimeout(() => statusEl.className = 'status status-hidden', 3000);
+                statusEl.textContent = '✅ All data loaded successfully! Check console (F12) for details.';
+                setTimeout(() => statusEl.className = 'status status-hidden', 4000);
 
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleTimeString();
                 startCountdown();
@@ -581,7 +515,7 @@
             } catch (error) {
                 console.error('Error:', error);
                 statusEl.className = 'status error';
-                statusEl.textContent = `❌ Error: ${error.message}. Please check your internet connection.`;
+                statusEl.textContent = `❌ Error: ${error.message}`;
             }
         }
 
@@ -676,17 +610,19 @@
 
         function extractDispatch(data) {
             const dispatch = [];
-            let startRow = -1, endRow = -1;
+            let startRow = -1, endRow = -1, headerRow = null;
+
+            console.log('\n📊 ========== DISPATCH PERFORMANCE ==========');
 
             for (let i = 0; i < data.length; i++) {
                 const rowText = data[i].join('|').toUpperCase();
                 if (rowText.includes('DISPATCH PERFORMANCE') && startRow === -1) {
                     startRow = i;
-                    console.log(`📊 DISPATCH starts at row ${i}`);
+                    console.log(`Section starts at row ${i}`);
                 }
                 if (startRow > -1 && i > startRow + 1 && (rowText.includes('LOADING FORECAST') || rowText.includes("TODAY'S") || rowText.includes('MAJOR ISSUES'))) {
                     endRow = i;
-                    console.log(`📊 DISPATCH ends at row ${i}`);
+                    console.log(`Section ends at row ${i}`);
                     break;
                 }
             }
@@ -696,38 +632,43 @@
                 return dispatch;
             }
 
+            // Find header row and column mappings
             for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
-                const row = data[i];
-                const col0 = (row[0] || '').toString().trim();
+                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
+                if (col0.includes('location')) {
+                    headerRow = data[i];
+                    console.log('Header row:', headerRow);
 
-                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    console.log(`\n📊 DISPATCH Row ${i} [${col0}]:`);
+                    const rakeDetailsCol = findColumnByHeader(headerRow, 'rake details');
+                    const remarksCol = findColumnByHeader(headerRow, 'remark');
 
-                    const textCols = findTextColumns(row, 4);
-                    console.log(`  Text columns found at: [${textCols.join(', ')}]`);
+                    console.log(`Rake Details column: ${rakeDetailsCol}`);
+                    console.log(`Remarks column: ${remarksCol}`);
 
-                    // SWAPPED ORDER: First text is Remarks, Second is Rake Details
-                    let rakeDetails = '';
-                    let remarks = '';
+                    // Extract data rows
+                    for (let j = i + 1; j < (endRow > -1 ? endRow : data.length); j++) {
+                        const row = data[j];
+                        const location = (row[0] || '').toString().trim();
 
-                    if (textCols.length >= 2) {
-                        remarks = (row[textCols[0]] || '').toString().trim(); // First = Remarks
-                        rakeDetails = (row[textCols[1]] || '').toString().trim(); // Second = Rake Details
-                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
-                        console.log(`  RakeDetails[${textCols[1]}]: "${rakeDetails.substring(0, 50)}..."`);
-                    } else if (textCols.length >= 1) {
-                        remarks = (row[textCols[0]] || '').toString().trim();
-                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
+                        if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(location)) {
+                            const rakeDetails = (row[rakeDetailsCol] || '').toString().trim();
+                            const remarks = (row[remarksCol] || '').toString().trim();
+
+                            console.log(`\n${location}:`);
+                            console.log(`  Rake Details [col ${rakeDetailsCol}]: "${rakeDetails.substring(0, 50)}..."`);
+                            console.log(`  Remarks [col ${remarksCol}]: "${remarks.substring(0, 50)}..."`);
+
+                            dispatch.push({
+                                location: location,
+                                rakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
+                                dailyCOD: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
+                                achievement: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
+                                rakeDetails: rakeDetails,
+                                remarks: remarks
+                            });
+                        }
                     }
-
-                    dispatch.push({
-                        location: col0,
-                        rakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
-                        dailyCOD: parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0,
-                        achievement: parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0,
-                        rakeDetails: rakeDetails,
-                        remarks: remarks
-                    });
+                    break;
                 }
             }
 
@@ -737,17 +678,19 @@
 
         function extractForecast(data) {
             const forecast = [];
-            let startRow = -1, endRow = -1;
+            let startRow = -1, endRow = -1, headerRow = null;
+
+            console.log('\n📋 ========== LOADING FORECAST ==========');
 
             for (let i = 0; i < data.length; i++) {
                 const rowText = data[i].join('|').toUpperCase();
                 if ((rowText.includes('LOADING FORECAST') || (rowText.includes('TODAY') && rowText.includes('LOADING'))) && startRow === -1) {
                     startRow = i;
-                    console.log(`📋 FORECAST starts at row ${i}`);
+                    console.log(`Section starts at row ${i}`);
                 }
                 if (startRow > -1 && i > startRow + 1 && (rowText.includes('SHIFT') || rowText.includes('MAJOR ISSUES'))) {
                     endRow = i;
-                    console.log(`📋 FORECAST ends at row ${i}`);
+                    console.log(`Section ends at row ${i}`);
                     break;
                 }
             }
@@ -757,36 +700,41 @@
                 return forecast;
             }
 
+            // Find header row and column mappings
             for (let i = startRow; i < (endRow > -1 ? endRow : data.length); i++) {
-                const row = data[i];
-                const col0 = (row[0] || '').toString().trim();
+                const col0 = (data[i][0] || '').toString().trim().toLowerCase();
+                if (col0.includes('location')) {
+                    headerRow = data[i];
+                    console.log('Header row:', headerRow);
 
-                if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(col0)) {
-                    console.log(`\n📋 FORECAST Row ${i} [${col0}]:`);
+                    const rakeDetailsCol = findColumnByHeader(headerRow, 'rake details');
+                    const remarksCol = findColumnByHeader(headerRow, 'remark');
 
-                    const textCols = findTextColumns(row, 2);
-                    console.log(`  Text columns found at: [${textCols.join(', ')}]`);
+                    console.log(`Rake Details column: ${rakeDetailsCol}`);
+                    console.log(`Remarks column: ${remarksCol}`);
 
-                    // SWAPPED ORDER: First text is Remarks, Second is Rake Details
-                    let rakeDetails = '';
-                    let remarks = '';
+                    // Extract data rows
+                    for (let j = i + 1; j < (endRow > -1 ? endRow : data.length); j++) {
+                        const row = data[j];
+                        const location = (row[0] || '').toString().trim();
 
-                    if (textCols.length >= 2) {
-                        remarks = (row[textCols[0]] || '').toString().trim(); // First = Remarks
-                        rakeDetails = (row[textCols[1]] || '').toString().trim(); // Second = Rake Details
-                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
-                        console.log(`  RakeDetails[${textCols[1]}]: "${rakeDetails.substring(0, 50)}..."`);
-                    } else if (textCols.length >= 1) {
-                        remarks = (row[textCols[0]] || '').toString().trim();
-                        console.log(`  Remarks[${textCols[0]}]: "${remarks.substring(0, 50)}..."`);
+                        if (['BOL', 'BAR', 'TAL', 'KAL', 'TOTAL'].includes(location)) {
+                            const rakeDetails = (row[rakeDetailsCol] || '').toString().trim();
+                            const remarks = (row[remarksCol] || '').toString().trim();
+
+                            console.log(`\n${location}:`);
+                            console.log(`  Rake Details [col ${rakeDetailsCol}]: "${rakeDetails.substring(0, 50)}..."`);
+                            console.log(`  Remarks [col ${remarksCol}]: "${remarks.substring(0, 50)}..."`);
+
+                            forecast.push({
+                                location: location,
+                                plannedRakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
+                                rakeDetails: rakeDetails,
+                                remarks: remarks
+                            });
+                        }
                     }
-
-                    forecast.push({
-                        location: col0,
-                        plannedRakes: parseFloat((row[1] || '').toString().replace(/,/g, '')) || 0,
-                        rakeDetails: rakeDetails,
-                        remarks: remarks
-                    });
+                    break;
                 }
             }
 
@@ -824,33 +772,46 @@
         }
 
         function extractShiftData(data, mineName) {
-            console.log(`⚙️ Extracting shift data for ${mineName}...`);
+            console.log(`\n⚙️ ========== ${mineName} SHIFT DATA ==========`);
 
-            let totalProduction = 0;
-            const shifts = { A: 0, B: 0, C: 0 };
+            const result = {
+                mineName: mineName,
+                totalProduction: 0,
+                shifts: {
+                    A: { production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
+                    B: { production: 0, trips: 0, operatingHrs: 0, lossTime: 0 },
+                    C: { production: 0, trips: 0, operatingHrs: 0, lossTime: 0 }
+                }
+            };
 
-            // Look for shift-wise data in mine sheets
-            for (let i = 0; i < Math.min(50, data.length); i++) {
+            // Search for shift data
+            for (let i = 0; i < Math.min(100, data.length); i++) {
                 const row = data[i];
                 const col0 = (row[0] || '').toString().trim().toUpperCase();
+                const col1 = (row[1] || '').toString().trim().toUpperCase();
 
-                // Look for shift identifiers
-                if (col0 === 'SHIFT A' || col0 === 'A SHIFT' || col0.includes('SHIFT-A')) {
-                    shifts.A = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
-                }
-                if (col0 === 'SHIFT B' || col0 === 'B SHIFT' || col0.includes('SHIFT-B')) {
-                    shifts.B = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
-                }
-                if (col0 === 'SHIFT C' || col0 === 'C SHIFT' || col0.includes('SHIFT-C')) {
-                    shifts.C = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                // Detect shift rows
+                let shift = null;
+                if (col0.includes('SHIFT A') || col0 === 'A' || col1.includes('SHIFT A')) shift = 'A';
+                else if (col0.includes('SHIFT B') || col0 === 'B' || col1.includes('SHIFT B')) shift = 'B';
+                else if (col0.includes('SHIFT C') || col0 === 'C' || col1.includes('SHIFT C')) shift = 'C';
+
+                if (shift) {
+                    // Try to extract data from various columns
+                    result.shifts[shift].trips = parseFloat((row[2] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].production = parseFloat((row[3] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].operatingHrs = parseFloat((row[6] || row[7] || '').toString().replace(/,/g, '')) || 0;
+                    result.shifts[shift].lossTime = parseFloat((row[8] || row[9] || '').toString().replace(/,/g, '')) || 0;
+
+                    console.log(`Shift ${shift}: Prod=${result.shifts[shift].production}, Trips=${result.shifts[shift].trips}, Hrs=${result.shifts[shift].operatingHrs}, Loss=${result.shifts[shift].lossTime}`);
                 }
             }
 
-            totalProduction = shifts.A + shifts.B + shifts.C;
+            result.totalProduction = result.shifts.A.production + result.shifts.B.production + result.shifts.C.production;
 
-            console.log(`  ${mineName} - Total: ${totalProduction}, A: ${shifts.A}, B: ${shifts.B}, C: ${shifts.C}`);
+            console.log(`Total Production: ${result.totalProduction}`);
 
-            return { mineName, totalProduction, shifts };
+            return result;
         }
 
         function renderKPIs(kpis) {
@@ -929,21 +890,41 @@
                 html += `
                     <div class="shift-mine">
                         <div class="shift-mine-title">🏭 ${mineData.mineName}</div>
-                        <div class="shift-data">
-                            <div class="shift-label">Total Production</div>
-                            <div class="shift-value">${mineData.totalProduction.toLocaleString()} MT</div>
+                        <div class="shift-row">
+                            <div class="shift-data">
+                                <div class="shift-label">Total Production</div>
+                                <div class="shift-value">${mineData.totalProduction.toLocaleString()} MT</div>
+                            </div>
                         </div>
-                        <div class="shift-data">
-                            <div class="shift-label">Shift A</div>
-                            <div class="shift-value">${mineData.shifts.A.toLocaleString()} MT</div>
+                        <div class="shift-row">
+                            <div class="shift-data">
+                                <div class="shift-label">Shift A - Production</div>
+                                <div class="shift-value">${mineData.shifts.A.production.toLocaleString()} MT</div>
+                            </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift A - Trips</div>
+                                <div class="shift-value">${mineData.shifts.A.trips}</div>
+                            </div>
                         </div>
-                        <div class="shift-data">
-                            <div class="shift-label">Shift B</div>
-                            <div class="shift-value">${mineData.shifts.B.toLocaleString()} MT</div>
+                        <div class="shift-row">
+                            <div class="shift-data">
+                                <div class="shift-label">Shift B - Production</div>
+                                <div class="shift-value">${mineData.shifts.B.production.toLocaleString()} MT</div>
+                            </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift B - Trips</div>
+                                <div class="shift-value">${mineData.shifts.B.trips}</div>
+                            </div>
                         </div>
-                        <div class="shift-data">
-                            <div class="shift-label">Shift C</div>
-                            <div class="shift-value">${mineData.shifts.C.toLocaleString()} MT</div>
+                        <div class="shift-row">
+                            <div class="shift-data">
+                                <div class="shift-label">Shift C - Production</div>
+                                <div class="shift-value">${mineData.shifts.C.production.toLocaleString()} MT</div>
+                            </div>
+                            <div class="shift-data">
+                                <div class="shift-label">Shift C - Trips</div>
+                                <div class="shift-value">${mineData.shifts.C.trips}</div>
+                            </div>
                         </div>
                     </div>
                 `;
