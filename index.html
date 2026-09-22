@@ -219,6 +219,57 @@
             text-shadow: 0 0 10px rgba(255,215,0,0.5);
         }
 
+        /* Mine-Specific Highlighting - Mobile Cards */
+        .bolani-contractual-card {
+            background: linear-gradient(135deg, rgba(138,43,226,0.25) 0%, rgba(75,0,130,0.25) 100%) !important;
+            border: 2px solid rgba(138,43,226,0.6) !important;
+            box-shadow: 0 0 15px rgba(138,43,226,0.4) !important;
+        }
+
+        .bolani-departmental-card {
+            background: linear-gradient(135deg, rgba(30,144,255,0.25) 0%, rgba(0,100,255,0.25) 100%) !important;
+            border: 2px solid rgba(30,144,255,0.6) !important;
+            box-shadow: 0 0 15px rgba(30,144,255,0.4) !important;
+        }
+
+        .bolani-dept-contractual-card {
+            background: linear-gradient(135deg, rgba(0,206,209,0.25) 0%, rgba(0,139,139,0.25) 100%) !important;
+            border: 2px solid rgba(0,206,209,0.6) !important;
+            box-shadow: 0 0 15px rgba(0,206,209,0.4) !important;
+        }
+
+        .barsua-card {
+            background: linear-gradient(135deg, rgba(255,140,0,0.25) 0%, rgba(255,99,71,0.25) 100%) !important;
+            border: 2px solid rgba(255,140,0,0.6) !important;
+            box-shadow: 0 0 15px rgba(255,140,0,0.4) !important;
+        }
+
+        .taldih-card {
+            background: linear-gradient(135deg, rgba(255,20,147,0.25) 0%, rgba(199,21,133,0.25) 100%) !important;
+            border: 2px solid rgba(255,20,147,0.6) !important;
+            box-shadow: 0 0 15px rgba(255,20,147,0.4) !important;
+        }
+
+        .kalta-card {
+            background: linear-gradient(135deg, rgba(50,205,50,0.25) 0%, rgba(34,139,34,0.25) 100%) !important;
+            border: 2px solid rgba(50,205,50,0.6) !important;
+            box-shadow: 0 0 15px rgba(50,205,50,0.4) !important;
+        }
+
+        .bolani-contractual-header { color: #BA55D3 !important; font-weight: 700 !important; text-shadow: 0 0 8px rgba(138,43,226,0.5); }
+        .bolani-departmental-header { color: #1E90FF !important; font-weight: 700 !important; text-shadow: 0 0 8px rgba(30,144,255,0.5); }
+        .bolani-dept-contractual-header { color: #00CED1 !important; font-weight: 700 !important; text-shadow: 0 0 8px rgba(0,206,209,0.5); }
+        .barsua-header { color: #FF8C00 !important; font-weight: 700 !important; text-shadow: 0 0 8px rgba(255,140,0,0.5); }
+        .taldih-header { color: #FF1493 !important; font-weight: 700 !important; text-shadow: 0 0 8px rgba(255,20,147,0.5); }
+        .kalta-header { color: #32CD32 !important; font-weight: 700 !important; text-shadow: 0 0 8px rgba(50,205,50,0.5); }
+
+        .bolani-contractual-value { color: #BA55D3 !important; font-weight: 700 !important; }
+        .bolani-departmental-value { color: #1E90FF !important; font-weight: 700 !important; }
+        .bolani-dept-contractual-value { color: #00CED1 !important; font-weight: 700 !important; }
+        .barsua-value { color: #FF8C00 !important; font-weight: 700 !important; }
+        .taldih-value { color: #FF1493 !important; font-weight: 700 !important; }
+        .kalta-value { color: #32CD32 !important; font-weight: 700 !important; }
+
         /* Dispatch/Forecast Cards */
         .mobile-dispatch-card {
             background: rgba(255,255,255,0.08);
@@ -649,6 +700,49 @@
         table.tv-table tr.total-row-tv:hover {
             background: linear-gradient(135deg, rgba(255,215,0,0.4) 0%, rgba(255,165,0,0.4) 100%);
         }
+
+        /* Mine-Specific Styling for TV Tables */
+        table.tv-table tr.bolani-contractual-row {
+            background: linear-gradient(135deg, rgba(138,43,226,0.2) 0%, rgba(75,0,130,0.2) 100%);
+            border-top: 2px solid rgba(138,43,226,0.5);
+            border-bottom: 2px solid rgba(138,43,226,0.5);
+        }
+        table.tv-table tr.bolani-contractual-row td { font-weight: 700 !important; color: #BA55D3 !important; }
+
+        table.tv-table tr.bolani-departmental-row {
+            background: linear-gradient(135deg, rgba(30,144,255,0.2) 0%, rgba(0,100,255,0.2) 100%);
+            border-top: 2px solid rgba(30,144,255,0.5);
+            border-bottom: 2px solid rgba(30,144,255,0.5);
+        }
+        table.tv-table tr.bolani-departmental-row td { font-weight: 700 !important; color: #1E90FF !important; }
+
+        table.tv-table tr.bolani-dept-contractual-row {
+            background: linear-gradient(135deg, rgba(0,206,209,0.2) 0%, rgba(0,139,139,0.2) 100%);
+            border-top: 2px solid rgba(0,206,209,0.5);
+            border-bottom: 2px solid rgba(0,206,209,0.5);
+        }
+        table.tv-table tr.bolani-dept-contractual-row td { font-weight: 700 !important; color: #00CED1 !important; }
+
+        table.tv-table tr.barsua-row {
+            background: linear-gradient(135deg, rgba(255,140,0,0.2) 0%, rgba(255,99,71,0.2) 100%);
+            border-top: 2px solid rgba(255,140,0,0.5);
+            border-bottom: 2px solid rgba(255,140,0,0.5);
+        }
+        table.tv-table tr.barsua-row td { font-weight: 700 !important; color: #FF8C00 !important; }
+
+        table.tv-table tr.taldih-row {
+            background: linear-gradient(135deg, rgba(255,20,147,0.2) 0%, rgba(199,21,133,0.2) 100%);
+            border-top: 2px solid rgba(255,20,147,0.5);
+            border-bottom: 2px solid rgba(255,20,147,0.5);
+        }
+        table.tv-table tr.taldih-row td { font-weight: 700 !important; color: #FF1493 !important; }
+
+        table.tv-table tr.kalta-row {
+            background: linear-gradient(135deg, rgba(50,205,50,0.2) 0%, rgba(34,139,34,0.2) 100%);
+            border-top: 2px solid rgba(50,205,50,0.5);
+            border-bottom: 2px solid rgba(50,205,50,0.5);
+        }
+        table.tv-table tr.kalta-row td { font-weight: 700 !important; color: #32CD32 !important; }
 
         /* Grid Layouts */
         .grid-2-tv {
@@ -1324,6 +1418,62 @@
             `;
         }
 
+        // Helper function to get mine-specific styling
+        function getMineStyle(mineName) {
+            const name = mineName.toLowerCase().trim();
+
+            if (name.includes('bolani') && name.includes('contractual') && !name.includes('dept')) {
+                return {
+                    cardClass: 'bolani-contractual-card',
+                    headerClass: 'bolani-contractual-header',
+                    valueClass: 'bolani-contractual-value',
+                    rowClass: 'bolani-contractual-row'
+                };
+            }
+            if (name.includes('bolani') && name.includes('departmental')) {
+                return {
+                    cardClass: 'bolani-departmental-card',
+                    headerClass: 'bolani-departmental-header',
+                    valueClass: 'bolani-departmental-value',
+                    rowClass: 'bolani-departmental-row'
+                };
+            }
+            if (name.includes('bolani') && (name.includes('dept') || name.includes('department')) && name.includes('contractual')) {
+                return {
+                    cardClass: 'bolani-dept-contractual-card',
+                    headerClass: 'bolani-dept-contractual-header',
+                    valueClass: 'bolani-dept-contractual-value',
+                    rowClass: 'bolani-dept-contractual-row'
+                };
+            }
+            if (name.includes('barsua')) {
+                return {
+                    cardClass: 'barsua-card',
+                    headerClass: 'barsua-header',
+                    valueClass: 'barsua-value',
+                    rowClass: 'barsua-row'
+                };
+            }
+            if (name.includes('taldih')) {
+                return {
+                    cardClass: 'taldih-card',
+                    headerClass: 'taldih-header',
+                    valueClass: 'taldih-value',
+                    rowClass: 'taldih-row'
+                };
+            }
+            if (name.includes('kalta')) {
+                return {
+                    cardClass: 'kalta-card',
+                    headerClass: 'kalta-header',
+                    valueClass: 'kalta-value',
+                    rowClass: 'kalta-row'
+                };
+            }
+
+            return null; // No special styling
+        }
+
         function renderMobileProduction(production, overallAchievement) {
             console.log('📱 Mobile Production Rendering:', production);
             if (!production || production.length === 0) {
@@ -1336,13 +1486,32 @@
                 const achievementValue = (mine.isTotal && !mine.achievement) ? overallAchievement : mine.achievement;
                 console.log(`  Mine ${idx}: ${mine.mine} - Achievement: ${achievementValue} (isTotal: ${mine.isTotal})`);
 
-                // Apply beautiful styling for total/group rows
-                const cardClass = mine.isTotal ? 'mobile-mine-card total-row-card' : 'mobile-mine-card';
-                const headerClass = mine.isTotal ? 'mobile-mine-name total-row-header' : 'mobile-mine-name';
-                const valueClass = mine.isTotal ? 'mobile-data-value total-row-value' : 'mobile-data-value';
-                const labelStyle = mine.isTotal ? 'color: #FFD700; font-weight: 600;' : '';
+                // Get mine-specific styling first
+                const mineStyle = getMineStyle(mine.mine);
 
-                return `<div class="${cardClass}" style="${mine.isTotal ? 'z-index: 1;' : ''}">
+                // Apply styling: mine-specific > total row > default
+                let cardClass, headerClass, valueClass, labelStyle;
+                if (mineStyle) {
+                    // Mine-specific styling (Bolani variants, Barsua, Taldih, Kalta)
+                    cardClass = 'mobile-mine-card ' + mineStyle.cardClass;
+                    headerClass = 'mobile-mine-name ' + mineStyle.headerClass;
+                    valueClass = 'mobile-data-value ' + mineStyle.valueClass;
+                    labelStyle = '';
+                } else if (mine.isTotal) {
+                    // Total/Group rows (ODISHA Group)
+                    cardClass = 'mobile-mine-card total-row-card';
+                    headerClass = 'mobile-mine-name total-row-header';
+                    valueClass = 'mobile-data-value total-row-value';
+                    labelStyle = 'color: #FFD700; font-weight: 600;';
+                } else {
+                    // Default styling
+                    cardClass = 'mobile-mine-card';
+                    headerClass = 'mobile-mine-name';
+                    valueClass = 'mobile-data-value';
+                    labelStyle = '';
+                }
+
+                return `<div class="${cardClass}" style="${(mine.isTotal || mineStyle) ? 'z-index: 1;' : ''}">
                     <div class="mobile-mine-header">
                         <div class="${headerClass}">${mine.isTotal ? '🏆 ' : ''}${mine.mine}</div>
                         <div class="mobile-mine-type">${mine.type}</div>
@@ -1366,7 +1535,7 @@
                         </div>
                         <div class="mobile-data-item" style="background: rgba(76,175,80,0.2); padding: 8px; border-radius: 6px;">
                             <div class="mobile-data-label" style="color: #4CAF50; font-weight: 600;">Lump %</div>
-                            <div class="${mine.isTotal ? 'total-row-value' : 'mobile-data-value'}" style="color: #4CAF50; font-size: 18px;">${mine.lumpPercent > 0 ? mine.lumpPercent.toFixed(2) : '0.00'}%</div>
+                            <div class="${mineStyle ? mineStyle.valueClass : (mine.isTotal ? 'total-row-value' : 'mobile-data-value')}" style="color: #4CAF50; font-size: 18px;">${mine.lumpPercent > 0 ? mine.lumpPercent.toFixed(2) : '0.00'}%</div>
                         </div>
                         <div class="mobile-data-item">
                             <div class="mobile-data-label" style="${labelStyle}">Daily Plan</div>
@@ -1605,14 +1774,29 @@
 
             let html = '';
             production.forEach(p => {
-                html += `<tr${p.isTotal ? ' class="total-row-tv"' : ''}>
+                // Get mine-specific styling first
+                const mineStyle = getMineStyle(p.mine);
+
+                // Apply styling: mine-specific > total row > default
+                let rowClass = '';
+                let lumpColor = '#4CAF50';
+                if (mineStyle) {
+                    // Mine-specific styling (Bolani variants, Barsua, Taldih, Kalta)
+                    rowClass = ' class="' + mineStyle.rowClass + '"';
+                } else if (p.isTotal) {
+                    // Total/Group rows (ODISHA Group)
+                    rowClass = ' class="total-row-tv"';
+                    lumpColor = '#FFD700';
+                }
+
+                html += `<tr${rowClass}>
                     <td><strong>${p.isTotal ? '🏆 ' : ''}${p.mine}</strong></td>
                     <td>${p.type}</td>
                     <td>${p.total > 0 ? p.total.toLocaleString() : ''}</td>
                     <td>${p.lump > 0 ? p.lump.toLocaleString() : ''}</td>
                     <td>${p.fines > 0 ? p.fines.toLocaleString() : ''}</td>
                     <td>${p.rom > 0 ? p.rom.toLocaleString() : ''}</td>
-                    <td><strong style="color:${p.isTotal ? '#FFD700' : '#4CAF50'};">${p.lumpPercent > 0 ? p.lumpPercent.toFixed(2) : ''}</strong></td>
+                    <td><strong style="color:${lumpColor};">${p.lumpPercent > 0 ? p.lumpPercent.toFixed(2) : ''}</strong></td>
                     <td>${p.plan > 0 ? p.plan.toLocaleString() : ''}</td>
                     <td>${p.achievement > 0 ? p.achievement.toFixed(2) : ''}</td>
                 </tr>`;
