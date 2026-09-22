@@ -221,10 +221,45 @@
         /* MOBILE RESPONSIVE (Android/iPhone)          */
         /* ============================================ */
         @media screen and (max-width: 768px) {
+            /* Mobile: Enable vertical scrolling, show all sections */
+            body {
+                overflow-y: auto !important;
+                height: auto !important;
+            }
+
+            .tv-screen {
+                overflow-y: auto !important;
+                height: auto !important;
+                min-height: 100vh;
+                padding-bottom: 30px;
+            }
+
+            .section {
+                display: block !important;
+                position: relative !important;
+                opacity: 1 !important;
+                transform: none !important;
+                margin-bottom: 20px;
+            }
+
+            /* Hide controls on mobile */
+            .control-panel {
+                display: none !important;
+            }
+
+            .section-indicators {
+                display: none !important;
+            }
+
+            .progress-bar {
+                display: none !important;
+            }
+
             .tv-header {
                 padding: 12px 15px;
                 flex-direction: column;
                 gap: 10px;
+                position: sticky;
             }
 
             .tv-header h1 {
@@ -252,9 +287,14 @@
                 font-size: 14px;
             }
 
+            .sections-container {
+                margin-top: 100px;
+                padding-top: 0;
+            }
+
             .section {
                 padding: 12px 8px;
-                overflow-y: auto;
+                overflow-y: visible;
             }
 
             #section-1 {
@@ -1837,13 +1877,16 @@
             el.style.transform = `translate(${xPos}px, ${yPos}px)`;
         }
 
-        // Swipe gesture support for mobile
+        // Swipe gesture support for TV/Desktop only (NOT mobile)
         let touchStartX = 0;
         let touchStartY = 0;
         let touchEndX = 0;
         let touchEndY = 0;
 
         document.addEventListener('touchstart', (e) => {
+            // Disable swipe navigation on mobile - ED wants manual scrolling
+            if (isMobile || isTablet) return;
+
             // Don't handle swipe if touching control panel
             if (e.target.closest('.control-panel')) return;
 
@@ -1852,6 +1895,9 @@
         }, { passive: true });
 
         document.addEventListener('touchend', (e) => {
+            // Disable swipe navigation on mobile - ED wants manual scrolling
+            if (isMobile || isTablet) return;
+
             // Don't handle swipe if touching control panel
             if (e.target.closest('.control-panel')) return;
 
@@ -1861,6 +1907,8 @@
         }, { passive: true });
 
         function handleSwipe() {
+            // Disable swipe navigation on mobile
+            if (isMobile || isTablet) return;
             const swipeThreshold = 50; // Minimum distance for a swipe
             const deltaX = touchEndX - touchStartX;
             const deltaY = touchEndY - touchStartY;
@@ -1968,21 +2016,41 @@
         // Initialize
         window.addEventListener('load', () => {
             startDataRefresh();
-            startAutoRotation();
-            addDeviceBadge();
 
-            // Remove drag hint after animation
-            const dragHint = document.getElementById('drag-hint');
-            setTimeout(() => {
-                if (dragHint) dragHint.remove();
-            }, 4500);
-
-            // Show fullscreen button on mobile
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
             if (isMobile || isTablet) {
-                fullscreenBtn.style.display = 'flex';
+                // MOBILE MODE - No auto-rotation, show all sections vertically
+                console.log('📱 Mobile Mode Active:');
+                console.log('- All sections visible (scroll to view)');
+                console.log('- No auto-rotation');
+                console.log('- Swipe tables horizontally to see all data');
 
-                // Add scroll hints to tables on mobile
+                // Hide control panel on mobile
+                const controlPanel = document.getElementById('control-panel');
+                if (controlPanel) controlPanel.style.display = 'none';
+
+                // Hide section indicators
+                const sectionIndicators = document.getElementById('section-indicators');
+                if (sectionIndicators) sectionIndicators.style.display = 'none';
+
+                // Hide progress bar
+                const progressBar = document.getElementById('progress-bar');
+                if (progressBar) progressBar.style.display = 'none';
+
+                // Show all sections simultaneously
+                const sections = document.querySelectorAll('.section');
+                sections.forEach(section => {
+                    section.style.display = 'block';
+                    section.style.position = 'relative';
+                    section.style.opacity = '1';
+                    section.style.transform = 'none';
+                });
+
+                // Enable vertical scrolling
+                document.body.style.overflow = 'auto';
+                document.querySelector('.tv-screen').style.overflow = 'auto';
+                document.querySelector('.tv-screen').style.height = 'auto';
+
+                // Add scroll hints to tables
                 const tableContainers = document.querySelectorAll('.table-container-tv');
                 tableContainers.forEach(container => {
                     container.classList.add('scroll-hint');
@@ -1994,18 +2062,24 @@
                         container.classList.remove('scroll-hint');
                     });
                 }, 10000);
+
+            } else {
+                // TV/DESKTOP MODE - Auto-rotation with controls
+                startAutoRotation();
+
+                console.log('📺 TV Mode Active:');
+                console.log('- Auto-rotation enabled (10s per section)');
+                console.log('- Controls available');
+                console.log('- Press Pause to stop rotation');
             }
 
-            // Show mobile-specific tips
-            if (isMobile) {
-                console.log('📱 Mobile Mode Active:');
-                console.log('- Swipe LEFT/RIGHT to navigate sections');
-                console.log('- Tap anywhere to pause/resume');
-                console.log('- Swipe tables horizontally to see all data');
-                console.log('- Longer auto-rotation (15s per section)');
-                console.log('- Touch-optimized controls');
-                console.log('- Fullscreen button available');
-            }
+            addDeviceBadge();
+
+            // Remove drag hint after animation
+            const dragHint = document.getElementById('drag-hint');
+            setTimeout(() => {
+                if (dragHint) dragHint.remove();
+            }, 4500);
         });
     </script>
 </body>
