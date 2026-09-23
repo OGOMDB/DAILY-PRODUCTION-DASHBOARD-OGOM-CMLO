@@ -1975,11 +1975,11 @@
             const actualBarWidth = barWidth - gap;
 
             mines.forEach((mine, i) => {
-                const barHeight = (mine.total / maxProd) * (height - 60);
+                const barHeight = (mine.total / maxProd) * (height - 80);
                 const x = 50 + i * barWidth;
-                const y = height - barHeight - 30;
+                const y = height - barHeight - 50;
 
-                // Draw bar
+                // Draw bar with mine-specific colors
                 const colors = {
                     'bolani': '#FF6347',
                     'barsua': '#FF8C00',
@@ -1997,19 +1997,19 @@
                 ctx.fillStyle = color;
                 ctx.fillRect(x, y, actualBarWidth, barHeight);
 
-                // Mine name
-                ctx.save();
-                ctx.translate(x + actualBarWidth / 2, height - 5);
-                ctx.rotate(-Math.PI / 4);
+                // Mine name - horizontal, wrapped
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = '11px Arial';
-                ctx.textAlign = 'right';
-                ctx.fillText(mine.mine.substring(0, 15), 0, 0);
-                ctx.restore();
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'center';
+                const words = mine.mine.split(' ');
+                let line1 = words.slice(0, 2).join(' ');
+                let line2 = words.slice(2).join(' ');
+                ctx.fillText(line1.substring(0, 12), x + actualBarWidth / 2, height - 32);
+                if (line2) ctx.fillText(line2.substring(0, 12), x + actualBarWidth / 2, height - 22);
 
-                // Value
+                // Value on bar
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 12px Arial';
+                ctx.font = 'bold 10px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText(mine.total.toLocaleString(), x + actualBarWidth / 2, y - 5);
             });
@@ -2072,25 +2072,25 @@
                 ctx.fill();
             }
 
-            // Legend
-            ctx.font = '12px Arial';
+            // Legend - compact
+            ctx.font = '9px Arial';
             ctx.textAlign = 'left';
-            const legendY = height - 50;
+            const legendY = height - 38;
             ctx.fillStyle = '#4CAF50';
-            ctx.fillRect(10, legendY, 15, 15);
+            ctx.fillRect(8, legendY, 12, 12);
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(`Lump: ${totalLump.toLocaleString()}`, 30, legendY + 12);
+            ctx.fillText(`Lump: ${totalLump.toLocaleString()}MT`, 24, legendY + 10);
 
             ctx.fillStyle = '#FF8C00';
-            ctx.fillRect(10, legendY + 20, 15, 15);
+            ctx.fillRect(8, legendY + 15, 12, 12);
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(`Fines: ${totalFines.toLocaleString()}`, 30, legendY + 32);
+            ctx.fillText(`Fines: ${totalFines.toLocaleString()}MT`, 24, legendY + 25);
 
             if (totalROM > 0) {
                 ctx.fillStyle = '#1E90FF';
-                ctx.fillRect(10, legendY + 40, 15, 15);
+                ctx.fillRect(8, legendY + 30, 12, 12);
                 ctx.fillStyle = '#FFFFFF';
-                ctx.fillText(`ROM: ${totalROM.toLocaleString()}`, 30, legendY + 52);
+                ctx.fillText(`ROM: ${totalROM.toLocaleString()}MT`, 24, legendY + 40);
             }
         }
 
@@ -2111,26 +2111,26 @@
             const actualBarWidth = barWidth - gap;
 
             locations.forEach((loc, i) => {
-                const barHeight = (loc.rakes / maxRakes) * (height - 60);
+                const barHeight = (loc.rakes / maxRakes) * (height - 70);
                 const x = 40 + i * barWidth;
-                const y = height - barHeight - 30;
+                const y = height - barHeight - 45;
 
                 ctx.fillStyle = '#1E90FF';
                 ctx.fillRect(x, y, actualBarWidth, barHeight);
 
-                // Location name
-                ctx.save();
-                ctx.translate(x + actualBarWidth / 2, height - 5);
-                ctx.rotate(-Math.PI / 4);
+                // Location name - horizontal, wrapped
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = '11px Arial';
-                ctx.textAlign = 'right';
-                ctx.fillText(loc.location.substring(0, 15), 0, 0);
-                ctx.restore();
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'center';
+                const words = loc.location.split(' ');
+                let line1 = words.slice(0, 2).join(' ');
+                let line2 = words.slice(2).join(' ');
+                ctx.fillText(line1.substring(0, 10), x + actualBarWidth / 2, height - 28);
+                if (line2) ctx.fillText(line2.substring(0, 10), x + actualBarWidth / 2, height - 18);
 
                 // Value
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 13px Arial';
+                ctx.font = 'bold 11px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText(loc.rakes, x + actualBarWidth / 2, y - 5);
             });
@@ -2153,26 +2153,26 @@
             const actualBarWidth = barWidth - gap;
 
             locations.forEach((loc, i) => {
-                const barHeight = (loc.plannedRakes / maxRakes) * (height - 60);
+                const barHeight = (loc.plannedRakes / maxRakes) * (height - 70);
                 const x = 40 + i * barWidth;
-                const y = height - barHeight - 30;
+                const y = height - barHeight - 45;
 
                 ctx.fillStyle = '#FF1493';
                 ctx.fillRect(x, y, actualBarWidth, barHeight);
 
-                // Location name
-                ctx.save();
-                ctx.translate(x + actualBarWidth / 2, height - 5);
-                ctx.rotate(-Math.PI / 4);
+                // Location name - horizontal, wrapped
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = '11px Arial';
-                ctx.textAlign = 'right';
-                ctx.fillText(loc.location.substring(0, 15), 0, 0);
-                ctx.restore();
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'center';
+                const words = loc.location.split(' ');
+                let line1 = words.slice(0, 2).join(' ');
+                let line2 = words.slice(2).join(' ');
+                ctx.fillText(line1.substring(0, 10), x + actualBarWidth / 2, height - 28);
+                if (line2) ctx.fillText(line2.substring(0, 10), x + actualBarWidth / 2, height - 18);
 
                 // Value
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 13px Arial';
+                ctx.font = 'bold 11px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText(loc.plannedRakes, x + actualBarWidth / 2, y - 5);
             });
