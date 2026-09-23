@@ -965,7 +965,10 @@
             <!-- Section 1: Welcome Page -->
             <div class="section active" id="section-1" style="background: #FFFFFF;">
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 120px 40px 40px 40px;">
-                    <img src="sail_logo.png" alt="SAIL Logo" onerror="console.error('Logo failed to load'); this.style.display='none';" onload="console.log('Logo loaded successfully')" style="max-width: 600px; margin-bottom: 60px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));">
+                    <img id="sailLogo" src="sail_logo.png" alt="SAIL Logo"
+                         onerror="console.error('❌ Logo failed:', this.src); this.src='sail-logo.png';"
+                         onload="console.log('✅ Logo loaded:', this.src)"
+                         style="max-width: 600px; margin-bottom: 60px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));">
                     <h1 style="font-size: 56px; font-weight: 800; color: #1e3c72; text-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; letter-spacing: 2px;">WELCOME TO</h1>
                     <h2 style="font-size: 48px; font-weight: 700; color: #2a5298; line-height: 1.4; margin-bottom: 30px;">MINING DASHBOARD OF<br>ODISHA GROUP OF MINES</h2>
                     <div style="width: 300px; height: 4px; background: linear-gradient(90deg, transparent, #1e3c72, transparent); margin: 30px auto;"></div>
