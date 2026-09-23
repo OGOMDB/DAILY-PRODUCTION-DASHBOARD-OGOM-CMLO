@@ -591,8 +591,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            padding: 20px 40px;
-            overflow-y: auto;
+            padding: 15px 30px;
+            overflow: hidden;
             opacity: 0;
             transform: translateX(100%);
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -605,10 +605,10 @@
         }
 
         .section-title {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
-            margin-bottom: 20px;
-            padding: 15px 20px;
+            margin-bottom: 8px;
+            padding: 8px 20px;
             background: rgba(102, 126, 234, 0.2);
             border-left: 5px solid #667eea;
             border-radius: 8px;
@@ -618,39 +618,39 @@
         .kpi-grid-tv {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
         .kpi-card-tv {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 12px;
             text-align: center;
             border: 2px solid rgba(102, 126, 234, 0.3);
             transition: transform 0.3s;
         }
 
         .kpi-card-tv:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
         }
 
         .kpi-label-tv {
-            font-size: 14px;
+            font-size: 12px;
             opacity: 0.8;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .kpi-value-tv {
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 700;
             color: #4CAF50;
         }
 
         .kpi-sub-tv {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.7;
-            margin-top: 8px;
+            margin-top: 4px;
         }
 
         /* Tables - TV */
@@ -667,17 +667,17 @@
 
         table.tv-table th {
             background: rgba(102, 126, 234, 0.3);
-            padding: 12px;
+            padding: 8px 10px;
             text-align: left;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             border-bottom: 2px solid rgba(102, 126, 234, 0.5);
         }
 
         table.tv-table td {
-            padding: 12px;
+            padding: 6px 10px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-size: 14px;
+            font-size: 12px;
         }
 
         table.tv-table tr:hover {
@@ -756,38 +756,40 @@
         .shift-grid-tv {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 15px;
+            height: 100%;
         }
 
         .shift-mine-tv {
             background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 12px;
             border-left: 4px solid #FF9800;
+            height: 100%;
         }
 
         .shift-mine-title-tv {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             color: #FF9800;
         }
 
         .shift-total-tv {
             background: rgba(255,152,0,0.2);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
             text-align: center;
         }
 
         .shift-total-label-tv {
-            font-size: 14px;
+            font-size: 11px;
             opacity: 0.8;
         }
 
         .shift-total-value-tv {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
             color: #FF9800;
         }
@@ -795,32 +797,32 @@
         .shift-metrics-tv {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
 
         .shift-metric-tv {
             background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 6px;
+            padding: 6px;
+            border-radius: 5px;
             text-align: center;
         }
 
         .shift-metric-label-tv {
-            font-size: 11px;
+            font-size: 10px;
             opacity: 0.7;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .shift-metric-value-tv {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
         }
 
         .shift-detail-header-tv {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 700;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
+            margin-bottom: 6px;
+            padding-bottom: 3px;
             border-bottom: 1px solid rgba(255,255,255,0.2);
         }
 
@@ -964,73 +966,69 @@
         <div class="sections-container">
             <!-- Section 1: Welcome Page -->
             <div class="section active" id="section-1" style="background: #FFFFFF;">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 120px 40px 40px 40px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 80px 40px 40px 40px;">
                     <img id="sailLogo" src="sail_logo.png" alt="SAIL Logo"
                          onerror="console.error('❌ Logo failed:', this.src); this.src='sail-logo.png';"
                          onload="console.log('✅ Logo loaded:', this.src)"
-                         style="max-width: 600px; margin-bottom: 60px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));">
-                    <h1 style="font-size: 56px; font-weight: 800; color: #1e3c72; text-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; letter-spacing: 2px;">WELCOME TO</h1>
-                    <h2 style="font-size: 48px; font-weight: 700; color: #2a5298; line-height: 1.4; margin-bottom: 30px;">MINING DASHBOARD OF<br>ODISHA GROUP OF MINES</h2>
-                    <div style="width: 300px; height: 4px; background: linear-gradient(90deg, transparent, #1e3c72, transparent); margin: 30px auto;"></div>
-                    <p style="font-size: 24px; color: #555555; margin-top: 20px; font-weight: 500;">Real-Time Operations Monitoring</p>
+                         style="max-width: 500px; margin-bottom: 50px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));">
+                    <h1 style="font-size: 64px; font-weight: 900; color: #1e3c72; text-shadow: 0 3px 6px rgba(0,0,0,0.15); margin: 0 0 25px 0; letter-spacing: 3px; line-height: 1.2;">WELCOME TO</h1>
+                    <h2 style="font-size: 56px; font-weight: 800; color: #2a5298; text-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 0 0 25px 0; letter-spacing: 2px; line-height: 1.2;">MINING OPERATIONS DASHBOARD</h2>
+                    <h3 style="font-size: 52px; font-weight: 700; color: #1e3c72; text-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 0 0 25px 0; letter-spacing: 1px; line-height: 1.2;">ODISHA GROUP OF MINES</h3>
+                    <h4 style="font-size: 48px; font-weight: 700; color: #2a5298; text-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 0; letter-spacing: 1px; line-height: 1.2;">CMLO</h4>
+                    <div style="width: 400px; height: 5px; background: linear-gradient(90deg, transparent, #FFD700, transparent); margin: 35px auto; border-radius: 3px; box-shadow: 0 2px 8px rgba(255,215,0,0.3);"></div>
+                    <p style="font-size: 28px; color: #555555; margin-top: 20px; font-weight: 600; letter-spacing: 1px;">Real-Time Operations Monitoring</p>
                 </div>
             </div>
 
             <!-- Section 2: KPIs & Charts -->
-            <div class="section" id="section-2" style="overflow-y: auto;">
-                <div class="section-title">📊 KEY PERFORMANCE INDICATORS & CHARTS</div>
-                <div class="kpi-grid-tv" id="tv-kpis"></div>
+            <div class="section" id="section-2" style="overflow: hidden;">
+                <div class="section-title" style="padding: 15px 0; margin-bottom: 10px;">📊 KEY PERFORMANCE INDICATORS & CHARTS</div>
+                <div class="kpi-grid-tv" id="tv-kpis" style="padding: 0 30px; margin-bottom: 15px;"></div>
 
-                <!-- Visual Charts Container -->
-                <div style="padding: 20px 40px; overflow-y: auto; max-height: calc(100vh - 300px);">
-                    <!-- Row 1: Production Performance & Achievement -->
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px;">
-                            <h3 style="color: #FFD700; font-size: 18px; margin-bottom: 10px; text-align: center;">📊 Production vs Plan</h3>
-                            <canvas id="production-vs-plan-chart" style="width: 100%; height: 200px;"></canvas>
+                <!-- Visual Charts Container - Optimized for 16:9 -->
+                <div style="padding: 0 30px 20px 30px; height: calc(100vh - 320px); overflow: hidden;">
+                    <!-- Row 1: 4 Charts in Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; height: 48%; margin-bottom: 15px;">
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                            <h3 style="color: #FFD700; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📊 Production vs Plan</h3>
+                            <canvas id="production-vs-plan-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
                         </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px;">
-                            <h3 style="color: #4CAF50; font-size: 18px; margin-bottom: 10px; text-align: center;">🎯 Overall Achievement</h3>
-                            <canvas id="achievement-gauge-chart" style="width: 100%; height: 200px;"></canvas>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                            <h3 style="color: #4CAF50; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">🎯 Achievement</h3>
+                            <canvas id="achievement-gauge-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                            <h3 style="color: #32CD32; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📈 Lump vs Fines</h3>
+                            <canvas id="lump-fines-pie-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                            <h3 style="color: #1E90FF; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">🚂 Dispatch</h3>
+                            <canvas id="dispatch-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
                         </div>
                     </div>
 
-                    <!-- Row 2: Production by Mine Bar Chart -->
-                    <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
-                        <h3 style="color: #FF8C00; font-size: 18px; margin-bottom: 10px; text-align: center;">🏭 Production by Mine (Bar Chart)</h3>
-                        <canvas id="production-by-mine-chart" style="width: 100%; height: 280px;"></canvas>
-                    </div>
-
-                    <!-- Row 3: Lump vs Fines Pie Chart & Dispatch Performance -->
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px;">
-                            <h3 style="color: #32CD32; font-size: 18px; margin-bottom: 10px; text-align: center;">📈 Lump vs Fines (Pie Chart)</h3>
-                            <canvas id="lump-fines-pie-chart" style="width: 100%; height: 200px;"></canvas>
+                    <!-- Row 2: 3 Charts in Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; height: 48%;">
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                            <h3 style="color: #FF8C00; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">🏭 Production by Mine</h3>
+                            <canvas id="production-by-mine-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
                         </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px;">
-                            <h3 style="color: #1E90FF; font-size: 18px; margin-bottom: 10px; text-align: center;">🚂 Dispatch Performance (Bar Chart)</h3>
-                            <canvas id="dispatch-chart" style="width: 100%; height: 200px;"></canvas>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                            <h3 style="color: #FF1493; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📋 Loading Forecast</h3>
+                            <canvas id="forecast-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
                         </div>
-                    </div>
-
-                    <!-- Row 4: Loading Forecast & Achievement by Mine -->
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px;">
-                            <h3 style="color: #FF1493; font-size: 18px; margin-bottom: 10px; text-align: center;">📋 Loading Forecast (Bar Chart)</h3>
-                            <canvas id="forecast-chart" style="width: 100%; height: 200px;"></canvas>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px;">
-                            <h3 style="color: #FFD700; font-size: 18px; margin-bottom: 10px; text-align: center;">📊 Achievement by Mine (%)</h3>
-                            <canvas id="achievement-by-mine-chart" style="width: 100%; height: 200px;"></canvas>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                            <h3 style="color: #FFD700; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📊 Achievement by Mine</h3>
+                            <canvas id="achievement-by-mine-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Section 3: Production Table -->
-            <div class="section" id="section-3">
+            <div class="section" id="section-3" style="overflow: hidden;">
                 <div class="section-title">🏭 PRODUCTION BY MINE</div>
-                <div class="table-container-tv">
+                <div class="table-container-tv" style="max-height: calc(100vh - 200px); overflow-y: hidden; padding: 0 20px;">
                     <table class="tv-table" id="tv-production-table">
                         <thead><tr><th>Mine/Area</th><th>Type</th><th>Total (MT)</th><th>Lump (MT)</th><th>Fines (MT)</th><th>ROM (MT)</th><th>Lump %</th><th>Daily Plan</th><th>Achievement %</th></tr></thead>
                         <tbody id="tv-production-body"></tbody>
@@ -1039,9 +1037,9 @@
             </div>
 
             <!-- Section 4: Dispatch Performance -->
-            <div class="section" id="section-4">
+            <div class="section" id="section-4" style="overflow: hidden;">
                 <div class="section-title">🚂 DISPATCH PERFORMANCE</div>
-                <div class="table-container-tv">
+                <div class="table-container-tv" style="max-height: calc(100vh - 200px); overflow-y: hidden; padding: 0 20px;">
                     <table class="tv-table" id="tv-dispatch-table">
                         <thead><tr><th>Location</th><th>Rakes</th><th>Daily COD</th><th>Achievement %</th><th>Rake Details</th><th>Remarks</th></tr></thead>
                         <tbody id="tv-dispatch-body"></tbody>
@@ -1050,20 +1048,20 @@
             </div>
 
             <!-- Section 5: Loading Forecast & Major Issues -->
-            <div class="section" id="section-5">
-                <div class="grid-2-tv">
-                    <div>
+            <div class="section" id="section-5" style="overflow: hidden;">
+                <div class="grid-2-tv" style="height: calc(100vh - 180px); padding: 0 20px;">
+                    <div style="overflow: hidden;">
                         <div class="section-title">📋 TODAY'S LOADING FORECAST</div>
-                        <div class="table-container-tv">
+                        <div class="table-container-tv" style="max-height: calc(100% - 50px); overflow: hidden;">
                             <table class="tv-table" id="tv-forecast-table">
                                 <thead><tr><th>Location</th><th>Planned Rakes</th><th>Rake Details</th><th>Remarks</th></tr></thead>
                                 <tbody id="tv-forecast-body"></tbody>
                             </table>
                         </div>
                     </div>
-                    <div>
+                    <div style="overflow: hidden;">
                         <div class="section-title">⚠️ MAJOR ISSUES</div>
-                        <div class="major-issues-tv">
+                        <div class="major-issues-tv" style="max-height: calc(100% - 50px); overflow: hidden;">
                             <ul id="tv-issues-list"></ul>
                         </div>
                     </div>
@@ -1071,9 +1069,9 @@
             </div>
 
             <!-- Section 6: Shift-wise Operations -->
-            <div class="section" id="section-6">
+            <div class="section" id="section-6" style="overflow: hidden;">
                 <div class="section-title">⚙️ SHIFT-WISE OPERATIONS</div>
-                <div class="shift-grid-tv" id="tv-shifts-grid"></div>
+                <div class="shift-grid-tv" id="tv-shifts-grid" style="height: calc(100vh - 180px); overflow: hidden; padding: 0 20px;"></div>
             </div>
         </div>
     </div>
