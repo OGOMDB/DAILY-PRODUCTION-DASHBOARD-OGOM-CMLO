@@ -605,10 +605,10 @@
         }
 
         .section-title {
-            font-size: 20px;
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 8px;
-            padding: 8px 20px;
+            margin-bottom: 15px;
+            padding: 15px 25px;
             background: rgba(102, 126, 234, 0.2);
             border-left: 5px solid #667eea;
             border-radius: 8px;
@@ -618,14 +618,14 @@
         .kpi-grid-tv {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .kpi-card-tv {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
             border-radius: 12px;
-            padding: 12px;
+            padding: 20px;
             text-align: center;
             border: 2px solid rgba(102, 126, 234, 0.3);
             transition: transform 0.3s;
@@ -636,21 +636,21 @@
         }
 
         .kpi-label-tv {
-            font-size: 12px;
+            font-size: 18px;
             opacity: 0.8;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
         }
 
         .kpi-value-tv {
-            font-size: 28px;
+            font-size: 48px;
             font-weight: 700;
             color: #4CAF50;
         }
 
         .kpi-sub-tv {
-            font-size: 11px;
+            font-size: 16px;
             opacity: 0.7;
-            margin-top: 4px;
+            margin-top: 8px;
         }
 
         /* Tables - TV */
@@ -667,17 +667,17 @@
 
         table.tv-table th {
             background: rgba(102, 126, 234, 0.3);
-            padding: 8px 10px;
+            padding: 15px 15px;
             text-align: left;
-            font-size: 13px;
+            font-size: 20px;
             font-weight: 600;
             border-bottom: 2px solid rgba(102, 126, 234, 0.5);
         }
 
         table.tv-table td {
-            padding: 6px 10px;
+            padding: 12px 15px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-size: 12px;
+            font-size: 18px;
         }
 
         table.tv-table tr:hover {
@@ -694,7 +694,7 @@
         table.tv-table tr.total-row-tv td {
             font-weight: 800 !important;
             color: #FFD700 !important;
-            font-size: 18px !important;
+            font-size: 24px !important;
             text-shadow: 0 0 10px rgba(255,215,0,0.5);
         }
 
@@ -980,49 +980,10 @@
                 </div>
             </div>
 
-            <!-- Section 2: KPIs & Charts -->
+            <!-- Section 2: KPIs Only -->
             <div class="section" id="section-2" style="overflow: hidden;">
-                <div class="section-title" style="padding: 15px 0; margin-bottom: 10px;">📊 KEY PERFORMANCE INDICATORS & CHARTS</div>
+                <div class="section-title" style="padding: 15px 0; margin-bottom: 10px;">📊 KEY PERFORMANCE INDICATORS</div>
                 <div class="kpi-grid-tv" id="tv-kpis" style="padding: 0 30px; margin-bottom: 15px;"></div>
-
-                <!-- Visual Charts Container - Optimized for 16:9 -->
-                <div style="padding: 0 30px 20px 30px; height: calc(100vh - 320px); overflow: hidden;">
-                    <!-- Row 1: 4 Charts in Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; height: 48%; margin-bottom: 15px;">
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                            <h3 style="color: #FFD700; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📊 Production vs Plan</h3>
-                            <canvas id="production-vs-plan-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                            <h3 style="color: #4CAF50; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">🎯 Achievement</h3>
-                            <canvas id="achievement-gauge-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                            <h3 style="color: #32CD32; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📈 Lump vs Fines</h3>
-                            <canvas id="lump-fines-pie-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                            <h3 style="color: #1E90FF; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">🚂 Dispatch</h3>
-                            <canvas id="dispatch-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Row 2: 3 Charts in Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; height: 48%;">
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                            <h3 style="color: #FF8C00; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">🏭 Production by Mine</h3>
-                            <canvas id="production-by-mine-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                            <h3 style="color: #FF1493; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📋 Loading Forecast</h3>
-                            <canvas id="forecast-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                            <h3 style="color: #FFD700; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600;">📊 Achievement by Mine</h3>
-                            <canvas id="achievement-by-mine-chart" style="width: 100%; height: calc(100% - 30px);"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Section 3: Production Table -->
@@ -1846,8 +1807,8 @@
                 </div>
             `;
 
-            // Render charts with data
-            renderKPICharts(kpis, production, dispatch, forecast);
+            // Charts removed from Section 2
+            // renderKPICharts(kpis, production, dispatch, forecast);
         }
 
         // Global chart data storage
