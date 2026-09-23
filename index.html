@@ -1857,6 +1857,26 @@
             forecast: []
         };
 
+        // Helper function to setup canvas without zoom issues
+        function setupCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+
+            const rect = canvas.getBoundingClientRect();
+            const dpr = 1; // Fixed device pixel ratio to prevent zoom
+
+            // Only resize if not already set or size changed
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            return { canvas, ctx, width: canvas.width, height: canvas.height };
+        }
+
         function renderKPICharts(kpis, production, dispatch, forecast) {
             chartData = { production, dispatch, forecast };
 
@@ -1883,12 +1903,9 @@
         }
 
         function drawProductionVsPlan(kpis) {
-            const canvas = document.getElementById('production-vs-plan-chart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-            ctx.clearRect(0, 0, width, height);
+            const setup = setupCanvas('production-vs-plan-chart');
+            if (!setup) return;
+            const { ctx, width, height } = setup;
 
             const actual = kpis.totalProduction;
             const plan = kpis.dailyCODPlan;
@@ -1919,12 +1936,9 @@
         }
 
         function drawAchievementGauge(kpis) {
-            const canvas = document.getElementById('achievement-gauge-chart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-            ctx.clearRect(0, 0, width, height);
+            const setup = setupCanvas('achievement-gauge-chart');
+            if (!setup) return;
+            const { ctx, width, height } = setup;
 
             const centerX = width / 2;
             const centerY = height / 2 + 10;
@@ -1958,12 +1972,10 @@
         }
 
         function drawProductionByMine(production) {
-            const canvas = document.getElementById('production-by-mine-chart');
-            if (!canvas || !production) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-            ctx.clearRect(0, 0, width, height);
+            if (!production) return;
+            const setup = setupCanvas('production-by-mine-chart');
+            if (!setup) return;
+            const { ctx, width, height } = setup;
 
             // Filter out total rows and get top 8 mines
             const mines = production.filter(p => !p.isTotal && p.total > 0).slice(0, 8);
@@ -1975,9 +1987,9 @@
             const actualBarWidth = barWidth - gap;
 
             mines.forEach((mine, i) => {
-                const barHeight = (mine.total / maxProd) * (height - 80);
+                const barHeight = (mine.total / maxProd) * (height - 70);
                 const x = 50 + i * barWidth;
-                const y = height - barHeight - 50;
+                const y = height - barHeight - 45;
 
                 // Draw bar with mine-specific colors
                 const colors = {
@@ -1997,15 +2009,25 @@
                 ctx.fillStyle = color;
                 ctx.fillRect(x, y, actualBarWidth, barHeight);
 
-                // Mine name - horizontal, wrapped
+                // Mine name - horizontal, fully visible
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = '9px Arial';
+                ctx.font = 'bold 8px Arial';
                 ctx.textAlign = 'center';
-                const words = mine.mine.split(' ');
-                let line1 = words.slice(0, 2).join(' ');
-                let line2 = words.slice(2).join(' ');
-                ctx.fillText(line1.substring(0, 12), x + actualBarWidth / 2, height - 32);
-                if (line2) ctx.fillText(line2.substring(0, 12), x + actualBarWidth / 2, height - 22);
+                const name = mine.mine;
+                // Split long names into 2 lines
+                if (name.length > 10) {
+                    const mid = Math.floor(name.length / 2);
+                    const spaceIndex = name.indexOf(' ', mid - 3);
+                    if (spaceIndex > 0 && spaceIndex < name.length - 3) {
+                        ctx.fillText(name.substring(0, spaceIndex), x + actualBarWidth / 2, height - 28);
+                        ctx.fillText(name.substring(spaceIndex + 1), x + actualBarWidth / 2, height - 18);
+                    } else {
+                        ctx.fillText(name.substring(0, 10), x + actualBarWidth / 2, height - 28);
+                        ctx.fillText(name.substring(10), x + actualBarWidth / 2, height - 18);
+                    }
+                } else {
+                    ctx.fillText(name, x + actualBarWidth / 2, height - 23);
+                }
 
                 // Value on bar
                 ctx.fillStyle = '#FFFFFF';
@@ -2016,22 +2038,21 @@
         }
 
         function drawLumpFinesPie(production) {
-            const canvas = document.getElementById('lump-fines-pie-chart');
-            if (!canvas || !production) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-            ctx.clearRect(0, 0, width, height);
+            if (!production) return;
+            const setup = setupCanvas('lump-fines-pie-chart');
+            if (!setup) return;
+            const { ctx, width, height } = setup;
 
-            // Calculate totals
+            // Calculate totals - ONLY from individual mines, NOT total rows
             let totalLump = 0, totalFines = 0, totalROM = 0;
             production.forEach(p => {
-                if (!p.isTotal) {
-                    totalLump += p.lump || 0;
-                    totalFines += p.fines || 0;
-                    totalROM += p.rom || 0;
+                if (!p.isTotal && p.total > 0) {
+                    totalLump += parseFloat(p.lump) || 0;
+                    totalFines += parseFloat(p.fines) || 0;
+                    totalROM += parseFloat(p.rom) || 0;
                 }
             });
+            console.log(`Pie Chart TOTALS - Lump: ${totalLump}, Fines: ${totalFines}, ROM: ${totalROM}`);
 
             const total = totalLump + totalFines + totalROM;
             if (total === 0) return;
@@ -2095,12 +2116,10 @@
         }
 
         function drawDispatchChart(dispatch) {
-            const canvas = document.getElementById('dispatch-chart');
-            if (!canvas || !dispatch) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-            ctx.clearRect(0, 0, width, height);
+            if (!dispatch) return;
+            const setup = setupCanvas('dispatch-chart');
+            if (!setup) return;
+            const { ctx, width, height } = setup;
 
             const locations = dispatch.filter(d => d.location && d.rakes > 0);
             if (locations.length === 0) return;
@@ -2137,12 +2156,10 @@
         }
 
         function drawForecastChart(forecast) {
-            const canvas = document.getElementById('forecast-chart');
-            if (!canvas || !forecast) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-            ctx.clearRect(0, 0, width, height);
+            if (!forecast) return;
+            const setup = setupCanvas('forecast-chart');
+            if (!setup) return;
+            const { ctx, width, height } = setup;
 
             const locations = forecast.filter(f => f.location && f.plannedRakes > 0);
             if (locations.length === 0) return;
@@ -2179,12 +2196,10 @@
         }
 
         function drawAchievementByMine(production, overallAchievement) {
-            const canvas = document.getElementById('achievement-by-mine-chart');
-            if (!canvas || !production) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width = canvas.offsetWidth;
-            const height = canvas.height = canvas.offsetHeight;
-            ctx.clearRect(0, 0, width, height);
+            if (!production) return;
+            const setup = setupCanvas('achievement-by-mine-chart');
+            if (!setup) return;
+            const { ctx, width, height } = setup;
 
             const mines = production.filter(p => !p.isTotal && p.total > 0).slice(0, 6);
             if (mines.length === 0) return;
