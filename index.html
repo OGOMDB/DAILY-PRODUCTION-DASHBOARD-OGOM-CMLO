@@ -553,7 +553,7 @@
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 12px;
+            gap: 10px;
             padding: 10px 20px;
             background: rgba(0,0,0,0.8);
             border-radius: 25px;
@@ -561,8 +561,8 @@
         }
 
         .indicator-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: rgba(255,255,255,0.3);
             transition: all 0.3s;
@@ -957,13 +957,31 @@
             <div class="indicator-dot" onclick="showSection(2)"></div>
             <div class="indicator-dot" onclick="showSection(3)"></div>
             <div class="indicator-dot" onclick="showSection(4)"></div>
+            <div class="indicator-dot" onclick="showSection(5)"></div>
+            <div class="indicator-dot" onclick="showSection(6)"></div>
         </div>
 
         <div class="sections-container">
-            <!-- Section 1: KPIs & Production -->
-            <div class="section active" id="section-1">
-                <div class="section-title">📊 KEY PERFORMANCE INDICATORS & PRODUCTION</div>
+            <!-- Section 1: Welcome Page -->
+            <div class="section active" id="section-1" style="background: #FFFFFF;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 120px 40px 40px 40px;">
+                    <img src="sail_logo.png" alt="SAIL Logo" style="max-width: 600px; margin-bottom: 60px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));">
+                    <h1 style="font-size: 56px; font-weight: 800; color: #1e3c72; text-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; letter-spacing: 2px;">WELCOME TO</h1>
+                    <h2 style="font-size: 48px; font-weight: 700; color: #2a5298; line-height: 1.4; margin-bottom: 30px;">MINING DASHBOARD OF<br>ODISHA GROUP OF MINES</h2>
+                    <div style="width: 300px; height: 4px; background: linear-gradient(90deg, transparent, #1e3c72, transparent); margin: 30px auto;"></div>
+                    <p style="font-size: 24px; color: #555555; margin-top: 20px; font-weight: 500;">Real-Time Operations Monitoring</p>
+                </div>
+            </div>
+
+            <!-- Section 2: KPIs & Charts -->
+            <div class="section" id="section-2">
+                <div class="section-title">📊 KEY PERFORMANCE INDICATORS</div>
                 <div class="kpi-grid-tv" id="tv-kpis"></div>
+            </div>
+
+            <!-- Section 3: Production Table -->
+            <div class="section" id="section-3">
+                <div class="section-title">🏭 PRODUCTION BY MINE</div>
                 <div class="table-container-tv">
                     <table class="tv-table" id="tv-production-table">
                         <thead><tr><th>Mine/Area</th><th>Type</th><th>Total (MT)</th><th>Lump (MT)</th><th>Fines (MT)</th><th>ROM (MT)</th><th>Lump %</th><th>Daily Plan</th><th>Achievement %</th></tr></thead>
@@ -972,8 +990,8 @@
                 </div>
             </div>
 
-            <!-- Section 2: Dispatch Performance -->
-            <div class="section" id="section-2">
+            <!-- Section 4: Dispatch Performance -->
+            <div class="section" id="section-4">
                 <div class="section-title">🚂 DISPATCH PERFORMANCE</div>
                 <div class="table-container-tv">
                     <table class="tv-table" id="tv-dispatch-table">
@@ -983,8 +1001,8 @@
                 </div>
             </div>
 
-            <!-- Section 3: Loading Forecast & Major Issues -->
-            <div class="section" id="section-3">
+            <!-- Section 5: Loading Forecast & Major Issues -->
+            <div class="section" id="section-5">
                 <div class="grid-2-tv">
                     <div>
                         <div class="section-title">📋 TODAY'S LOADING FORECAST</div>
@@ -1004,8 +1022,8 @@
                 </div>
             </div>
 
-            <!-- Section 4: Shift-wise Operations -->
-            <div class="section" id="section-4">
+            <!-- Section 6: Shift-wise Operations -->
+            <div class="section" id="section-6">
                 <div class="section-title">⚙️ SHIFT-WISE OPERATIONS</div>
                 <div class="shift-grid-tv" id="tv-shifts-grid"></div>
             </div>
@@ -2087,12 +2105,12 @@
         }
 
         function nextSection() {
-            currentSection = currentSection >= 4 ? 1 : currentSection + 1;
+            currentSection = currentSection >= 6 ? 1 : currentSection + 1;
             showSection(currentSection);
         }
 
         function previousSection() {
-            currentSection = currentSection <= 1 ? 4 : currentSection - 1;
+            currentSection = currentSection <= 1 ? 6 : currentSection - 1;
             showSection(currentSection);
         }
 
@@ -2152,7 +2170,7 @@
             if (e.key === 'ArrowLeft') previousSection();
             if (e.key === 'ArrowRight') nextSection();
             if (e.key === ' ') { e.preventDefault(); togglePause(); }
-            if (e.key >= '1' && e.key <= '4') showSection(parseInt(e.key));
+            if (e.key >= '1' && e.key <= '6') showSection(parseInt(e.key));
         });
 
         // Update status indicator
