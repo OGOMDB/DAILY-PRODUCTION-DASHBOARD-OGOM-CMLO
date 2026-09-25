@@ -401,7 +401,7 @@
             left: 0;
             right: 0;
             background: linear-gradient(90deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
-            padding: 20px 40px;
+            padding: 25px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -410,7 +410,7 @@
         }
 
         .tv-header h1 {
-            font-size: 32px;
+            font-size: 40px;
             font-weight: 700;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
             line-height: 1.2;
@@ -420,7 +420,7 @@
             display: flex;
             gap: 30px;
             align-items: center;
-            font-size: 18px;
+            font-size: 22px;
         }
 
         .tv-meta {
@@ -431,12 +431,12 @@
         }
 
         .tv-meta-label {
-            font-size: 14px;
+            font-size: 18px;
             opacity: 0.8;
         }
 
         .tv-meta-value {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
         }
 
@@ -749,47 +749,47 @@
         .grid-2-tv {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 25px;
         }
 
         /* Shift Grid - TV */
         .shift-grid-tv {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 20px;
             height: 100%;
         }
 
         .shift-mine-tv {
             background: rgba(255,255,255,0.05);
             border-radius: 10px;
-            padding: 12px;
+            padding: 20px;
             border-left: 4px solid #FF9800;
             height: 100%;
         }
 
         .shift-mine-title-tv {
-            font-size: 16px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             color: #FF9800;
         }
 
         .shift-total-tv {
             background: rgba(255,152,0,0.2);
-            padding: 8px;
+            padding: 15px;
             border-radius: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
         .shift-total-label-tv {
-            font-size: 11px;
+            font-size: 16px;
             opacity: 0.8;
         }
 
         .shift-total-value-tv {
-            font-size: 20px;
+            font-size: 32px;
             font-weight: 700;
             color: #FF9800;
         }
@@ -797,32 +797,32 @@
         .shift-metrics-tv {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 12px;
         }
 
         .shift-metric-tv {
             background: rgba(0,0,0,0.3);
-            padding: 6px;
+            padding: 12px;
             border-radius: 5px;
             text-align: center;
         }
 
         .shift-metric-label-tv {
-            font-size: 10px;
+            font-size: 14px;
             opacity: 0.7;
-            margin-bottom: 3px;
+            margin-bottom: 6px;
         }
 
         .shift-metric-value-tv {
-            font-size: 14px;
+            font-size: 20px;
             font-weight: 600;
         }
 
         .shift-detail-header-tv {
-            font-size: 12px;
+            font-size: 18px;
             font-weight: 700;
-            margin-bottom: 6px;
-            padding-bottom: 3px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
             border-bottom: 1px solid rgba(255,255,255,0.2);
         }
 
@@ -830,7 +830,7 @@
         .major-issues-tv {
             background: rgba(244,67,54,0.1);
             border-radius: 10px;
-            padding: 20px;
+            padding: 25px;
             border-left: 4px solid #F44336;
         }
 
@@ -840,11 +840,12 @@
         }
 
         .major-issues-tv li {
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
             background: rgba(244,67,54,0.2);
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 20px;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -1104,6 +1105,45 @@
             return rows;
         }
 
+        // Google Sheets JSON Parser
+        function parseGoogleSheetsJSON(text) {
+            // Extract JSON from the Google Sheets response
+            const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/);
+            if (!jsonMatch) {
+                console.error('Failed to parse Google Sheets JSON response');
+                return [];
+            }
+
+            const jsonData = JSON.parse(jsonMatch[1]);
+            const rows = [];
+
+            if (jsonData.table && jsonData.table.rows) {
+                console.log(`📊 Total columns in JSON: ${jsonData.table.cols ? jsonData.table.cols.length : 0}`);
+                for (let i = 0; i < jsonData.table.rows.length; i++) {
+                    const row = jsonData.table.rows[i];
+                    const rowData = [];
+                    if (row.c) {
+                        for (const cell of row.c) {
+                            if (cell && cell.v !== null && cell.v !== undefined) {
+                                rowData.push(cell.v);
+                            } else {
+                                rowData.push('');
+                            }
+                        }
+                    }
+                    rows.push(rowData);
+
+                    // Debug: log forecast rows
+                    if (rowData[0] && /^(BOL|BAR|TAL|KAL)$/.test(rowData[0].toString().trim())) {
+                        console.log(`📋 Forecast row ${i}: ${rowData[0]} | Col1: ${rowData[1]} | Col2: ${rowData[2]} | Col3: ${rowData[3]} | Col4: ${rowData[4]}`);
+                    }
+                }
+            }
+
+            console.log(`✅ Parsed ${rows.length} rows from JSON`);
+            return rows;
+        }
+
         // Data Extraction Functions (FROM WORKING FILE)
         function extractKPIs(data) {
             let totalProduction = 0, lumpPercentage = 0, rakesDispatched = 0, dailyCODPlan = 0;
@@ -1259,7 +1299,7 @@
 
         function extractForecastFromInput(data) {
             const forecast = [];
-            let inSection = false;
+            let inForecastSection = false;
 
             for (let i = 0; i < data.length; i++) {
                 const row = data[i];
@@ -1267,15 +1307,16 @@
                 const rowText = row.join('|').toUpperCase();
 
                 if (rowText.includes('LOADING FORECAST')) {
-                    inSection = true;
+                    inForecastSection = true;
                     continue;
                 }
 
-                if (inSection && (rowText.includes('SHIFT') || rowText.includes('MAJOR ISSUES') || i > 200)) {
+                if (inForecastSection && (rowText.includes('SHIFT') || rowText.includes('MAJOR ISSUES') || i > 200)) {
                     break;
                 }
 
-                if (inSection && /^(BOL|BAR|TAL|KAL|Bolani|Barsua|Taldih|Kalta)/i.test(col0)) {
+                if (inForecastSection && /^(BOL|BAR|TAL|KAL|Bolani|Barsua|Taldih|Kalta)/i.test(col0)) {
+                    // Extract rake details from column C (index 2)
                     let rakeDetails = (row[2] || '').toString().trim();
                     let remarks = (row[4] || '').toString().trim();
 
@@ -1290,10 +1331,55 @@
 
                     forecast.push({
                         location: col0,
-                        plannedRakes: (row[1] || '0').toString().trim(),
-                        rakeDetails: rakeDetails,
-                        remarks: remarks
+                        plannedRakes: parseFloat((row[1] || '0').toString().replace(/,/g, '')) || 0,
+                        rakeDetails: rakeDetails.trim(),
+                        remarks: remarks.trim()
                     });
+                    console.log(`Forecast: ${col0} - Rakes: ${row[1]}, Details: "${rakeDetails.trim()}", Remarks: "${remarks.trim()}"`);
+                }
+            }
+
+            return forecast;
+        }
+
+        function extractForecastFromEDDashboard(data) {
+            const forecast = [];
+            let inSection = false;
+
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                const col0 = (row[0] || '').toString().trim();
+                const rowText = row.join('|').toUpperCase();
+
+                if (rowText.includes('LOADING FORECAST')) {
+                    inSection = true;
+                    continue;
+                }
+
+                if (inSection && (rowText.includes('SHIFT') || rowText.includes('MAJOR ISSUES') || rowText.includes('DISPATCH') || i > 200)) {
+                    break;
+                }
+
+                if (inSection && /^(BOL|BAR|TAL|KAL|Bolani|Barsua|Taldih|Kalta)/i.test(col0)) {
+                    let rakeDetails = (row[2] || '').toString().trim();
+                    let remarks = (row[3] || '').toString().trim();
+
+                    // Collect multi-line continuation
+                    for (let j = i + 1; j < Math.min(i + 5, data.length); j++) {
+                        const nextRow = data[j];
+                        const nextCol0 = (nextRow[0] || '').toString().trim();
+                        if (!nextCol0 || /^(BOL|BAR|TAL|KAL|TOTAL)/i.test(nextCol0)) break;
+                        if (nextRow[2]) rakeDetails += ' ' + nextRow[2].toString().trim();
+                        if (nextRow[3]) remarks += ' ' + nextRow[3].toString().trim();
+                    }
+
+                    forecast.push({
+                        location: col0,
+                        plannedRakes: parseFloat((row[1] || '0').toString().replace(/,/g, '')) || 0,
+                        rakeDetails: rakeDetails.trim(),
+                        remarks: remarks.trim()
+                    });
+                    console.log(`Forecast ED Dashboard: ${col0} - Rakes: ${row[1]}, Details: "${rakeDetails}", Remarks: "${remarks}"`);
                 }
             }
 
@@ -2410,10 +2496,34 @@
                 const edResponse = await fetch(edUrl, { cache: 'no-store' });
                 const edData = parseCSV(await edResponse.text());
 
-                // Load Dispatch Input
+                // Load Dispatch Input - First get yesterday's dispatch, then get forecast with rake details from specific range
                 const dispatchUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Dispatch Input&t=${timestamp}`;
                 const dispatchResponse = await fetch(dispatchUrl, { cache: 'no-store' });
                 const dispatchData = parseCSV(await dispatchResponse.text());
+
+                // Fetch forecast rake details from specific range (C14:C17 contains the rake details)
+                const forecastRakeDetailsUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Dispatch Input&range=A11:D18&t=${timestamp}`;
+                const forecastRakeDetailsResponse = await fetch(forecastRakeDetailsUrl, { cache: 'no-store' });
+                const forecastRakeDetailsText = await forecastRakeDetailsResponse.text();
+                const forecastRakeDetailsData = parseGoogleSheetsJSON(forecastRakeDetailsText);
+
+                // Merge rake details into dispatch data
+                dispatchData.forEach((row, idx) => {
+                    if (idx >= 0 && idx < dispatchData.length) {
+                        // Match rows by location
+                        const location = (row[0] || '').toString().trim();
+                        if (/^(BOL|BAR|TAL|KAL)$/i.test(location)) {
+                            // Find matching row in forecastRakeDetailsData
+                            const matchingRow = forecastRakeDetailsData.find(r =>
+                                r[0] && r[0].toString().trim().toUpperCase() === location.toUpperCase()
+                            );
+                            if (matchingRow && matchingRow[2]) {
+                                // Insert rake details from range query into column 2
+                                dispatchData[idx][2] = matchingRow[2];
+                            }
+                        }
+                    }
+                });
 
                 // Load Mine Sheets
                 const mineSheets = ['Bolani Input', 'Barsua Input', 'Taldih Input', 'Kalta Input'];
